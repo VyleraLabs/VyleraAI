@@ -1,26 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-navy: #0a192f;
+  --color-slate: #8892b0;
+  --color-light: #ccd6f6;
+  --color-cyan: #64ffda;
+  --color-glass-panel: rgba(17, 34, 64, 0.7);
+  
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Animation Physics */
+  --ease-heavy: cubic-bezier(0.22, 1, 0.36, 1); /* Approximation of easeOut heavy */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: var(--color-navy);
+  --foreground: var(--color-slate);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  overflow-x: hidden;
 }

@@ -2,64 +2,60 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="flex min-h-screen flex-col items-center justify-center bg-black text-white p-4 overflow-hidden relative">
+      {/* HUD OVERLAY */}
+      <div className="z-20 max-w-5xl w-full items-center justify-between font-mono text-xs lg:text-sm lg:flex absolute top-0 p-8">
+        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-800 bg-zinc-900/50 pb-6 pt-8 backdrop-blur-md lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
+          VYLERA LABS&nbsp;
+          <code className="font-bold text-blue-500">:: SANCTUARY PROTOCOL</code>
+        </p>
+
+      </div>
+
+      {/* CORE VISUALIZATION */}
+      <div className="relative flex place-items-center z-10">
+        {/* Glowing Core Effect */}
+        <div className="absolute -z-10 h-[300px] w-[300px] rounded-full bg-blue-600 opacity-20 blur-[100px] animate-pulse"></div>
+        <div className="absolute -z-10 h-[200px] w-[200px] translate-x-10 rounded-full bg-cyan-500 opacity-10 blur-[80px]"></div>
+
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-600 text-center z-20">
+          VYLERA AI
+        </h1>
+      </div>
+
+      {/* STRATEGIC PILLARS (For the Auditor) */}
+      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left mt-24 gap-6 z-20">
+
+        <div className="group rounded-lg border border-gray-800 px-5 py-6 transition-all hover:border-blue-500/50 hover:bg-gray-900/30">
+          <h2 className="mb-3 text-xl font-semibold text-blue-400">
+            Sovereign Core
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none ml-2">-&gt;</span>
+          </h2>
+          <p className="m-0 text-sm text-gray-400">
+            Local-first neural processing ensuring 100% data residency and privacy compliance.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="group rounded-lg border border-gray-800 px-5 py-6 transition-all hover:border-cyan-500/50 hover:bg-gray-900/30">
+          <h2 className="mb-3 text-xl font-semibold text-cyan-400">
+            Jakarta Region
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none ml-2">-&gt;</span>
+          </h2>
+          <p className="m-0 text-sm text-gray-400">
+            Optimized for low-latency edge inference in <code>asia-southeast2</code>.
+          </p>
         </div>
-      </main>
-    </div>
+
+        <div className="group rounded-lg border border-gray-800 px-5 py-6 transition-all hover:border-purple-500/50 hover:bg-gray-900/30">
+          <h2 className="mb-3 text-xl font-semibold text-purple-400">
+            Vertex AI Bridge
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none ml-2">-&gt;</span>
+          </h2>
+          <p className="m-0 text-sm text-gray-400">
+            Enterprise-grade intent automation powered by Gemini 3 Pro.
+          </p>
+        </div>
+      </div>
+    </main>
   );
 }
