@@ -66,8 +66,11 @@ export default function FooterStatus() {
             </div>
 
             {/* Right: Clock */}
-            <div className="hidden md:block w-20 text-right">
-                {time}
+            <div className="flex items-center gap-4">
+                <a href="/team" className="text-slate/60 hover:text-green-400 transition-colors hidden md:block">TEAM</a>
+                <div className="hidden md:block w-20 text-right">
+                    {time}
+                </div>
             </div>
         </motion.div>
     );
