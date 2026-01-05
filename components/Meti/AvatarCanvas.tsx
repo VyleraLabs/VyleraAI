@@ -1,26 +1,32 @@
 'use client'
 
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, useGLTF, useProgress, Html, Environment } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+
+function Loader() {
+  const { progress } = useProgress()
+  return (
+    <Html center zIndexRange={[100, 0]}>
+      <div className="text-white text-sm font-mono tracking-widest whitespace-nowrap">
+        NEURAL CORE LOADING... {progress.toFixed(0)}%
+      </div>
+    </Html>
+  )
+}
 
 function Avatar() {
   const [vrm, setVrm] = useState<any>(null)
-
-  // Custom loading logic to support VRM plugin
-  const gltf = useLoader(GLTFLoader, '/models/meti.vrm', (loader) => {
+  const gltf = useGLTF('/models/meti.vrm', undefined, undefined, (loader) => {
     loader.register((parser) => {
-      return new VRMLoaderPlugin(parser)
+      return new VRMLoaderPlugin(parser as any) as any
     })
   })
 
   useEffect(() => {
-    if (gltf && gltf.userData.vrm) {
+    if (gltf.userData.vrm) {
       const vrmInstance = gltf.userData.vrm
-      // Helper for VRM0 compatibility if needed, though most new ones are VRM1.
-      // Safe to call rotateVRM0 if it is vrm0, it checks inside.
       VRMUtils.rotateVRM0(vrmInstance)
       setVrm(vrmInstance)
     }
@@ -30,26 +36,30 @@ function Avatar() {
     if (vrm) {
       vrm.update(state.clock.getDelta())
 
-      // Idle breathing: manipulate chest bone rotation
       const chest = vrm.humanoid.getNormalizedBoneNode('chest')
       if (chest) {
          const t = state.clock.elapsedTime
-         const breath = Math.sin(t * 1.5) * 0.05 // Adjust speed and amplitude
+         const breath = Math.sin(t * 1.5) * 0.05
          chest.rotation.x = breath
       }
     }
   })
 
-  return vrm ? <primitive object={vrm.scene} /> : null
+  return <primitive object={gltf.scene} position={[0, -1, 0]} />
 }
 
 export default function AvatarCanvas() {
   return (
-    <Canvas camera={{ position: [0, 1.4, 0.8] }} gl={{ alpha: true }}>
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[1, 1, 1]} intensity={1} />
-        <Avatar />
-        <OrbitControls target={[0, 1.4, 0]} />
+    <Canvas camera={{ position: [0, 0.8, 4], fov: 30 }} gl={{ alpha: true }}>
+        <ambientLight intensity={1} />
+        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+
+        <Suspense fallback={<Loader />}>
+            <Environment preset="city" />
+            <Avatar />
+        </Suspense>
+
+        <OrbitControls target={[0, 0.8, 0]} />
     </Canvas>
   )
 }
