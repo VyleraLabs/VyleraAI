@@ -4,6 +4,7 @@ import "./globals.css";
 
 import FooterStatus from "@/components/FooterStatus";
 import NeuralStatusBar from "@/components/NeuralStatusBar";
+import NeuralTrigger from "@/components/Meti/NeuralTrigger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
       >
         {children}
+        <NeuralTrigger />
         <NeuralStatusBar />
         <FooterStatus />
       </body>
