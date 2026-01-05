@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { TuyaClient } from '@/lib/tuya';
 
 const tuyaClient = new TuyaClient();
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   // 1. Security Check: Validate x-vylera-signature header
-  const signature = req.headers.get('x-vylera-signature');
+  const signature = request.headers.get('x-vylera-signature');
 
   // Placeholder validation - in production this would be a real cryptographic verification
   if (!signature) {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   // For now, we accept any non-empty signature as per "placeholder for now" in requirements
 
   try {
-    const body = await req.json();
+    const body = await request.json();
     const { deviceId, uid } = body;
 
     if (!deviceId || !uid) {
