@@ -117,24 +117,32 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
 
       // 3. Advanced Tracking
       // Mouse position: state.pointer.x/y (-1 to 1)
-      const mouseX = -state.pointer.x // Invert for mirror effect or natural look? Usually following cursor means if cursor is right (positive), look right (negative rotation Y)
+      const mouseX = state.pointer.x * -1 // Invert X-Axis
       const mouseY = state.pointer.y // Up is positive
 
       // Helper to rotate bone towards cursor
       // Y rotation is horizontal (looking left/right) -> corresponds to mouse X
       // X rotation is vertical (looking up/down) -> corresponds to mouse Y
-      const track = (boneName: string, multiplier: number) => {
+      const track = (boneName: string, multiplier: number, clampX?: number, clampY?: number) => {
         const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
         if (bone) {
+          // Target rotations
+          let targetY = mouseX * multiplier
+          let targetX = mouseY * multiplier
+
+          // Clamp if limits are provided
+          if (clampY) targetY = THREE.MathUtils.clamp(targetY, -clampY, clampY)
+          if (clampX) targetX = THREE.MathUtils.clamp(targetX, -clampX, clampX)
+
           // Smoothly interpolate
-          bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, mouseX * multiplier, 0.1)
-          bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, mouseY * multiplier, 0.1)
+          bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, targetY, 0.1)
+          bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, targetX, 0.1)
         }
       }
 
-      // Eyes (0.5)
-      track('leftEye', 0.5)
-      track('rightEye', 0.5)
+      // Eyes (0.5) - Clamped: X +/- 0.3, Y +/- 0.5
+      track('leftEye', 0.5, 0.3, 0.5)
+      track('rightEye', 0.5, 0.3, 0.5)
 
       // Head (0.3)
       track('head', 0.3)
@@ -195,26 +203,9 @@ const AvatarCanvas = forwardRef<AvatarHandle, {}>((props, ref) => {
         <CameraRig />
 
         {/* Studio Lighting */}
-        {/* Rim Light (Cool Blue/Cyan) - Back Left */}
-        <spotLight
-          position={[-2, 2, -2]}
-          intensity={5}
-          color="#00ffff"
-          angle={0.5}
-          penumbra={1}
-        />
-
-        {/* Key Light (Warm/Neutral) - Front Right */}
-        <spotLight
-          position={[2, 2, 2]}
-          intensity={3}
-          color="#ffffff"
-          angle={0.5}
-          penumbra={0.5}
-        />
-
-        {/* Fill Light - Front */}
-        <ambientLight intensity={0.2} />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[5, 10, 5]} intensity={2.0} />
+        <spotLight position={[-5, 5, 10]} intensity={2} />
 
         <Suspense fallback={<Loader />}>
             <Avatar ref={ref} />

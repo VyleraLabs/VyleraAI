@@ -14,6 +14,7 @@ export default function InterfacePage() {
   const router = useRouter()
   const avatarRef = useRef<AvatarHandle>(null)
   const [input, setInput] = useState('')
+  const [isThinking, setIsThinking] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
       { role: 'ai', text: 'Neural Link Active. Awaiting input.' }
   ])
@@ -32,21 +33,36 @@ export default function InterfacePage() {
       const userMsg: Message = { role: 'user', text: input }
       setMessages(prev => [...prev, userMsg])
       setInput('')
+      setIsThinking(true)
 
-      // Simulate Processing Delay
-      setTimeout(() => {
-          // Mock AI Response
-          // In a real app, this would call /api/chat
-          const aiText = `I have received your query regarding "${userMsg.text}". Processing secure response.`
-          const aiMsg: Message = { role: 'ai', text: aiText }
+      try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            body: JSON.stringify({
+                message: userMsg.text,
+                history: messages
+            })
+        })
 
-          setMessages(prev => [...prev, aiMsg])
+        if (!res.ok) throw new Error('Failed to get response')
 
-          // TRIGGER VOICE
-          if (avatarRef.current) {
-              avatarRef.current.speak(aiText)
-          }
-      }, 1000)
+        const data = await res.json()
+        const aiText = data.text
+
+        const aiMsg: Message = { role: 'ai', text: aiText }
+        setMessages(prev => [...prev, aiMsg])
+
+        // TRIGGER VOICE
+        if (avatarRef.current) {
+            avatarRef.current.speak(aiText)
+        }
+      } catch (error) {
+        console.error(error)
+        const errorMsg: Message = { role: 'ai', text: 'Neural uplink failed. Please retry.' }
+        setMessages(prev => [...prev, errorMsg])
+      } finally {
+        setIsThinking(false)
+      }
   }
 
   return (
@@ -70,7 +86,7 @@ export default function InterfacePage() {
           {/* Header */}
           <div className="p-6 border-b border-white/5">
               <div className="text-xs tracking-[0.2em] text-white/30 font-sans font-bold">
-                  NEURAL LINK ACTIVE
+                  {isThinking ? 'STATUS: NEURAL PROCESSING...' : 'NEURAL LINK ACTIVE'}
               </div>
           </div>
 
