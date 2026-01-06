@@ -13,6 +13,8 @@ import Technology from "@/components/sections/Technology";
 import WhitePaper from "@/components/sections/WhitePaper";
 import TeamSection from "@/components/Landing/TeamSection";
 import NeuralTrigger from "@/components/Meti/NeuralTrigger";
+import ProblemSolution from "@/components/sections/ProblemSolution";
+import Features from "@/components/Features";
 
 export default function Home() {
   return (
@@ -20,6 +22,8 @@ export default function Home() {
       <NeuralTrigger />
       <Navbar />
       <Hero />
+      <ProblemSolution />
+      <Features />
       <Manifesto />
       <IntelligenceLayer />
       <Technology />
