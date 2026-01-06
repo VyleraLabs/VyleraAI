@@ -32,6 +32,8 @@ function CameraRig() {
 
 function Avatar() {
   const [vrm, setVrm] = useState<any>(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+
   const gltf = useGLTF('/models/meti.vrm', undefined, undefined, (loader) => {
     loader.register((parser) => {
       return new VRMLoaderPlugin(parser as any) as any
@@ -46,6 +48,29 @@ function Avatar() {
     duration: 0.15 // Duration of a blink
   })
 
+  const speak = async (text: string) => {
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        body: JSON.stringify({ text })
+      })
+      if (!res.ok) throw new Error('TTS Failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const audio = new Audio(url)
+
+      audio.onplay = () => setIsSpeaking(true)
+      audio.onended = () => {
+        setIsSpeaking(false)
+        URL.revokeObjectURL(url)
+      }
+      audio.play()
+    } catch (e) {
+      console.error(e)
+      setIsSpeaking(false)
+    }
+  }
+
   useEffect(() => {
     if (gltf.userData.vrm) {
       const vrmInstance = gltf.userData.vrm
@@ -58,6 +83,16 @@ function Avatar() {
     if (vrm) {
       vrm.update(delta)
       const t = state.clock.elapsedTime
+
+      // Lip Sync
+      if (vrm.expressionManager) {
+         if (isSpeaking) {
+             const val = Math.max(0, Math.sin(t * 20) * 0.5)
+             vrm.expressionManager.setValue('aa', val)
+         } else {
+             vrm.expressionManager.setValue('aa', 0)
+         }
+      }
 
       // 1. Initial Pose (Arms down ~75 deg)
       // 75 degrees is approx 1.3 radians
@@ -134,7 +169,19 @@ function Avatar() {
     }
   })
 
-  return <primitive object={gltf.scene} position={[0, 0, 0]} />
+  return (
+    <group>
+        <primitive object={gltf.scene} position={[0, 0, 0]} />
+        <Html position={[0, 1.15, 0.1]} zIndexRange={[100, 0]} transform>
+            <button
+                onClick={() => speak("System online. Vylera neural core active.")}
+                className="px-4 py-2 bg-emerald-500 text-black border border-emerald-500 rounded font-mono text-xs hover:bg-emerald-400 transition-all pointer-events-auto cursor-pointer opacity-90"
+            >
+                TEST VOICE
+            </button>
+        </Html>
+    </group>
+  )
 }
 
 export default function AvatarCanvas() {

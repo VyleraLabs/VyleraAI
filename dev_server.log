@@ -7,7 +7,20 @@
 - Network:       http://192.168.0.2:3000
 
 ✓ Starting...
-✓ Ready in 1201ms
-○ Compiling / ...
- GET / 200 in 8.4s (compile: 7.3s, render: 1057ms)
- POST / 200 in 178ms (compile: 30ms, render: 148ms)
+✓ Ready in 3.4s
+○ Compiling /interface ...
+ GET /interface 200 in 12.2s (compile: 11.2s, render: 977ms)
+ POST /interface 200 in 139ms (compile: 26ms, render: 113ms)
+ POST /interface 200 in 190ms (compile: 98ms, render: 92ms)
+ GET /interface 200 in 1278ms (compile: 588ms, render: 691ms)
+ POST /interface 200 in 125ms (compile: 32ms, render: 93ms)
+ POST /interface 200 in 118ms (compile: 32ms, render: 86ms)
+ GET /interface 200 in 520ms (compile: 189ms, render: 331ms)
+ POST /interface 200 in 73ms (compile: 34ms, render: 39ms)
+ GET /interface 200 in 421ms (compile: 127ms, render: 294ms)
+ POST /interface 200 in 92ms (compile: 23ms, render: 68ms)
+ POST /interface 200 in 47ms (compile: 15ms, render: 33ms)
+ POST /interface 200 in 84ms (compile: 29ms, render: 55ms)
+ POST /interface 200 in 87ms (compile: 20ms, render: 67ms)
+ GET /interface 200 in 93ms (compile: 20ms, render: 74ms)
+ POST /interface 200 in 82ms (compile: 20ms, render: 62ms)
