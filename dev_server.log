@@ -7,20 +7,18 @@
 - Network:       http://192.168.0.2:3000
 
 ✓ Starting...
-✓ Ready in 3.4s
+✓ Ready in 1070ms
 ○ Compiling /interface ...
- GET /interface 200 in 12.2s (compile: 11.2s, render: 977ms)
- POST /interface 200 in 139ms (compile: 26ms, render: 113ms)
- POST /interface 200 in 190ms (compile: 98ms, render: 92ms)
- GET /interface 200 in 1278ms (compile: 588ms, render: 691ms)
- POST /interface 200 in 125ms (compile: 32ms, render: 93ms)
- POST /interface 200 in 118ms (compile: 32ms, render: 86ms)
- GET /interface 200 in 520ms (compile: 189ms, render: 331ms)
- POST /interface 200 in 73ms (compile: 34ms, render: 39ms)
- GET /interface 200 in 421ms (compile: 127ms, render: 294ms)
- POST /interface 200 in 92ms (compile: 23ms, render: 68ms)
- POST /interface 200 in 47ms (compile: 15ms, render: 33ms)
- POST /interface 200 in 84ms (compile: 29ms, render: 55ms)
- POST /interface 200 in 87ms (compile: 20ms, render: 67ms)
- GET /interface 200 in 93ms (compile: 20ms, render: 74ms)
- POST /interface 200 in 82ms (compile: 20ms, render: 62ms)
+ GET /interface 200 in 11.7s (compile: 10.6s, render: 1040ms)
+ POST /interface 200 in 115ms (compile: 33ms, render: 83ms)
+ GET /interface 200 in 119ms (compile: 26ms, render: 93ms)
+ POST /interface 200 in 54ms (compile: 22ms, render: 32ms)
+ POST /interface 200 in 156ms (compile: 104ms, render: 52ms)
+○ Compiling /api/tts ...
+GOOGLE_SERVICE_KEY_BASE64 env var is missing
+ POST /api/tts 500 in 6.3s (compile: 6.3s, render: 35ms)
+ GET /interface 200 in 118ms (compile: 21ms, render: 97ms)
+ POST /interface 200 in 56ms (compile: 20ms, render: 36ms)
+GOOGLE_SERVICE_KEY_BASE64 env var is missing
+ POST /api/tts 500 in 14ms (compile: 3ms, render: 11ms)
+ POST /interface 200 in 75ms (compile: 20ms, render: 54ms)

@@ -3,8 +3,12 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, useProgress, Html } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
+
+export interface AvatarHandle {
+    speak: (text: string) => Promise<void>;
+}
 
 function Loader() {
   const { progress } = useProgress()
@@ -30,7 +34,7 @@ function CameraRig() {
   return null
 }
 
-function Avatar() {
+const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
   const [vrm, setVrm] = useState<any>(null)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
@@ -71,6 +75,10 @@ function Avatar() {
     }
   }
 
+  useImperativeHandle(ref, () => ({
+    speak
+  }));
+
   useEffect(() => {
     if (gltf.userData.vrm) {
       const vrmInstance = gltf.userData.vrm
@@ -87,7 +95,7 @@ function Avatar() {
       // Lip Sync
       if (vrm.expressionManager) {
          if (isSpeaking) {
-             const val = Math.max(0, Math.sin(t * 20) * 0.5)
+             const val = Math.max(0, Math.sin(t * 25) * 0.5)
              vrm.expressionManager.setValue('aa', val)
          } else {
              vrm.expressionManager.setValue('aa', 0)
@@ -172,19 +180,13 @@ function Avatar() {
   return (
     <group>
         <primitive object={gltf.scene} position={[0, 0, 0]} />
-        <Html position={[0, 1.15, 0.1]} zIndexRange={[100, 0]} transform>
-            <button
-                onClick={() => speak("System online. Vylera neural core active.")}
-                className="px-4 py-2 bg-emerald-500 text-black border border-emerald-500 rounded font-mono text-xs hover:bg-emerald-400 transition-all pointer-events-auto cursor-pointer opacity-90"
-            >
-                TEST VOICE
-            </button>
-        </Html>
     </group>
   )
-}
+})
 
-export default function AvatarCanvas() {
+Avatar.displayName = 'Avatar'
+
+const AvatarCanvas = forwardRef<AvatarHandle, {}>((props, ref) => {
   return (
     <Canvas
       camera={{ fov: 30 }}
@@ -215,10 +217,12 @@ export default function AvatarCanvas() {
         <ambientLight intensity={0.2} />
 
         <Suspense fallback={<Loader />}>
-            <Avatar />
+            <Avatar ref={ref} />
         </Suspense>
-
-        {/* OrbitControls REMOVED */}
     </Canvas>
   )
-}
+})
+
+AvatarCanvas.displayName = 'AvatarCanvas'
+
+export default AvatarCanvas
