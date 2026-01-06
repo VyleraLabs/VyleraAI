@@ -1,70 +1,129 @@
 'use client'
 
-import React, { Suspense } from 'react'
-import AvatarCanvas from '@/components/Meti/AvatarCanvas'
+import React, { Suspense, useRef, useState, useEffect } from 'react'
+import AvatarCanvas, { AvatarHandle } from '@/components/Meti/AvatarCanvas'
 import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
 
+interface Message {
+    role: 'ai' | 'user';
+    text: string;
+}
+
 export default function InterfacePage() {
   const router = useRouter()
+  const avatarRef = useRef<AvatarHandle>(null)
+  const [input, setInput] = useState('')
+  const [messages, setMessages] = useState<Message[]>([
+      { role: 'ai', text: 'Neural Link Active. Awaiting input.' }
+  ])
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+      if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      }
+  }, [messages])
+
+  const handleSendMessage = async () => {
+      if (!input.trim()) return
+
+      // Add User Message
+      const userMsg: Message = { role: 'user', text: input }
+      setMessages(prev => [...prev, userMsg])
+      setInput('')
+
+      // Simulate Processing Delay
+      setTimeout(() => {
+          // Mock AI Response
+          // In a real app, this would call /api/chat
+          const aiText = `I have received your query regarding "${userMsg.text}". Processing secure response.`
+          const aiMsg: Message = { role: 'ai', text: aiText }
+
+          setMessages(prev => [...prev, aiMsg])
+
+          // TRIGGER VOICE
+          if (avatarRef.current) {
+              avatarRef.current.speak(aiText)
+          }
+      }, 1000)
+  }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-      {/* Holographic Card */}
-      <div className="w-full max-w-4xl h-[85vh] bg-black/80 backdrop-blur-md border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(16,185,129,0.1)] flex flex-col relative">
+    <div className="flex h-screen w-full bg-black text-white overflow-hidden relative pb-24">
 
-        {/* Back Button (Absolute) */}
-        <button
-          onClick={() => router.push('/')}
-          className="absolute top-4 right-4 z-50 px-3 py-1 text-xs font-mono border border-emerald-500/50 text-emerald-500/80 hover:bg-emerald-500/20 rounded transition-colors"
-        >
-          EXIT_SESSION
-        </button>
+      {/* Split View */}
 
-        {/* Viewport: Top 75% */}
-        <div className="relative w-full h-[75%] border-b border-emerald-500/30">
-           {/* Overlay: REC Dot + LIVE FEED */}
-           <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-             <span className="font-mono text-xs text-red-500 font-bold tracking-wider">LIVE FEED</span>
-           </div>
+      {/* Left Panel (Avatar) - 2/3 Width */}
+      <div className="w-2/3 h-full relative flex items-center justify-center bg-gradient-to-b from-emerald-900/10 to-black">
+          {/* Avatar Canvas floating freely */}
+          <div className="w-full h-full absolute inset-0">
+             <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-emerald-500 font-mono">INITIALIZING NEURAL CORE...</div>}>
+                <AvatarCanvas ref={avatarRef} />
+             </Suspense>
+          </div>
+      </div>
 
-           {/* Subtle Glow Overlay */}
-           <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_50px_rgba(16,185,129,0.1)] z-10" />
+      {/* Right Panel (Chat) - 1/3 Width */}
+      <div className="w-1/3 h-full border-l border-white/5 bg-white/5 backdrop-blur-2xl flex flex-col relative z-10">
 
-           <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-emerald-500 font-mono">INITIALIZING...</div>}>
-              <AvatarCanvas />
-           </Suspense>
-        </div>
-
-        {/* Comms: Bottom 25% */}
-        <div className="flex flex-col h-[25%] bg-black/40">
-           {/* Log: Chat History */}
-           <div className="flex-1 p-4 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-emerald-900 scrollbar-track-transparent">
-              <div className="font-mono text-sm text-emerald-400 opacity-80">
-                <span className="mr-2">[SYSTEM]</span>
-                Meti: Neural Link Established. Awaiting Input.
+          {/* Header */}
+          <div className="p-6 border-b border-white/5">
+              <div className="text-xs tracking-[0.2em] text-white/30 font-sans font-bold">
+                  NEURAL LINK ACTIVE
               </div>
-              {/* Future chat messages would go here */}
-           </div>
+          </div>
 
-           {/* Input Area */}
-           <div className="p-4 border-t border-white/5 bg-black/60">
-              <div className="flex items-center gap-2">
-                 <div className="text-emerald-500/50 font-mono text-lg">{'>'}</div>
-                 <input
-                    type="text"
-                    placeholder="[TYPE COMMAND...]"
-                    className="flex-1 bg-transparent border-none outline-none font-mono text-emerald-100 placeholder-emerald-800/50 focus:ring-0"
-                 />
-                 <button className="p-2 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-full transition-colors">
-                    <Send size={20} />
-                 </button>
+          {/* Log Area */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide"
+          >
+              {messages.map((msg, idx) => (
+                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {msg.role === 'ai' ? (
+                          <div className="text-gray-200 text-lg leading-relaxed font-sans max-w-[90%]">
+                              {msg.text}
+                          </div>
+                      ) : (
+                          <div className="bg-white/10 text-white px-5 py-3 rounded-2xl max-w-[80%] backdrop-blur-md font-sans text-base">
+                              {msg.text}
+                          </div>
+                      )}
+                  </div>
+              ))}
+          </div>
+
+          {/* Input Area - Floating at bottom of the panel */}
+          <div className="p-6 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="relative">
+                  <input
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder="Type a message..."
+                      className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white placeholder-white/20 focus:outline-none focus:border-emerald-500/50 transition-all font-sans pr-12"
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/50 hover:text-white transition-colors"
+                  >
+                      <Send size={20} />
+                  </button>
               </div>
-           </div>
-        </div>
+          </div>
 
       </div>
+
+      {/* Exit Button (Optional overlay) */}
+      <button
+          onClick={() => router.push('/')}
+          className="absolute top-6 right-6 z-50 text-white/20 hover:text-white transition-colors text-xs tracking-widest"
+      >
+          EXIT
+      </button>
+
     </div>
   )
 }
