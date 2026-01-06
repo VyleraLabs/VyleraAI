@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useProgress, Html, Environment } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, Suspense } from 'react'
+import * as THREE from 'three'
 
 function Loader() {
   const { progress } = useProgress()
@@ -32,15 +33,48 @@ function Avatar() {
     }
   }, [gltf])
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (vrm) {
-      vrm.update(state.clock.getDelta())
+      vrm.update(delta)
 
-      const chest = vrm.humanoid.getNormalizedBoneNode('chest')
-      if (chest) {
-         const t = state.clock.elapsedTime
-         const breath = Math.sin(t * 1.5) * 0.05
-         chest.rotation.x = breath
+      const t = state.clock.elapsedTime
+
+      // 1. T-Pose Fix (Arms)
+      const leftArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm')
+      const rightArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm')
+
+      if (leftArm) leftArm.rotation.z = -1.2 // ~70 degrees down
+      if (rightArm) rightArm.rotation.z = 1.2
+
+      // 2. Breathing
+      const spine = vrm.humanoid.getNormalizedBoneNode('spine')
+      const neck = vrm.humanoid.getNormalizedBoneNode('neck')
+
+      const breath = Math.sin(t * 1.5) * 0.03
+      if (spine) spine.rotation.x = breath
+      if (neck) neck.rotation.x = -breath * 0.5
+
+      // 3. Blinking (Random interval)
+      if (vrm.expressionManager) {
+        // Simple periodic blink for robustness
+        const blinkFrequency = 4.0
+        const blinkDuration = 0.15
+        const timeInCycle = t % blinkFrequency
+        const isBlinking = timeInCycle < blinkDuration
+        vrm.expressionManager.setValue('blink', isBlinking ? 1 : 0)
+      }
+
+      // 4. Head Tracking
+      const head = vrm.humanoid.getNormalizedBoneNode('head')
+      if (head) {
+        // state.pointer values are normalized [-1, 1]
+        // Clamp rotation to ~30 degrees (approx 0.5 radians)
+        const targetLookX = -state.pointer.x * 0.5
+        const targetLookY = -state.pointer.y * 0.5
+
+        // Smooth interpolation
+        head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, targetLookX, 0.1)
+        head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, targetLookY, 0.1)
       }
     }
   })
@@ -59,7 +93,7 @@ export default function AvatarCanvas() {
             <Avatar />
         </Suspense>
 
-        <OrbitControls target={[0, 0.8, 0]} />
+        <OrbitControls target={[0, 0.8, 0]} enableZoom={false} enablePan={false} />
     </Canvas>
   )
 }
