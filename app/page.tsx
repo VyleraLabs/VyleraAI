@@ -11,6 +11,7 @@ import Security from "@/components/sections/Security";
 import SystemHealth from "@/components/sections/SystemHealth";
 import Technology from "@/components/sections/Technology";
 import WhitePaper from "@/components/sections/WhitePaper";
+import TeamSection from "@/components/Landing/TeamSection";
 import NeuralTrigger from "@/components/Meti/NeuralTrigger";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
       <Pricing />
       <Roadmap />
       <WhitePaper />
+      <TeamSection />
       <InvestorRelations />
     </main>
   );
