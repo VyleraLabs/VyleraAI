@@ -61,12 +61,11 @@ export default function Hero() {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <div className="inline-block mb-4 px-3 py-1 rounded-full border border-cyan/20 bg-cyan/5 text-cyan font-mono text-xs tracking-[0.2em] uppercase">
-                        System Online
+                        Status: Private Beta (v0.9) // Powered by Google Cloud
                     </div>
 
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-light tracking-tight leading-[1.1] mb-8">
-                        Vylera AI: <br />
-                        Your Home's Sovereign Nervous System.
+                        The Sovereign OS for Fragmented IoT.
                     </h1>
                 </motion.div>
 
@@ -76,8 +75,7 @@ export default function Hero() {
                     transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                     className="text-slate text-lg md:text-2xl font-light tracking-wide max-w-3xl mx-auto leading-relaxed"
                 >
-                    Making smart home devices truly intelligent. <br className="hidden md:block" />
-                    Powered by Meti—a sovereign kernel forged in the spirit of the 'Merah Putih'.
+                    Vylera unifies disparate hardware ecosystems (Tuya, Zigbee, Matter) into a single, intelligent Neural Core. Powered by Google Vertex AI.
                 </motion.p>
             </div>
         </section>
