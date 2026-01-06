@@ -29,7 +29,7 @@ export default function Navbar() {
   // Handle Active Section Scrolling
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["platform", "manifesto", "research"];
+      const sections = ["platform", "manifesto", "research", "team"];
       const scrollPosition = window.scrollY + 100; // Offset
 
       for (const section of sections) {
@@ -153,6 +153,7 @@ export default function Navbar() {
           <NavLink href="#platform" targetId="platform">Platform</NavLink>
           <NavLink href="#manifesto" targetId="manifesto">Manifesto</NavLink>
           <NavLink href="#research" targetId="research">Research</NavLink>
+          <NavLink href="/#team" targetId="team">Team</NavLink>
         </div>
 
         {/* Grant Access - "AWAKEN YOUR HOME" */}
