@@ -5,7 +5,7 @@ import IntelligenceLayer from "@/components/sections/IntelligenceLayer";
 import InvestorRelations from "@/components/sections/InvestorRelations";
 import Manifesto from "@/components/sections/Manifesto";
 import Pipeline from "@/components/sections/Pipeline";
-import Pricing from "@/components/sections/Pricing";
+import EarlyAccess from "@/components/sections/EarlyAccess";
 import Roadmap from "@/components/sections/Roadmap";
 import Security from "@/components/sections/Security";
 import SystemHealth from "@/components/sections/SystemHealth";
@@ -31,7 +31,7 @@ export default function Home() {
       <Architecture />
       <SystemHealth />
       <Security />
-      <Pricing />
+      <EarlyAccess />
       <Roadmap />
       <WhitePaper />
       <TeamSection />

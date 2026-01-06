@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-export default function Pricing() {
+export default function EarlyAccess() {
     return (
         <section className="bg-navy py-24 px-6 md:px-12 border-t border-white/5 relative z-20">
             <div className="max-w-7xl mx-auto">
