@@ -1,9 +1,9 @@
 'use client'
 
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, useGLTF, useProgress, Html, Environment } from '@react-three/drei'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useGLTF, useProgress, Html } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import * as THREE from 'three'
 
 function Loader() {
@@ -17,12 +17,33 @@ function Loader() {
   )
 }
 
+function CameraRig() {
+  const { camera } = useThree()
+
+  useEffect(() => {
+    // Fixed camera position
+    camera.position.set(0, 1.4, 0.8)
+    // Target: Face center
+    camera.lookAt(0, 1.35, 0)
+  }, [camera])
+
+  return null
+}
+
 function Avatar() {
   const [vrm, setVrm] = useState<any>(null)
   const gltf = useGLTF('/models/meti.vrm', undefined, undefined, (loader) => {
     loader.register((parser) => {
       return new VRMLoaderPlugin(parser as any) as any
     })
+  })
+
+  // Blink State
+  const blinkRef = useRef({
+    nextBlinkTime: 0,
+    isBlinking: false,
+    blinkStartTime: 0,
+    duration: 0.15 // Duration of a blink
   })
 
   useEffect(() => {
@@ -36,64 +57,121 @@ function Avatar() {
   useFrame((state, delta) => {
     if (vrm) {
       vrm.update(delta)
-
       const t = state.clock.elapsedTime
 
-      // 1. T-Pose Fix (Arms)
+      // 1. Initial Pose (Arms down ~75 deg)
+      // 75 degrees is approx 1.3 radians
       const leftArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm')
       const rightArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm')
+      if (leftArm) leftArm.rotation.z = -1.3
+      if (rightArm) rightArm.rotation.z = 1.3
 
-      if (leftArm) leftArm.rotation.z = -1.2 // ~70 degrees down
-      if (rightArm) rightArm.rotation.z = 1.2
-
-      // 2. Breathing
+      // 2. Breathing (Sine wave on Spine)
       const spine = vrm.humanoid.getNormalizedBoneNode('spine')
-      const neck = vrm.humanoid.getNormalizedBoneNode('neck')
-
-      const breath = Math.sin(t * 1.5) * 0.03
-      if (spine) spine.rotation.x = breath
-      if (neck) neck.rotation.x = -breath * 0.5
-
-      // 3. Blinking (Random interval)
-      if (vrm.expressionManager) {
-        // Simple periodic blink for robustness
-        const blinkFrequency = 4.0
-        const blinkDuration = 0.15
-        const timeInCycle = t % blinkFrequency
-        const isBlinking = timeInCycle < blinkDuration
-        vrm.expressionManager.setValue('blink', isBlinking ? 1 : 0)
+      if (spine) {
+        spine.rotation.x = Math.sin(t * 2.0) * 0.05 // Subtle chest heave
       }
 
-      // 4. Head Tracking
-      const head = vrm.humanoid.getNormalizedBoneNode('head')
-      if (head) {
-        // state.pointer values are normalized [-1, 1]
-        // Clamp rotation to ~30 degrees (approx 0.5 radians)
-        const targetLookX = -state.pointer.x * 0.5
-        const targetLookY = -state.pointer.y * 0.5
+      // 3. Advanced Tracking
+      // Mouse position: state.pointer.x/y (-1 to 1)
+      const mouseX = -state.pointer.x // Invert for mirror effect or natural look? Usually following cursor means if cursor is right (positive), look right (negative rotation Y)
+      const mouseY = state.pointer.y // Up is positive
 
-        // Smooth interpolation
-        head.rotation.y = THREE.MathUtils.lerp(head.rotation.y, targetLookX, 0.1)
-        head.rotation.x = THREE.MathUtils.lerp(head.rotation.x, targetLookY, 0.1)
+      // Helper to rotate bone towards cursor
+      // Y rotation is horizontal (looking left/right) -> corresponds to mouse X
+      // X rotation is vertical (looking up/down) -> corresponds to mouse Y
+      const track = (boneName: string, multiplier: number) => {
+        const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
+        if (bone) {
+          // Smoothly interpolate
+          bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, mouseX * multiplier, 0.1)
+          bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, mouseY * multiplier, 0.1)
+        }
+      }
+
+      // Eyes (0.5)
+      track('leftEye', 0.5)
+      track('rightEye', 0.5)
+
+      // Head (0.3)
+      track('head', 0.3)
+
+      // Neck (0.2)
+      track('neck', 0.2)
+
+      // UpperChest (0.1)
+      track('upperChest', 0.1)
+
+
+      // 4. Blinking (Random interval 2-4s)
+      if (vrm.expressionManager) {
+        const blink = blinkRef.current
+
+        // Check if it's time to blink
+        if (!blink.isBlinking && t > blink.nextBlinkTime) {
+           blink.isBlinking = true
+           blink.blinkStartTime = t
+           // Set next blink time (current time + random between 2 and 4)
+           blink.nextBlinkTime = t + 2 + Math.random() * 2
+        }
+
+        if (blink.isBlinking) {
+           // Calculate blink progress (0 to 1 then back to 0) can be simple or bell curve
+           // Simple implementation: fully closed for duration
+           const progress = (t - blink.blinkStartTime) / blink.duration
+
+           if (progress >= 1) {
+             blink.isBlinking = false
+             vrm.expressionManager.setValue('blink', 0)
+           } else {
+             // Peak blink at 0.5 progress? Or just close/open.
+             // Let's do a sine wave for smooth blink
+             const blinkValue = Math.sin(progress * Math.PI)
+             vrm.expressionManager.setValue('blink', blinkValue)
+           }
+        }
       }
     }
   })
 
-  return <primitive object={gltf.scene} position={[0, -1, 0]} />
+  return <primitive object={gltf.scene} position={[0, 0, 0]} />
 }
 
 export default function AvatarCanvas() {
   return (
-    <Canvas camera={{ position: [0, 0.8, 4], fov: 30 }} gl={{ alpha: true }}>
-        <ambientLight intensity={1} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+    <Canvas
+      camera={{ fov: 30 }}
+      gl={{ alpha: true }}
+    >
+        <CameraRig />
+
+        {/* Studio Lighting */}
+        {/* Rim Light (Cool Blue/Cyan) - Back Left */}
+        <spotLight
+          position={[-2, 2, -2]}
+          intensity={5}
+          color="#00ffff"
+          angle={0.5}
+          penumbra={1}
+        />
+
+        {/* Key Light (Warm/Neutral) - Front Right */}
+        <spotLight
+          position={[2, 2, 2]}
+          intensity={3}
+          color="#ffffff"
+          angle={0.5}
+          penumbra={0.5}
+        />
+
+        {/* Fill Light - Front */}
+        <ambientLight intensity={0.2} />
 
         <Suspense fallback={<Loader />}>
-            <Environment preset="city" />
             <Avatar />
         </Suspense>
 
-        <OrbitControls target={[0, 0.8, 0]} enableZoom={false} enablePan={false} />
+        {/* OrbitControls REMOVED */}
     </Canvas>
   )
 }
