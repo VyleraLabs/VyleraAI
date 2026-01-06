@@ -10,8 +10,8 @@ export default function InterfacePage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-      {/* Glass Card */}
-      <div className="w-full max-w-4xl bg-black/80 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col relative">
+      {/* Holographic Card */}
+      <div className="w-full max-w-4xl h-[85vh] bg-black/80 backdrop-blur-md border border-emerald-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(16,185,129,0.1)] flex flex-col relative">
 
         {/* Back Button (Absolute) */}
         <button
@@ -21,8 +21,14 @@ export default function InterfacePage() {
           EXIT_SESSION
         </button>
 
-        {/* Top Section: The Frame */}
-        <div className="relative w-full aspect-video border-b border-emerald-500/30">
+        {/* Viewport: Top 75% */}
+        <div className="relative w-full h-[75%] border-b border-emerald-500/30">
+           {/* Overlay: REC Dot + LIVE FEED */}
+           <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
+             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+             <span className="font-mono text-xs text-red-500 font-bold tracking-wider">LIVE FEED</span>
+           </div>
+
            {/* Subtle Glow Overlay */}
            <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_50px_rgba(16,185,129,0.1)] z-10" />
 
@@ -31,9 +37,9 @@ export default function InterfacePage() {
            </Suspense>
         </div>
 
-        {/* Bottom Section: The Comms */}
-        <div className="flex flex-col h-64 bg-black/40">
-           {/* Chat History */}
+        {/* Comms: Bottom 25% */}
+        <div className="flex flex-col h-[25%] bg-black/40">
+           {/* Log: Chat History */}
            <div className="flex-1 p-4 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-emerald-900 scrollbar-track-transparent">
               <div className="font-mono text-sm text-emerald-400 opacity-80">
                 <span className="mr-2">[SYSTEM]</span>
@@ -48,7 +54,7 @@ export default function InterfacePage() {
                  <div className="text-emerald-500/50 font-mono text-lg">{'>'}</div>
                  <input
                     type="text"
-                    placeholder="Type command..."
+                    placeholder="[TYPE COMMAND...]"
                     className="flex-1 bg-transparent border-none outline-none font-mono text-emerald-100 placeholder-emerald-800/50 focus:ring-0"
                  />
                  <button className="p-2 text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-full transition-colors">
