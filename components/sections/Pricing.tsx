@@ -34,7 +34,7 @@ export default function Pricing() {
 
                             <div className="pt-8">
                                 <a
-                                    href="mailto:contact@vylera.com" // Assuming a contact link or similar
+                                    href="#contact"
                                     className="inline-flex items-center gap-3 px-8 py-4 bg-cyan text-navy font-bold tracking-widest uppercase rounded hover:bg-cyan/90 transition-all shadow-[0_0_20px_rgba(100,255,218,0.3)] hover:shadow-[0_0_30px_rgba(100,255,218,0.5)] group/btn"
                                 >
                                     <span>Request Access Key</span>
