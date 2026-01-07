@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         // User said: "Use 'gemini-3.0-flash-preview' (or 'gemini-2.0-flash-exp' if 3.0 is unavailable)."
         // We will stick to the primary request.
         const model = vertexAI.getGenerativeModel({
-            model: 'gemini-3.0-flash-preview',
+            model: 'gemini-2.5-flash',
             generationConfig: {
                 temperature: 0.7
             },
