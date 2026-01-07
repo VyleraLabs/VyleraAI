@@ -79,10 +79,19 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
     speak
   }));
 
+  // LookAt Target
+  const lookAtTarget = useRef(new THREE.Object3D())
+
   useEffect(() => {
     if (gltf.userData.vrm) {
       const vrmInstance = gltf.userData.vrm
       VRMUtils.rotateVRM0(vrmInstance)
+
+      // Assign LookAt Target
+      if (vrmInstance.lookAt) {
+        vrmInstance.lookAt.target = lookAtTarget.current
+      }
+
       setVrm(vrmInstance)
     }
   }, [gltf])
@@ -117,8 +126,16 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
 
       // 3. Advanced Tracking
       // Mouse position: state.pointer.x/y (-1 to 1)
-      const mouseX = state.pointer.x * -1 // Invert X-Axis
-      const mouseY = state.pointer.y // Up is positive
+      const mouseX = state.pointer.x * 0.2 // Reduced sensitivity, Positive tracking
+      const mouseY = state.pointer.y * 0.2 // Reduced sensitivity
+
+      // Eyes - Use VRM LookAt for correct depth convergence
+      // Update the shared target object position
+      lookAtTarget.current.position.set(
+          mouseX,
+          mouseY + 1.35, // Adjust for eye height (approx 1.35m)
+          4.0
+      )
 
       // Helper to rotate bone towards cursor
       // Y rotation is horizontal (looking left/right) -> corresponds to mouse X
@@ -139,10 +156,6 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
           bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, targetX, 0.1)
         }
       }
-
-      // Eyes (0.5) - Clamped: X +/- 0.3, Y +/- 0.5
-      track('leftEye', 0.5, 0.3, 0.5)
-      track('rightEye', 0.5, 0.3, 0.5)
 
       // Head (0.3)
       track('head', 0.3)
@@ -188,6 +201,7 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
   return (
     <group>
         <primitive object={gltf.scene} position={[0, 0, 0]} />
+        <primitive object={lookAtTarget.current} />
     </group>
   )
 })

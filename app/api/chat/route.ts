@@ -72,7 +72,7 @@ RULES:
         return NextResponse.json({ text: responseText });
 
     } catch (error: any) {
-        console.error('Gemini API Error:', error);
+        console.error("VERTEX ERROR DETAILS:", JSON.stringify(error, null, 2));
 
         // Fallback for model not found if that happens (though difficult to catch specifically without error code)
         // If error mentions 404 or not found, maybe retry with 2.0?

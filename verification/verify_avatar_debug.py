@@ -4,6 +4,11 @@ def verify_avatar():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
+
+        # Listen for console messages
+        page.on("console", lambda msg: print(f"CONSOLE: {msg.text}"))
+        page.on("pageerror", lambda err: print(f"PAGE ERROR: {err}"))
+
         try:
             # Navigate to the interface page where the avatar is located
             print("Navigating to /interface...")
@@ -20,8 +25,8 @@ def verify_avatar():
 
             # Take a screenshot
             print("Taking screenshot...")
-            page.screenshot(path="verification/avatar_verification.png")
-            print("Screenshot saved to verification/avatar_verification.png")
+            page.screenshot(path="verification/avatar_verification_debug.png")
+            print("Screenshot saved to verification/avatar_verification_debug.png")
 
         except Exception as e:
             print(f"Error: {e}")
