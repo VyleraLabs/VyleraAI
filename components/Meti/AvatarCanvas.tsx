@@ -60,7 +60,7 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
   // --- SAFE ANIMATION LOADING ---
   // Replaces direct useFBX calls to prevent crashes on missing files
   // Now handled by custom hook with bone normalization
-  const { animations } = useMetiAnimations(gltf.scene);
+  const { animations } = useMetiAnimations(gltf.animations, gltf.scene);
 
   // Use Animations on the VRM scene
   const { actions } = useAnimations(animations, gltf.scene);
@@ -74,6 +74,10 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
      const thinkingAnim = 'LookAround';
 
      // Filter available animations
+     // Task 2: Randomized "Standby" Cycle (Standby 1-8)
+     const standbyAnims = Array.from({ length: 8 }, (_, i) => `Standby ${i + 1}`);
+     const availableStandbys = standbyAnims.filter(name => actions[name]);
+
      const availableIdles = idleAnims.filter(name => actions[name]);
      const availableTalks = talkingAnims.filter(name => actions[name]);
      const hasThinking = actions[thinkingAnim];
@@ -84,7 +88,7 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
      const play = (name: string) => {
          const newAction = actions[name];
          if (currentAction && currentAction !== newAction) {
-             currentAction.fadeOut(0.5);
+             if (currentAction) currentAction.fadeOut(0.5);
          }
          if (newAction) {
              newAction.reset().fadeIn(0.5).play();
@@ -97,8 +101,19 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
      } else if (isSpeaking && availableTalks.length > 0) {
          const randomTalk = availableTalks[Math.floor(Math.random() * availableTalks.length)];
          play(randomTalk);
+     } else if (availableStandbys.length > 0) {
+         // Task 2: Randomized "Standby" Cycle (20-30s)
+         const cycleStandby = () => {
+             if (isThinking || isSpeaking) return;
+             const randomStandby = availableStandbys[Math.floor(Math.random() * availableStandbys.length)];
+             play(randomStandby);
+             // Random duration between 20s (20000ms) and 30s (30000ms)
+             const duration = 20000 + Math.random() * 10000;
+             timeoutId = setTimeout(cycleStandby, duration);
+         };
+         cycleStandby();
      } else if (availableIdles.length > 0) {
-         // Idles
+         // Fallback to old Idles if Standbys are missing
          const cycleIdle = () => {
              if (isThinking || isSpeaking) return;
              const randomIdle = availableIdles[Math.floor(Math.random() * availableIdles.length)];
@@ -123,6 +138,12 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
     duration: 0.15 // Duration of a blink
   })
 
+  // Audio Analyzer Ref
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const dataArrayRef = useRef<any>(null);
+
   const speak = async (text: string, lang?: string) => {
     // Abort previous
     if (abortControllerRef.current) {
@@ -141,6 +162,8 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const audio = new Audio(url)
+      // Essential for MediaElementSource
+      audio.crossOrigin = "anonymous";
 
       audio.onplay = () => {
           if (controller.signal.aborted) {
@@ -148,10 +171,42 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
               return;
           }
           setIsSpeaking(true)
+
+          // Setup Audio Analysis for Lip Sync
+          if (!audioContextRef.current) {
+              audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          }
+          const ctx = audioContextRef.current;
+
+          if(ctx.state === 'suspended') {
+              ctx.resume();
+          }
+
+          if (sourceRef.current) {
+              sourceRef.current.disconnect();
+          }
+
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512; // Moderate resolution
+          analyserRef.current = analyser;
+
+          const bufferLength = analyser.frequencyBinCount;
+          // Explicitly cast ArrayBuffer to avoid Type error with Uint8Array vs Uint8Array<ArrayBuffer>
+          dataArrayRef.current = new Uint8Array(new ArrayBuffer(bufferLength));
+
+          const source = ctx.createMediaElementSource(audio);
+          source.connect(analyser);
+          analyser.connect(ctx.destination);
+          sourceRef.current = source;
       };
+
       audio.onended = () => {
         setIsSpeaking(false)
         URL.revokeObjectURL(url)
+        if (sourceRef.current) {
+            sourceRef.current.disconnect();
+            sourceRef.current = null;
+        }
       }
 
       // Prevent flood error here too just in case
@@ -168,7 +223,13 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
           URL.revokeObjectURL(url);
           // Reset blend shapes
           if (vrm && vrm.expressionManager) {
-              vrm.expressionManager.setValue('aa', 0);
+              vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+              vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+              vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+          }
+          if (sourceRef.current) {
+              sourceRef.current.disconnect();
+              sourceRef.current = null;
           }
       });
 
@@ -179,7 +240,9 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       setIsSpeaking(false)
       // Reset blend shapes on error
       if (vrm && vrm.expressionManager) {
-          vrm.expressionManager.setValue('aa', 0);
+          vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+          vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+          vrm.expressionManager.setValue('Fcl_MTH_O', 0);
       }
     }
   }
@@ -210,13 +273,52 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       vrm.update(delta)
       const t = state.clock.elapsedTime
 
-      // Lip Sync
+      // Lip Sync (Frequency Analysis)
       if (vrm.expressionManager) {
-         if (isSpeaking) {
-             const val = Math.max(0, Math.sin(t * 25) * 0.5)
-             vrm.expressionManager.setValue('aa', val)
+         if (isSpeaking && analyserRef.current && dataArrayRef.current) {
+             analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+
+             // Task 3: VRoid Morph Target Sync
+             // Map Frequency Bands to Visemes:
+             // Low (20-300Hz) -> 'oo' (Fcl_MTH_O)
+             // Mid (300-2000Hz) -> 'aa' (Fcl_MTH_A)
+             // High (2000Hz+) -> 'ee' (Fcl_MTH_I)
+
+             const bufferLength = analyserRef.current.frequencyBinCount;
+             // Sample Rate is usually 44100 or 48000
+             // fftSize 512 -> 256 bins.
+             // binWidth = sampleRate / 512. Approx 86Hz per bin (at 44.1k)
+
+             // Low: Bins 0-4 (~0-350Hz)
+             let lowSum = 0;
+             for(let i=0; i<4; i++) lowSum += dataArrayRef.current[i];
+             const lowAvg = lowSum / 4;
+
+             // Mid: Bins 4-20 (~350-1700Hz)
+             let midSum = 0;
+             for(let i=4; i<20; i++) midSum += dataArrayRef.current[i];
+             const midAvg = midSum / 16;
+
+             // High: Bins 20-100 (~1700-8600Hz)
+             let highSum = 0;
+             for(let i=20; i<100; i++) highSum += dataArrayRef.current[i];
+             const highAvg = highSum / 80;
+
+             // Normalize (0-255 -> 0-1) and apply sensitivity
+             const sensitivity = 2.5; // Boost values
+             const valO = Math.min(1, (lowAvg / 255) * sensitivity);
+             const valA = Math.min(1, (midAvg / 255) * sensitivity);
+             const valI = Math.min(1, (highAvg / 255) * sensitivity);
+
+             // Apply smoothing or direct? Direct for responsiveness.
+             vrm.expressionManager.setValue('Fcl_MTH_O', valO);
+             vrm.expressionManager.setValue('Fcl_MTH_A', valA);
+             vrm.expressionManager.setValue('Fcl_MTH_I', valI);
+
          } else {
-             vrm.expressionManager.setValue('aa', 0)
+             vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+             vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+             vrm.expressionManager.setValue('Fcl_MTH_I', 0);
          }
       }
 

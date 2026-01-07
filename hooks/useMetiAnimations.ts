@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import * as THREE from 'three';
-import { FBXLoader } from 'three-stdlib';
 
-export function useMetiAnimations(root: THREE.Object3D | undefined) {
+export function useMetiAnimations(gltfAnimations: THREE.AnimationClip[] | undefined, root: THREE.Object3D | undefined) {
     const [animations, setAnimations] = useState<THREE.AnimationClip[]>([]);
     const isMountedRef = useRef(true);
 
@@ -12,54 +11,32 @@ export function useMetiAnimations(root: THREE.Object3D | undefined) {
     }, []);
 
     useEffect(() => {
-        if (!root) return;
+        if (!gltfAnimations || gltfAnimations.length === 0 || !root) return;
 
-        const loader = new FBXLoader();
-        const animConfig = [
-            { name: 'HappyIdle', path: '/animations/HappyIdle.fbx' },
-            { name: 'Happy', path: '/animations/Happy.fbx' },
-            { name: 'Bashful', path: '/animations/Bashful.fbx' },
-            { name: 'Bored', path: '/animations/Bored.fbx' },
-            { name: 'Talking', path: '/animations/Talking.fbx' },
-            { name: 'Talking1', path: '/animations/Talking1.fbx' },
-            { name: 'LookAround', path: '/animations/LookAround.fbx' },
-            { name: 'SalsaDancing', path: '/animations/SalsaDancing.fbx' },
-            { name: 'DancingMaraschinoStep', path: '/animations/DancingMaraschinoStep.fbx' },
-        ];
+        // Process embedded animations
+        // We look for clips named "Standby X" (1-8) and others we might need.
+        // Or we can just process all of them.
 
-        const loadPromises = animConfig.map((config) => {
-            return new Promise<THREE.AnimationClip | null>((resolve) => {
-                loader.load(
-                    config.path,
-                    (fbx) => {
-                        if (fbx.animations && fbx.animations.length > 0) {
-                            const clip = fbx.animations[0];
-                            clip.name = config.name;
+        // Debug: Log animation names to find the exact names
+        // console.log("Embedded Animations:", gltfAnimations.map(c => c.name));
 
-                            // Normalization and Validation
-                            cleanAnimationClip(clip, root);
+        const processedClips: THREE.AnimationClip[] = [];
 
-                            resolve(clip);
-                        } else {
-                            resolve(null);
-                        }
-                    },
-                    undefined,
-                    (err) => {
-                        console.warn(`[useMetiAnimations] Failed to load ${config.path}`, err);
-                        resolve(null);
-                    }
-                );
-            });
+        gltfAnimations.forEach(clip => {
+             // Clone the clip to avoid modifying the original GLTF asset directly if used elsewhere
+             const newClip = clip.clone();
+
+             // Normalize and Validate Bones
+             cleanAnimationClip(newClip, root);
+
+             processedClips.push(newClip);
         });
 
-        Promise.all(loadPromises).then((results) => {
-            if (!isMountedRef.current) return;
-            const validClips = results.filter((clip): clip is THREE.AnimationClip => clip !== null);
-            setAnimations(validClips);
-        });
+        if (isMountedRef.current) {
+            setAnimations(processedClips);
+        }
 
-    }, [root]);
+    }, [gltfAnimations, root]);
 
     return { animations };
 }
