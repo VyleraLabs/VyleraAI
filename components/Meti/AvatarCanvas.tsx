@@ -5,7 +5,7 @@ import { useGLTF, useProgress, Html, useAnimations } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
-import { FBXLoader } from 'three-stdlib'
+import { useMetiAnimations } from '../../hooks/useMetiAnimations'
 
 export interface AvatarHandle {
     speak: (text: string, lang?: string) => Promise<void>;
@@ -29,11 +29,18 @@ function Loader() {
 function CameraRig() {
   const { camera } = useThree()
 
+  // Task 3: MCU Camera Lock
+  // Ensure strict compliance with Z=2.1 and Head LookAt
   useEffect(() => {
-    // Fixed camera position (Updated to Z: 2.1)
+    // Force reset position to ensure frame
     camera.position.set(0, 1.4, 2.1)
-    // Target: Face center
-    camera.lookAt(0, 1.35, 0)
+
+    // Lock LookAt to Head Bone center (approx 1.35m height)
+    const target = new THREE.Vector3(0, 1.35, 0)
+    camera.lookAt(target)
+
+    // Explicitly update matrices to prevent drift
+    camera.updateProjectionMatrix()
   }, [camera])
 
   return null
@@ -52,57 +59,8 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
   // --- SAFE ANIMATION LOADING ---
   // Replaces direct useFBX calls to prevent crashes on missing files
-  const [animations, setAnimations] = useState<THREE.AnimationClip[]>([]);
-  const isMountedRef = useRef(true);
-
-  useEffect(() => {
-      isMountedRef.current = true;
-      return () => { isMountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!isMountedRef.current) return;
-    const loader = new FBXLoader();
-    const animConfig = [
-        { name: 'HappyIdle', path: '/animations/HappyIdle.fbx' },
-        { name: 'Happy', path: '/animations/Happy.fbx' },
-        { name: 'Bashful', path: '/animations/Bashful.fbx' },
-        { name: 'Bored', path: '/animations/Bored.fbx' },
-        { name: 'Talking', path: '/animations/Talking.fbx' },
-        { name: 'Talking1', path: '/animations/Talking1.fbx' },
-        { name: 'LookAround', path: '/animations/LookAround.fbx' },
-        { name: 'SalsaDancing', path: '/animations/SalsaDancing.fbx' },
-        { name: 'DancingMaraschinoStep', path: '/animations/DancingMaraschinoStep.fbx' },
-    ];
-
-    const loadPromises = animConfig.map((config) => {
-        return new Promise<THREE.AnimationClip | null>((resolve) => {
-            loader.load(
-                config.path,
-                (fbx) => {
-                    if (fbx.animations && fbx.animations.length > 0) {
-                        const clip = fbx.animations[0];
-                        clip.name = config.name;
-                        resolve(clip);
-                    } else {
-                        resolve(null);
-                    }
-                },
-                undefined,
-                (err) => {
-                    console.warn(`[Avatar] Failed to load animation: ${config.path}. Defaulting to safe pose.`, err);
-                    resolve(null); // Silent fail
-                }
-            );
-        });
-    });
-
-    Promise.all(loadPromises).then((results) => {
-        if (!isMountedRef.current) return;
-        const validClips = results.filter((clip): clip is THREE.AnimationClip => clip !== null);
-        setAnimations(validClips);
-    });
-  }, []); // Run once on mount
+  // Now handled by custom hook with bone normalization
+  const { animations } = useMetiAnimations(gltf.scene);
 
   // Use Animations on the VRM scene
   const { actions } = useAnimations(animations, gltf.scene);
