@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, RefreshCw } from 'lucide-react';
-import { useAudioQueue } from '@/hooks/useAudioQueue';
 import { useVoiceSession } from '@/hooks/useVoiceSession';
+import { AvatarHandle } from './Meti/AvatarCanvas';
 
 interface Message {
     role: 'ai' | 'user';
@@ -20,7 +20,11 @@ function cleanTextForSpeech(text: string): string {
         .trim();
 }
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+    avatarRef?: React.RefObject<AvatarHandle | null>;
+}
+
+export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -31,14 +35,51 @@ export default function ChatInterface() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Audio Queue Hook
-  const { addToQueue, clearQueue } = useAudioQueue();
   const { language, processFirstPrompt, isLocked } = useVoiceSession();
 
   // Queue for sentences waiting to be converted to speech
   const processingChain = useRef<Promise<void>>(Promise.resolve());
   // Abort Controller for pending TTS requests
   const ttsAbortController = useRef<AbortController | null>(null);
+
+  // --- AUDIO QUEUE LOGIC ---
+  const [audioQueue, setAudioQueue] = useState<Blob[]>([]);
+  const isPlayingRef = useRef(false);
+
+  const addToQueue = (blob: Blob) => {
+      setAudioQueue(prev => [...prev, blob]);
+  };
+
+  const clearQueue = () => {
+      setAudioQueue([]);
+      if (avatarRef?.current) {
+          avatarRef.current.stop();
+      }
+  };
+
+  // Process the audio queue
+  useEffect(() => {
+      const processQueue = async () => {
+          if (isPlayingRef.current || audioQueue.length === 0 || !avatarRef?.current) return;
+
+          isPlayingRef.current = true;
+          const blob = audioQueue[0];
+
+          try {
+              // Play audio and wait for it to finish
+              await avatarRef.current.playAudioBlob(blob);
+          } catch (e) {
+              console.error("Playback error:", e);
+          } finally {
+              // Remove played item (regardless of success/failure to prevent stuck queue)
+              setAudioQueue(prev => prev.slice(1));
+              isPlayingRef.current = false;
+          }
+      };
+
+      processQueue();
+  }, [audioQueue, avatarRef]);
+
 
   // Global Error Listener for Version Skew
   useEffect(() => {
