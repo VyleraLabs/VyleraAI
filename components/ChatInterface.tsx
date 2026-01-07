@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, RefreshCw } from 'lucide-react';
 import { useAudioQueue } from '@/hooks/useAudioQueue';
+import { useVoiceSession } from '@/hooks/useVoiceSession';
 
 interface Message {
     role: 'ai' | 'user';
@@ -32,6 +33,7 @@ export default function ChatInterface() {
 
   // Audio Queue Hook
   const { addToQueue } = useAudioQueue();
+  const { language, processFirstPrompt, isLocked } = useVoiceSession();
 
   // Queue for sentences waiting to be converted to speech
   const processingChain = useRef<Promise<void>>(Promise.resolve());
@@ -71,7 +73,7 @@ export default function ChatInterface() {
               const ttsRes = await fetch('/api/tts', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ text: cleanSentence })
+                  body: JSON.stringify({ text: cleanSentence, lang: language })
               });
 
               if (ttsRes.ok) {
@@ -105,6 +107,11 @@ export default function ChatInterface() {
   const handleSendMessage = async () => {
       if (!input.trim()) return;
 
+      // Process First Prompt for Voice Lock
+      if (!isLocked) {
+          processFirstPrompt(input);
+      }
+
       // Add User Message
       const userMsg: Message = { role: 'user', text: input };
       setMessages(prev => [...prev, userMsg]);
@@ -120,7 +127,8 @@ export default function ChatInterface() {
             method: 'POST',
             body: JSON.stringify({
                 message: userMsg.text,
-                history: messages
+                history: messages,
+                lang: language
             })
         });
 

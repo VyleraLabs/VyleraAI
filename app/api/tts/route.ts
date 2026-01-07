@@ -2,7 +2,7 @@ import { streamTextToSpeech } from '@/lib/elevenLabs';
 import { generateGoogleTTS } from '@/lib/google-ai';
 
 export async function POST(request: Request) {
-  const { text } = await request.json();
+  const { text, lang } = await request.json();
 
   if (!text) {
     return new Response(JSON.stringify({ error: 'Text is required' }), { status: 400 });
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
   try {
     // PRIMARY ENGINE: ElevenLabs
-    const audioStream = await streamTextToSpeech(text);
+    const audioStream = await streamTextToSpeech(text, lang);
 
     return new Response(audioStream, {
       headers: {
