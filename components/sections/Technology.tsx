@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function Technology() {
     return (
-        <section className="min-h-screen bg-navy flex items-center justify-center px-6 md:px-12 py-24 border-t border-white/5">
+        <section id="technology" className="min-h-screen bg-navy flex items-center justify-center px-6 md:px-12 py-24 border-t border-white/5">
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
                 {/* Left: Text Content */}

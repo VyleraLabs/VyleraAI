@@ -6,13 +6,13 @@ import Image from "next/image";
 const team = [
   {
     name: "Katherina Aytakin",
-    role: "Founder // Lead Architect",
+    role: "Founder // Lead Engineer",
     image: "/team/founder.jpg",
     bio: "Former Security Analyst specializing in high-stakes penetration testing (Denuvo) and industrial Oracle architectures. Architecting the secure, sovereign neural fabric of Vylera."
   },
   {
     name: "Magna Putra",
-    role: "Lead Engineer",
+    role: "Lead Architect",
     image: "/team/lead-eng.jpg", // Use a logo or abstract avatar here
     bio: "Senior Systems Engineer with a background in SAP/ABAP architecture. Previously optimized mission-critical logistic networks for UNICEF. Building Vylera's reliable edge infrastructure."
   }

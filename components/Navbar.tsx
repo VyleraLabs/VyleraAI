@@ -29,7 +29,7 @@ export default function Navbar() {
   // Handle Active Section Scrolling
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["platform", "manifesto", "research", "team"];
+      const sections = ["mission", "technology", "team"];
       const scrollPosition = window.scrollY + 100; // Offset
 
       for (const section of sections) {
@@ -150,20 +150,19 @@ export default function Navbar() {
 
         {/* Navigation - Neural Interface */}
         <div className="hidden md:flex items-center gap-12">
-          <NavLink href="#platform" targetId="platform">Platform</NavLink>
-          <NavLink href="#manifesto" targetId="manifesto">Manifesto</NavLink>
-          <NavLink href="#research" targetId="research">Research</NavLink>
+          <NavLink href="#mission" targetId="mission">Mission</NavLink>
+          <NavLink href="#technology" targetId="technology">Technology</NavLink>
           <NavLink href="/#team" targetId="team">Team</NavLink>
         </div>
 
-        {/* Grant Access - "AWAKEN YOUR HOME" */}
+        {/* Grant Access - "BETA ACCESS" */}
         <div className="relative group">
           <button
             onClick={() => setIsWaitlistOpen(true)}
             className="relative z-10 px-8 py-3 bg-cyan-500/5 backdrop-blur-xl border border-cyan-500/30 text-cyan text-sm tracking-widest font-bold uppercase transition-all duration-300 overflow-hidden hover:bg-cyan-500/10"
           >
             {/* Text Content */}
-            <span className="relative z-20">AWAKEN YOUR HOME</span>
+            <span className="relative z-20">BETA ACCESS</span>
 
             {/* Linear Shimmer Scan Effect */}
             <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-[shimmer_1.5s_infinite]" />
