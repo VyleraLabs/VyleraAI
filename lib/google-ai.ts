@@ -50,4 +50,34 @@ try {
   console.error('Failed to initialize Google AI clients:', error);
 }
 
+export async function generateGoogleTTS(text: string): Promise<Uint8Array> {
+  if (!ttsClient) {
+    throw new Error('Google TTS Client not initialized');
+  }
+
+  const request = {
+    input: { text },
+    // Fallback Voice: Google Chirp 3 HD (en-US-Chirp-HD-F)
+    voice: { languageCode: 'en-US', name: 'en-US-Chirp-HD-F' },
+    audioConfig: { audioEncoding: 'MP3' as const },
+  };
+
+  try {
+    const [response] = await ttsClient.synthesizeSpeech(request);
+
+    if (!response.audioContent) {
+      throw new Error('No audio content received from Google TTS');
+    }
+
+    // Ensure we return a Uint8Array
+    if (typeof response.audioContent === 'string') {
+        return new Uint8Array(Buffer.from(response.audioContent, 'base64'));
+    }
+    return response.audioContent as Uint8Array;
+  } catch (error) {
+    console.error("Google TTS Generation Failed:", error);
+    throw error;
+  }
+}
+
 export { vertexAI, ttsClient };

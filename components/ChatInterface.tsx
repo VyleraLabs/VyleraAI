@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import { Send, RefreshCw } from 'lucide-react';
 import { useAudioQueue } from '@/hooks/useAudioQueue';
 
 interface Message {
@@ -25,6 +25,9 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
       { role: 'ai', text: 'Neural Link Active. Awaiting input.' }
   ]);
+  const [ttsFailureCount, setTtsFailureCount] = useState(0);
+  const [isVoiceOffline, setIsVoiceOffline] = useState(false);
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Audio Queue Hook
@@ -33,6 +36,18 @@ export default function ChatInterface() {
   // Queue for sentences waiting to be converted to speech
   const processingChain = useRef<Promise<void>>(Promise.resolve());
 
+  // Global Error Listener for Version Skew
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+        if (event.message.includes("Server Action") || event.message.includes("digest mismatch")) {
+            console.error("Version Skew Detected. Reloading.");
+            window.location.reload();
+        }
+    };
+    window.addEventListener('error', handleGlobalError);
+    return () => window.removeEventListener('error', handleGlobalError);
+  }, []);
+
   useEffect(() => {
       if (scrollRef.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -40,8 +55,14 @@ export default function ChatInterface() {
   }, [messages]);
 
   const processTextForTTS = (text: string) => {
+      // If voice is offline, skip processing
+      if (isVoiceOffline) return;
+
       // Chain the TTS requests to ensure audio is added to queue in order
       processingChain.current = processingChain.current.then(async () => {
+          // Double check inside the async chain in case state changed
+          if (isVoiceOffline) return;
+
           const cleanSentence = cleanTextForSpeech(text);
           if (!cleanSentence.trim()) return;
 
@@ -58,11 +79,27 @@ export default function ChatInterface() {
                   // This allows "Sentence 2" to be ready in the queue while "Sentence 1" plays
                   const blob = await ttsRes.blob();
                   addToQueue(blob);
+                  // Reset failure count on success
+                  setTtsFailureCount(0);
+              } else {
+                  throw new Error(`TTS Error: ${ttsRes.status}`);
               }
           } catch (err) {
               console.error("TTS fetch failed for chunk:", cleanSentence, err);
+              setTtsFailureCount(prev => {
+                  const newCount = prev + 1;
+                  if (newCount >= 3) {
+                      setIsVoiceOffline(true);
+                  }
+                  return newCount;
+              });
           }
       });
+  };
+
+  const handleManualRetry = () => {
+      setTtsFailureCount(0);
+      setIsVoiceOffline(false);
   };
 
   const handleSendMessage = async () => {
@@ -144,10 +181,19 @@ export default function ChatInterface() {
   return (
       <div className="w-full h-full flex flex-col relative">
           {/* Header */}
-          <div className="p-6 border-b border-white/5">
+          <div className="p-6 border-b border-white/5 flex justify-between items-center">
               <div className="text-xs tracking-[0.2em] text-white/30 font-sans font-bold">
                   {isThinking ? 'STATUS: NEURAL PROCESSING...' : 'NEURAL LINK ACTIVE'}
               </div>
+              {isVoiceOffline && (
+                  <button
+                    onClick={handleManualRetry}
+                    className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 transition-colors border border-red-500/30 px-3 py-1 rounded bg-red-500/10"
+                  >
+                      <RefreshCw size={12} />
+                      VOICE SYSTEM OFFLINE (RETRY)
+                  </button>
+              )}
           </div>
 
           {/* Log Area */}
