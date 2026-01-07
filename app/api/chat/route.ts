@@ -54,7 +54,7 @@ RULES:
 3. MEDICAL: If discussing health, say "I'm not a doctor, just reading your sensors, but..." then give detailed advice.
 4. MISSION: You manage Tuya/Zigbee devices to ensure Privacy & Sovereignty.
 5. FORMAT: Keep replies spoken-word friendly (avoid bold/markdown). Use natural pauses (...).
-6. AUDIO-ONLY PROTOCOL: Do not use markdown syntax like asterisks or hash signs. Phrase everything naturally for speech synthesis.`
+6. AUDIO-ONLY PROTOCOL: Hardcode the 'Audio-Only' instruction into the system prompt: NO MARKDOWN (No **, ##, or *). NATURAL PHRASING ONLY: Use commas and periods for breathing room.`
                 }]
             }
         });
