@@ -9,6 +9,8 @@ import { useMetiAnimations } from '../../hooks/useMetiAnimations'
 
 export interface AvatarHandle {
     speak: (text: string, lang?: string) => Promise<void>;
+    playAudioBlob: (blob: Blob) => Promise<void>;
+    stop: () => void;
 }
 
 export interface AvatarProps {
@@ -143,6 +145,99 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const dataArrayRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const stop = () => {
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+    }
+    if (sourceRef.current) {
+        sourceRef.current.disconnect();
+        sourceRef.current = null;
+    }
+    setIsSpeaking(false);
+    // Reset blend shapes
+    if (vrm && vrm.expressionManager) {
+        vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+        vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+        vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+    }
+  };
+
+  const playAudioBlob = async (blob: Blob): Promise<void> => {
+    stop(); // Stop any currently playing audio
+
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.crossOrigin = "anonymous";
+    audioRef.current = audio;
+
+    return new Promise<void>((resolve, reject) => {
+        audio.onplay = () => {
+            setIsSpeaking(true);
+
+            // Setup Audio Analysis for Lip Sync
+            if (!audioContextRef.current) {
+                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            }
+            const ctx = audioContextRef.current;
+
+            if(ctx.state === 'suspended') {
+                ctx.resume();
+            }
+
+            if (sourceRef.current) {
+                sourceRef.current.disconnect();
+            }
+
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 512; // Moderate resolution
+            analyserRef.current = analyser;
+
+            const bufferLength = analyser.frequencyBinCount;
+            // Explicitly cast ArrayBuffer to avoid Type error with Uint8Array vs Uint8Array<ArrayBuffer>
+            dataArrayRef.current = new Uint8Array(new ArrayBuffer(bufferLength));
+
+            try {
+                const source = ctx.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(ctx.destination);
+                sourceRef.current = source;
+            } catch(e) {
+                console.warn("MediaElementSource connection failed (already connected?)", e);
+            }
+        };
+
+        audio.onended = () => {
+            setIsSpeaking(false);
+            URL.revokeObjectURL(url);
+            if (sourceRef.current) {
+                sourceRef.current.disconnect();
+                sourceRef.current = null;
+            }
+            audioRef.current = null;
+            resolve();
+        };
+
+        audio.onerror = (e) => {
+            setIsSpeaking(false);
+            URL.revokeObjectURL(url);
+            console.error("Audio playback error", e);
+            reject(e);
+        };
+
+        audio.play().catch(e => {
+            if (e.message.indexOf('interrupted') === -1) {
+                console.error("Play failed", e);
+                reject(e);
+            } else {
+                resolve(); // Treat interruption as done
+            }
+        });
+    });
+  };
 
   const speak = async (text: string, lang?: string) => {
     // Abort previous
@@ -160,95 +255,23 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       })
       if (!res.ok) throw new Error('TTS Failed')
       const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const audio = new Audio(url)
-      // Essential for MediaElementSource
-      audio.crossOrigin = "anonymous";
 
-      audio.onplay = () => {
-          if (controller.signal.aborted) {
-              audio.pause();
-              return;
-          }
-          setIsSpeaking(true)
+      if (controller.signal.aborted) return;
 
-          // Setup Audio Analysis for Lip Sync
-          if (!audioContextRef.current) {
-              audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-          }
-          const ctx = audioContextRef.current;
-
-          if(ctx.state === 'suspended') {
-              ctx.resume();
-          }
-
-          if (sourceRef.current) {
-              sourceRef.current.disconnect();
-          }
-
-          const analyser = ctx.createAnalyser();
-          analyser.fftSize = 512; // Moderate resolution
-          analyserRef.current = analyser;
-
-          const bufferLength = analyser.frequencyBinCount;
-          // Explicitly cast ArrayBuffer to avoid Type error with Uint8Array vs Uint8Array<ArrayBuffer>
-          dataArrayRef.current = new Uint8Array(new ArrayBuffer(bufferLength));
-
-          const source = ctx.createMediaElementSource(audio);
-          source.connect(analyser);
-          analyser.connect(ctx.destination);
-          sourceRef.current = source;
-      };
-
-      audio.onended = () => {
-        setIsSpeaking(false)
-        URL.revokeObjectURL(url)
-        if (sourceRef.current) {
-            sourceRef.current.disconnect();
-            sourceRef.current = null;
-        }
-      }
-
-      // Prevent flood error here too just in case
-      audio.play().catch(e => {
-         if (e.name !== 'AbortError' && e.message.indexOf('interrupted') === -1) {
-             console.error('Audio Play Error in Avatar:', e);
-         }
-      })
-
-      // Hook up abort signal to stop audio if it happens after fetch
-      controller.signal.addEventListener('abort', () => {
-          audio.pause();
-          setIsSpeaking(false);
-          URL.revokeObjectURL(url);
-          // Reset blend shapes
-          if (vrm && vrm.expressionManager) {
-              vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-              vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-              vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-          }
-          if (sourceRef.current) {
-              sourceRef.current.disconnect();
-              sourceRef.current = null;
-          }
-      });
+      await playAudioBlob(blob);
 
     } catch (e: any) {
       if (e.name !== 'AbortError') {
           console.error(e)
       }
       setIsSpeaking(false)
-      // Reset blend shapes on error
-      if (vrm && vrm.expressionManager) {
-          vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-          vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-          vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-      }
     }
   }
 
   useImperativeHandle(ref, () => ({
-    speak
+    speak,
+    playAudioBlob,
+    stop
   }));
 
   // LookAt Target

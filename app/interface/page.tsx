@@ -26,7 +26,7 @@ export default function InterfacePage() {
 
       {/* Right Panel (Chat) - 1/3 Width */}
       <div className="w-1/3 h-full border-l border-white/5 bg-white/5 backdrop-blur-2xl flex flex-col relative z-10">
-          <ChatInterface />
+          <ChatInterface avatarRef={avatarRef} />
       </div>
 
       {/* Exit Button (Optional overlay) */}
