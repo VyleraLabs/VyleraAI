@@ -1,13 +1,17 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, useProgress, Html } from '@react-three/drei'
+import { useGLTF, useProgress, Html, useFBX, useAnimations } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
 
 export interface AvatarHandle {
-    speak: (text: string) => Promise<void>;
+    speak: (text: string, lang?: string) => Promise<void>;
+}
+
+export interface AvatarProps {
+  isThinking?: boolean;
 }
 
 function Loader() {
@@ -25,8 +29,8 @@ function CameraRig() {
   const { camera } = useThree()
 
   useEffect(() => {
-    // Fixed camera position
-    camera.position.set(0, 1.4, 0.8)
+    // Fixed camera position (Updated to Z: 2.1)
+    camera.position.set(0, 1.4, 2.1)
     // Target: Face center
     camera.lookAt(0, 1.35, 0)
   }, [camera])
@@ -34,15 +38,116 @@ function CameraRig() {
   return null
 }
 
-const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
+const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
   const [vrm, setVrm] = useState<any>(null)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const gltf = useGLTF('/models/meti.vrm', undefined, undefined, (loader) => {
     loader.register((parser) => {
       return new VRMLoaderPlugin(parser as any) as any
     })
   })
+
+  // Load Animations
+  // Assuming files exist in /public/animations/
+  // Note: useFBX will throw if files are missing.
+  // We handle potential missing files by attempting to load.
+  // If useFBX fails, it might suspend indefinitely or error boundary catch it.
+  // We can't easily try/catch a hook. Assuming files are present as per task.
+
+  // Animation Keys
+  const anims = {
+    happyIdle: useFBX('/animations/Happy Idle.fbx'),
+    happy: useFBX('/animations/Happy.fbx'),
+    bashful: useFBX('/animations/Bashful.fbx'),
+    bored: useFBX('/animations/Bored.fbx'),
+    talking: useFBX('/animations/Talking.fbx'),
+    talking1: useFBX('/animations/Talking (1).fbx'),
+    lookAround: useFBX('/animations/Look Around.fbx'), // For Thinking
+  };
+
+  // Extract clips
+  const animations = [
+    anims.happyIdle.animations[0],
+    anims.happy.animations[0],
+    anims.bashful.animations[0],
+    anims.bored.animations[0],
+    anims.talking.animations[0],
+    anims.talking1.animations[0],
+    anims.lookAround.animations[0],
+  ];
+
+  // Rename clips
+  animations[0].name = 'HappyIdle';
+  animations[1].name = 'Happy';
+  animations[2].name = 'Bashful';
+  animations[3].name = 'Bored';
+  animations[4].name = 'Talking';
+  animations[5].name = 'Talking1';
+  animations[6].name = 'LookAround';
+
+  // Use Animations on the VRM scene
+  // We apply the animations to gltf.scene (VRM root).
+  // Note: Standard Mixamo might need retargeting but we apply directly here as per instructions.
+  const { actions } = useAnimations(animations, gltf.scene);
+
+  // Animation Logic
+  useEffect(() => {
+     if (!actions) return;
+
+     const idleAnims = ['HappyIdle', 'Happy', 'Bashful', 'Bored'];
+     const talkingAnims = ['Talking', 'Talking1'];
+     const thinkingAnim = 'LookAround';
+
+     let currentAction: any = null;
+     let timeoutId: NodeJS.Timeout;
+
+     const play = (name: string) => {
+         const newAction = actions[name];
+         if (currentAction && currentAction !== newAction) {
+             currentAction.fadeOut(0.5);
+         }
+         if (newAction) {
+             newAction.reset().fadeIn(0.5).play();
+             currentAction = newAction;
+         }
+     };
+
+     if (isThinking) {
+         play(thinkingAnim);
+     } else if (isSpeaking) {
+         // Cycle talking animations randomly? Or just pick one?
+         // Task says "Randomly alternate Talking and Talking (1)"
+         const randomTalk = talkingAnims[Math.floor(Math.random() * talkingAnims.length)];
+         play(randomTalk);
+
+         // To alternate while speaking, we might need an interval, but for now let's just pick one per "speak" session or on loop
+         // If we want to alternate DURING speech, we need a timer.
+         // Let's assume one clip loop is fine or we re-trigger.
+         // But "Randomly alternate" implies dynamic switching.
+         // Let's rely on the effect dependency `isSpeaking`.
+     } else {
+         // Idles
+         // "Randomly cycle Happy Idle, Happy, Bashful, and Bored."
+         const cycleIdle = () => {
+             if (isThinking || isSpeaking) return;
+             const randomIdle = idleAnims[Math.floor(Math.random() * idleAnims.length)];
+             play(randomIdle);
+             // Duration of idle? usually they loop. But if we want to cycle, we play for X seconds then switch?
+             // Or play once then switch? Most idles are looped.
+             // Let's switch every 10 seconds.
+             timeoutId = setTimeout(cycleIdle, 10000);
+         };
+         cycleIdle();
+     }
+
+     return () => {
+         clearTimeout(timeoutId);
+         if (currentAction) currentAction.fadeOut(0.5);
+     };
+
+  }, [isSpeaking, isThinking, actions]);
 
   // Blink State
   const blinkRef = useRef({
@@ -52,26 +157,64 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
     duration: 0.15 // Duration of a blink
   })
 
-  const speak = async (text: string) => {
+  const speak = async (text: string, lang?: string) => {
+    // Abort previous
+    if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const res = await fetch('/api/tts', {
         method: 'POST',
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text, lang }),
+        signal: controller.signal
       })
       if (!res.ok) throw new Error('TTS Failed')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const audio = new Audio(url)
 
-      audio.onplay = () => setIsSpeaking(true)
+      // Handle audio interruption manually since Audio element doesn't take signal
+      // But if fetch was aborted we won't get here.
+
+      // If we start playing, we should also handle "stop" if speak is called again.
+      // We can use a ref for the current audio
+
+      audio.onplay = () => {
+          if (controller.signal.aborted) {
+              audio.pause();
+              return;
+          }
+          setIsSpeaking(true)
+      };
       audio.onended = () => {
         setIsSpeaking(false)
         URL.revokeObjectURL(url)
       }
       audio.play()
-    } catch (e) {
-      console.error(e)
+
+      // Hook up abort signal to stop audio if it happens after fetch
+      controller.signal.addEventListener('abort', () => {
+          audio.pause();
+          setIsSpeaking(false);
+          URL.revokeObjectURL(url);
+          // Reset blend shapes
+          if (vrm && vrm.expressionManager) {
+              vrm.expressionManager.setValue('aa', 0);
+          }
+      });
+
+    } catch (e: any) {
+      if (e.name !== 'AbortError') {
+          console.error(e)
+      }
       setIsSpeaking(false)
+      // Reset blend shapes on error
+      if (vrm && vrm.expressionManager) {
+          vrm.expressionManager.setValue('aa', 0);
+      }
     }
   }
 
@@ -208,7 +351,7 @@ const Avatar = forwardRef<AvatarHandle, {}>((props, ref) => {
 
 Avatar.displayName = 'Avatar'
 
-const AvatarCanvas = forwardRef<AvatarHandle, {}>((props, ref) => {
+const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
   return (
     <Canvas
       camera={{ fov: 30 }}
@@ -222,7 +365,7 @@ const AvatarCanvas = forwardRef<AvatarHandle, {}>((props, ref) => {
         <spotLight position={[-5, 5, 10]} intensity={2} />
 
         <Suspense fallback={<Loader />}>
-            <Avatar ref={ref} />
+            <Avatar ref={ref} {...props} />
         </Suspense>
     </Canvas>
   )
