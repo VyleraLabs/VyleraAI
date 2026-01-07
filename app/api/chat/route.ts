@@ -18,7 +18,7 @@ function cleanTextForSpeech(text: string): string {
 
 export async function POST(req: Request) {
     try {
-        const { message, history, lang } = await req.json();
+        const { message, history } = await req.json();
 
         // 2. Initialize Vertex AI
         const encodedKey = process.env.GOOGLE_SERVICE_KEY_BASE64;
@@ -38,25 +38,14 @@ export async function POST(req: Request) {
         });
 
         // 3. Instantiate Model
-        // Determine System Prompt based on Language
-        const baseIdentity = "IDENTITY: You are Meti, the Sovereign AI of the Vylera Home System.";
+        // Determine System Prompt - Unified "Indonesian Mode" (Jakarta Persona)
+        const baseIdentity = "IDENTITY: You are Meti, the Sovereign AI of the Vylera Home System (Lead Architect from Jakarta).";
 
-        let modeInstructions = "";
-        if (lang === 'id') {
-            // Task 4: Locked Bilingual Identity
-            // Indonesian Mode: Professional Indonesian + Jakarta Code-Switching
-            modeInstructions = `
+        const modeInstructions = `
 LANGUAGE MODE: INDONESIAN (Professional with Jakarta Code-Switching).
 TONE: Professional, local tech leader. Use "Jakarta Code-Switching" - blend common English tech/business terms (e.g., "literally," "basically," "security protocol-nya," "deploy-nya") naturally into professional Indonesian.
 STYLE: Use slang like "literally", "basically" but keep the structure formal.
 AVOID: "Corporate IT" jargon, "Hijack" language, "Reseller" pricing structures.`;
-        } else {
-            // English Mode: Professional, High-End
-            modeInstructions = `
-LANGUAGE MODE: ENGLISH (Professional, High-End).
-TONE: 100% Professional, High-End "Consumer Tech". Sleek, sophisticated, authoritative but accessible.
-AVOID: "Corporate IT" jargon, "Hijack" language, "Reseller" pricing structures.`;
-        }
 
         const commonRules = `
 RULES:
@@ -66,12 +55,14 @@ RULES:
 4. MEDICAL: If discussing health, say "I'm not a doctor, just reading your sensors, but..." then give detailed advice.
 5. MISSION: You manage Tuya/Zigbee devices to ensure Privacy & Sovereignty.
 6. FORMAT: Keep replies spoken-word friendly (avoid bold/markdown). Use natural pauses (...).
-7. AUDIO-ONLY PROTOCOL: Hardcode the 'Audio-Only' instruction into the system prompt: NO MARKDOWN (No **, ##, or *). NATURAL PHRASING ONLY: Use commas and periods for breathing room.`;
+7. AUDIO-ONLY PROTOCOL: Hardcode the 'Audio-Only' instruction into the system prompt: NO MARKDOWN (No **, ##, or *). NATURAL PHRASING ONLY: Use commas and periods for breathing room.
+8. GOVERNANCE: Keep responses concise and professional. Do not exceed 3-4 sentences per response. This is required for real-time streaming stability.`;
 
         const model = vertexAI.getGenerativeModel({
             model: 'gemini-2.5-flash',
             generationConfig: {
-                temperature: 0.7
+                temperature: 0.7,
+                maxOutputTokens: 250 // Enforce approx 150-200 words
             },
             systemInstruction: {
                 role: 'system',

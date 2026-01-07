@@ -293,141 +293,166 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
   useFrame((state, delta) => {
     if (vrm) {
-      vrm.update(delta)
-      const t = state.clock.elapsedTime
+      // GPU Shield: Wrap mixer.update() and sensitive logic in try/catch
+      try {
+          vrm.update(delta)
 
-      // Lip Sync (Frequency Analysis)
-      if (vrm.expressionManager) {
-         if (isSpeaking && analyserRef.current && dataArrayRef.current) {
-             analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+          const t = state.clock.elapsedTime
 
-             // Task 3: VRoid Morph Target Sync
-             // Map Frequency Bands to Visemes:
-             // Low (20-300Hz) -> 'oo' (Fcl_MTH_O)
-             // Mid (300-2000Hz) -> 'aa' (Fcl_MTH_A)
-             // High (2000Hz+) -> 'ee' (Fcl_MTH_I)
+          // Lip Sync (Frequency Analysis)
+          if (vrm.expressionManager) {
+             if (isSpeaking && analyserRef.current && dataArrayRef.current) {
+                 // GPU Shield: Wrap analyser.getByteFrequencyData
+                 try {
+                     analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
-             const bufferLength = analyserRef.current.frequencyBinCount;
-             // Sample Rate is usually 44100 or 48000
-             // fftSize 512 -> 256 bins.
-             // binWidth = sampleRate / 512. Approx 86Hz per bin (at 44.1k)
+                     // Task 3: VRoid Morph Target Sync
+                     // Map Frequency Bands to Visemes:
+                     // Low (20-300Hz) -> 'oo' (Fcl_MTH_O)
+                     // Mid (300-2000Hz) -> 'aa' (Fcl_MTH_A)
+                     // High (2000Hz+) -> 'ee' (Fcl_MTH_I)
 
-             // Low: Bins 0-4 (~0-350Hz)
-             let lowSum = 0;
-             for(let i=0; i<4; i++) lowSum += dataArrayRef.current[i];
-             const lowAvg = lowSum / 4;
+                     const bufferLength = analyserRef.current.frequencyBinCount;
+                     // Sample Rate is usually 44100 or 48000
+                     // fftSize 512 -> 256 bins.
+                     // binWidth = sampleRate / 512. Approx 86Hz per bin (at 44.1k)
 
-             // Mid: Bins 4-20 (~350-1700Hz)
-             let midSum = 0;
-             for(let i=4; i<20; i++) midSum += dataArrayRef.current[i];
-             const midAvg = midSum / 16;
+                     // Low: Bins 0-4 (~0-350Hz)
+                     let lowSum = 0;
+                     for(let i=0; i<4; i++) lowSum += dataArrayRef.current[i];
+                     const lowAvg = lowSum / 4;
 
-             // High: Bins 20-100 (~1700-8600Hz)
-             let highSum = 0;
-             for(let i=20; i<100; i++) highSum += dataArrayRef.current[i];
-             const highAvg = highSum / 80;
+                     // Mid: Bins 4-20 (~350-1700Hz)
+                     let midSum = 0;
+                     for(let i=4; i<20; i++) midSum += dataArrayRef.current[i];
+                     const midAvg = midSum / 16;
 
-             // Normalize (0-255 -> 0-1) and apply sensitivity
-             const sensitivity = 2.5; // Boost values
-             const valO = Math.min(1, (lowAvg / 255) * sensitivity);
-             const valA = Math.min(1, (midAvg / 255) * sensitivity);
-             const valI = Math.min(1, (highAvg / 255) * sensitivity);
+                     // High: Bins 20-100 (~1700-8600Hz)
+                     let highSum = 0;
+                     for(let i=20; i<100; i++) highSum += dataArrayRef.current[i];
+                     const highAvg = highSum / 80;
 
-             // Apply smoothing or direct? Direct for responsiveness.
-             vrm.expressionManager.setValue('Fcl_MTH_O', valO);
-             vrm.expressionManager.setValue('Fcl_MTH_A', valA);
-             vrm.expressionManager.setValue('Fcl_MTH_I', valI);
+                     // Normalize (0-255 -> 0-1) and apply sensitivity
+                     const sensitivity = 2.5; // Boost values
+                     const valO = Math.min(1, (lowAvg / 255) * sensitivity);
+                     const valA = Math.min(1, (midAvg / 255) * sensitivity);
+                     const valI = Math.min(1, (highAvg / 255) * sensitivity);
 
-         } else {
-             vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-             vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-             vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-         }
-      }
+                     // Apply smoothing or direct? Direct for responsiveness.
+                     vrm.expressionManager.setValue('Fcl_MTH_O', valO);
+                     vrm.expressionManager.setValue('Fcl_MTH_A', valA);
+                     vrm.expressionManager.setValue('Fcl_MTH_I', valI);
 
-      // 1. Initial Pose (Arms down ~75 deg)
-      // 75 degrees is approx 1.3 radians
-      const leftArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm')
-      const rightArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm')
-      if (leftArm) leftArm.rotation.z = -1.3
-      if (rightArm) rightArm.rotation.z = 1.3
+                 } catch (analyserError) {
+                     // Reset on error
+                     vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+                     vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+                     vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+                     console.warn("Audio analysis interrupted:", analyserError);
+                 }
 
-      // 2. Breathing (Sine wave on Spine)
-      const spine = vrm.humanoid.getNormalizedBoneNode('spine')
-      if (spine) {
-        spine.rotation.x = Math.sin(t * 2.0) * 0.05 // Subtle chest heave
-      }
+             } else {
+                 vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+                 vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+                 vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+             }
+          }
 
-      // 3. Advanced Tracking
-      // Mouse position: state.pointer.x/y (-1 to 1)
-      const mouseX = state.pointer.x * 0.2 // Reduced sensitivity, Positive tracking
-      const mouseY = state.pointer.y * 0.2 // Reduced sensitivity
+          // 1. Initial Pose (Arms down ~75 deg)
+          // 75 degrees is approx 1.3 radians
+          const leftArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm')
+          const rightArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm')
+          if (leftArm) leftArm.rotation.z = -1.3
+          if (rightArm) rightArm.rotation.z = 1.3
 
-      // Eyes - Use VRM LookAt for correct depth convergence
-      // Update the shared target object position
-      lookAtTarget.current.position.set(
-          mouseX,
-          mouseY + 1.35, // Adjust for eye height (approx 1.35m)
-          4.0
-      )
+          // 2. Breathing (Sine wave on Spine)
+          const spine = vrm.humanoid.getNormalizedBoneNode('spine')
+          if (spine) {
+            spine.rotation.x = Math.sin(t * 2.0) * 0.05 // Subtle chest heave
+          }
 
-      // Helper to rotate bone towards cursor
-      // Y rotation is horizontal (looking left/right) -> corresponds to mouse X
-      // X rotation is vertical (looking up/down) -> corresponds to mouse Y
-      const track = (boneName: string, multiplier: number, clampX?: number, clampY?: number) => {
-        const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
-        if (bone) {
-          // Target rotations
-          let targetY = mouseX * multiplier
-          let targetX = mouseY * multiplier
+          // 3. Advanced Tracking
+          // Mouse position: state.pointer.x/y (-1 to 1)
+          const mouseX = state.pointer.x * 0.2 // Reduced sensitivity, Positive tracking
+          const mouseY = state.pointer.y * 0.2 // Reduced sensitivity
 
-          // Clamp if limits are provided
-          if (clampY) targetY = THREE.MathUtils.clamp(targetY, -clampY, clampY)
-          if (clampX) targetX = THREE.MathUtils.clamp(targetX, -clampX, clampX)
+          // Eyes - Use VRM LookAt for correct depth convergence
+          // Update the shared target object position
+          lookAtTarget.current.position.set(
+              mouseX,
+              mouseY + 1.35, // Adjust for eye height (approx 1.35m)
+              4.0
+          )
 
-          // Smoothly interpolate
-          bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, targetY, 0.1)
-          bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, targetX, 0.1)
-        }
-      }
+          // Helper to rotate bone towards cursor
+          // Y rotation is horizontal (looking left/right) -> corresponds to mouse X
+          // X rotation is vertical (looking up/down) -> corresponds to mouse Y
+          const track = (boneName: string, multiplier: number, clampX?: number, clampY?: number) => {
+            const bone = vrm.humanoid.getNormalizedBoneNode(boneName)
+            if (bone) {
+              // Target rotations
+              let targetY = mouseX * multiplier
+              let targetX = mouseY * multiplier
 
-      // Head (0.3)
-      track('head', 0.3)
+              // Clamp if limits are provided
+              if (clampY) targetY = THREE.MathUtils.clamp(targetY, -clampY, clampY)
+              if (clampX) targetX = THREE.MathUtils.clamp(targetX, -clampX, clampX)
 
-      // Neck (0.2)
-      track('neck', 0.2)
+              // Smoothly interpolate
+              bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, targetY, 0.1)
+              bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, targetX, 0.1)
+            }
+          }
 
-      // UpperChest (0.1)
-      track('upperChest', 0.1)
+          // Head (0.3)
+          track('head', 0.3)
+
+          // Neck (0.2)
+          track('neck', 0.2)
+
+          // UpperChest (0.1)
+          track('upperChest', 0.1)
 
 
-      // 4. Blinking (Random interval 2-4s)
-      if (vrm.expressionManager) {
-        const blink = blinkRef.current
+          // 4. Blinking (Random interval 2-4s)
+          if (vrm.expressionManager) {
+            const blink = blinkRef.current
 
-        // Check if it's time to blink
-        if (!blink.isBlinking && t > blink.nextBlinkTime) {
-           blink.isBlinking = true
-           blink.blinkStartTime = t
-           // Set next blink time (current time + random between 2 and 4)
-           blink.nextBlinkTime = t + 2 + Math.random() * 2
-        }
+            // Check if it's time to blink
+            if (!blink.isBlinking && t > blink.nextBlinkTime) {
+               blink.isBlinking = true
+               blink.blinkStartTime = t
+               // Set next blink time (current time + random between 2 and 4)
+               blink.nextBlinkTime = t + 2 + Math.random() * 2
+            }
 
-        if (blink.isBlinking) {
-           // Calculate blink progress (0 to 1 then back to 0) can be simple or bell curve
-           // Simple implementation: fully closed for duration
-           const progress = (t - blink.blinkStartTime) / blink.duration
+            if (blink.isBlinking) {
+               // Calculate blink progress (0 to 1 then back to 0) can be simple or bell curve
+               // Simple implementation: fully closed for duration
+               const progress = (t - blink.blinkStartTime) / blink.duration
 
-           if (progress >= 1) {
-             blink.isBlinking = false
-             vrm.expressionManager.setValue('blink', 0)
-           } else {
-             // Peak blink at 0.5 progress? Or just close/open.
-             // Let's do a sine wave for smooth blink
-             const blinkValue = Math.sin(progress * Math.PI)
-             vrm.expressionManager.setValue('blink', blinkValue)
-           }
-        }
+               if (progress >= 1) {
+                 blink.isBlinking = false
+                 vrm.expressionManager.setValue('blink', 0)
+               } else {
+                 // Peak blink at 0.5 progress? Or just close/open.
+                 // Let's do a sine wave for smooth blink
+                 const blinkValue = Math.sin(progress * Math.PI)
+                 vrm.expressionManager.setValue('blink', blinkValue)
+               }
+            }
+          }
+
+      } catch (updateError) {
+          // Task 3: Reset mouth to neutral pose immediately to prevent a "Context Lost" loop
+          if (vrm && vrm.expressionManager) {
+             try {
+                vrm.expressionManager.setValue('Fcl_MTH_O', 0);
+                vrm.expressionManager.setValue('Fcl_MTH_A', 0);
+                vrm.expressionManager.setValue('Fcl_MTH_I', 0);
+             } catch (e) { /* ignore safe reset fail */ }
+          }
+          console.warn("VRM Update / Animation loop error (recovered):", updateError);
       }
     }
   })
