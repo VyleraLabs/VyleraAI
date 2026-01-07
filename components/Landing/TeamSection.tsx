@@ -11,12 +11,6 @@ const team = [
     bio: "Former Security Analyst specializing in high-stakes penetration testing (Denuvo) and industrial Oracle architectures. Architecting the secure, sovereign neural fabric of Vylera."
   },
   {
-    name: "Edwin",
-    role: "Co-Founder // Head of Ops",
-    image: "/team/co-founder.jpg",
-    bio: "Supply Chain Director specializing in OEM/ODM hardware sourcing. Leads Vylera's cross-border logistics and hardware integration strategy from Shenzhen to Jakarta."
-  },
-  {
     name: "Magna Putra",
     role: "Lead Engineer",
     image: "/team/lead-eng.jpg", // Use a logo or abstract avatar here
