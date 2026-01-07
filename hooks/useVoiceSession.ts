@@ -18,22 +18,19 @@ export function useVoiceSession(): UseVoiceSessionReturn {
   const [language, setLanguage] = useState<Language>('en'); // Default to English
   const [isLocked, setIsLocked] = useState(false);
 
+  // Logic:
+  // 1. Detect language of first prompt.
+  // 2. Lock session to that language.
+  // 3. API (lib/elevenLabs.ts) handles mapping 'en'/'id' to VOICE_ID_EN/VOICE_ID_ID from env vars.
   const processFirstPrompt = useCallback((text: string) => {
     if (isLocked) return;
 
     const lowerText = text.toLowerCase();
     // Simple heuristic: check if any Indonesian keyword is present as a whole word
-    // This is a basic detection and can be improved with a proper library if needed.
     const words = lowerText.split(/\s+/);
     const idCount = words.filter(word => INDONESIAN_KEYWORDS.includes(word.replace(/[^\w]/g, ''))).length;
 
-    // If we find a significant number of ID keywords relative to length, or just any for short texts?
-    // Let's say if we find at least 1 strong indicator or the ratio is high.
-    // Given the task says "Indonesian Detected", let's be a bit generous but safe.
-    // If the user says "Halo", it should detect ID.
     if (idCount > 0) {
-       // A slightly more robust check might be needed for mixed sentences,
-       // but for "First-Prompt" usually it's "Hello" vs "Halo" or "Help me" vs "Bantu saya".
        setLanguage('id');
     } else {
        setLanguage('en');

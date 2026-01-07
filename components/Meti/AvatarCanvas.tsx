@@ -1,10 +1,11 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, useProgress, Html, useFBX, useAnimations } from '@react-three/drei'
+import { useGLTF, useProgress, Html, useAnimations } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
+import { FBXLoader } from 'three-stdlib'
 
 export interface AvatarHandle {
     speak: (text: string, lang?: string) => Promise<void>;
@@ -49,56 +50,75 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
     })
   })
 
-  // Load Animations
-  // Assuming files exist in /public/animations/
-  // Note: useFBX will throw if files are missing.
-  // We handle potential missing files by attempting to load.
-  // If useFBX fails, it might suspend indefinitely or error boundary catch it.
-  // We can't easily try/catch a hook. Assuming files are present as per task.
+  // --- SAFE ANIMATION LOADING ---
+  // Replaces direct useFBX calls to prevent crashes on missing files
+  const [animations, setAnimations] = useState<THREE.AnimationClip[]>([]);
+  const isMountedRef = useRef(true);
 
-  // Animation Keys
-  const anims = {
-    happyIdle: useFBX('/animations/Happy Idle.fbx'),
-    happy: useFBX('/animations/Happy.fbx'),
-    bashful: useFBX('/animations/Bashful.fbx'),
-    bored: useFBX('/animations/Bored.fbx'),
-    talking: useFBX('/animations/Talking.fbx'),
-    talking1: useFBX('/animations/Talking (1).fbx'),
-    lookAround: useFBX('/animations/Look Around.fbx'), // For Thinking
-  };
+  useEffect(() => {
+      isMountedRef.current = true;
+      return () => { isMountedRef.current = false; };
+  }, []);
 
-  // Extract clips
-  const animations = [
-    anims.happyIdle.animations[0],
-    anims.happy.animations[0],
-    anims.bashful.animations[0],
-    anims.bored.animations[0],
-    anims.talking.animations[0],
-    anims.talking1.animations[0],
-    anims.lookAround.animations[0],
-  ];
+  useEffect(() => {
+    if (!isMountedRef.current) return;
+    const loader = new FBXLoader();
+    const animConfig = [
+        { name: 'HappyIdle', path: '/animations/HappyIdle.fbx' },
+        { name: 'Happy', path: '/animations/Happy.fbx' },
+        { name: 'Bashful', path: '/animations/Bashful.fbx' },
+        { name: 'Bored', path: '/animations/Bored.fbx' },
+        { name: 'Talking', path: '/animations/Talking.fbx' },
+        { name: 'Talking1', path: '/animations/Talking1.fbx' },
+        { name: 'LookAround', path: '/animations/LookAround.fbx' },
+        { name: 'SalsaDancing', path: '/animations/SalsaDancing.fbx' },
+        { name: 'DancingMaraschinoStep', path: '/animations/DancingMaraschinoStep.fbx' },
+    ];
 
-  // Rename clips
-  animations[0].name = 'HappyIdle';
-  animations[1].name = 'Happy';
-  animations[2].name = 'Bashful';
-  animations[3].name = 'Bored';
-  animations[4].name = 'Talking';
-  animations[5].name = 'Talking1';
-  animations[6].name = 'LookAround';
+    const loadPromises = animConfig.map((config) => {
+        return new Promise<THREE.AnimationClip | null>((resolve) => {
+            loader.load(
+                config.path,
+                (fbx) => {
+                    if (fbx.animations && fbx.animations.length > 0) {
+                        const clip = fbx.animations[0];
+                        clip.name = config.name;
+                        resolve(clip);
+                    } else {
+                        resolve(null);
+                    }
+                },
+                undefined,
+                (err) => {
+                    console.warn(`[Avatar] Failed to load animation: ${config.path}. Defaulting to safe pose.`, err);
+                    resolve(null); // Silent fail
+                }
+            );
+        });
+    });
+
+    Promise.all(loadPromises).then((results) => {
+        if (!isMountedRef.current) return;
+        const validClips = results.filter((clip): clip is THREE.AnimationClip => clip !== null);
+        setAnimations(validClips);
+    });
+  }, []); // Run once on mount
 
   // Use Animations on the VRM scene
-  // We apply the animations to gltf.scene (VRM root).
-  // Note: Standard Mixamo might need retargeting but we apply directly here as per instructions.
   const { actions } = useAnimations(animations, gltf.scene);
 
   // Animation Logic
   useEffect(() => {
-     if (!actions) return;
+     if (!actions || Object.keys(actions).length === 0) return;
 
      const idleAnims = ['HappyIdle', 'Happy', 'Bashful', 'Bored'];
      const talkingAnims = ['Talking', 'Talking1'];
      const thinkingAnim = 'LookAround';
+
+     // Filter available animations
+     const availableIdles = idleAnims.filter(name => actions[name]);
+     const availableTalks = talkingAnims.filter(name => actions[name]);
+     const hasThinking = actions[thinkingAnim];
 
      let currentAction: any = null;
      let timeoutId: NodeJS.Timeout;
@@ -114,29 +134,17 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
          }
      };
 
-     if (isThinking) {
+     if (isThinking && hasThinking) {
          play(thinkingAnim);
-     } else if (isSpeaking) {
-         // Cycle talking animations randomly? Or just pick one?
-         // Task says "Randomly alternate Talking and Talking (1)"
-         const randomTalk = talkingAnims[Math.floor(Math.random() * talkingAnims.length)];
+     } else if (isSpeaking && availableTalks.length > 0) {
+         const randomTalk = availableTalks[Math.floor(Math.random() * availableTalks.length)];
          play(randomTalk);
-
-         // To alternate while speaking, we might need an interval, but for now let's just pick one per "speak" session or on loop
-         // If we want to alternate DURING speech, we need a timer.
-         // Let's assume one clip loop is fine or we re-trigger.
-         // But "Randomly alternate" implies dynamic switching.
-         // Let's rely on the effect dependency `isSpeaking`.
-     } else {
+     } else if (availableIdles.length > 0) {
          // Idles
-         // "Randomly cycle Happy Idle, Happy, Bashful, and Bored."
          const cycleIdle = () => {
              if (isThinking || isSpeaking) return;
-             const randomIdle = idleAnims[Math.floor(Math.random() * idleAnims.length)];
+             const randomIdle = availableIdles[Math.floor(Math.random() * availableIdles.length)];
              play(randomIdle);
-             // Duration of idle? usually they loop. But if we want to cycle, we play for X seconds then switch?
-             // Or play once then switch? Most idles are looped.
-             // Let's switch every 10 seconds.
              timeoutId = setTimeout(cycleIdle, 10000);
          };
          cycleIdle();
@@ -147,7 +155,7 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
          if (currentAction) currentAction.fadeOut(0.5);
      };
 
-  }, [isSpeaking, isThinking, actions]);
+  }, [isSpeaking, isThinking, actions, animations]); // Dependent on animations loaded
 
   // Blink State
   const blinkRef = useRef({
@@ -176,12 +184,6 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       const url = URL.createObjectURL(blob)
       const audio = new Audio(url)
 
-      // Handle audio interruption manually since Audio element doesn't take signal
-      // But if fetch was aborted we won't get here.
-
-      // If we start playing, we should also handle "stop" if speak is called again.
-      // We can use a ref for the current audio
-
       audio.onplay = () => {
           if (controller.signal.aborted) {
               audio.pause();
@@ -193,7 +195,13 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
         setIsSpeaking(false)
         URL.revokeObjectURL(url)
       }
-      audio.play()
+
+      // Prevent flood error here too just in case
+      audio.play().catch(e => {
+         if (e.name !== 'AbortError' && e.message.indexOf('interrupted') === -1) {
+             console.error('Audio Play Error in Avatar:', e);
+         }
+      })
 
       // Hook up abort signal to stop audio if it happens after fetch
       controller.signal.addEventListener('abort', () => {
