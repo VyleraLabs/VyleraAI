@@ -88,8 +88,24 @@ export function useAudioQueue() {
         }
     }, [queue, isPlaying, playNext]);
 
+    const clearQueue = useCallback(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+        if (currentUrlRef.current) {
+            URL.revokeObjectURL(currentUrlRef.current);
+            currentUrlRef.current = null;
+        }
+        if (isMountedRef.current) {
+            setQueue([]);
+            setIsPlaying(false);
+        }
+    }, []);
+
     return {
         addToQueue,
+        clearQueue,
         isPlaying,
         queueLength: queue.length
     };

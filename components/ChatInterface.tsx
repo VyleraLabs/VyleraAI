@@ -32,11 +32,13 @@ export default function ChatInterface() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Audio Queue Hook
-  const { addToQueue } = useAudioQueue();
+  const { addToQueue, clearQueue } = useAudioQueue();
   const { language, processFirstPrompt, isLocked } = useVoiceSession();
 
   // Queue for sentences waiting to be converted to speech
   const processingChain = useRef<Promise<void>>(Promise.resolve());
+  // Abort Controller for pending TTS requests
+  const ttsAbortController = useRef<AbortController | null>(null);
 
   // Global Error Listener for Version Skew
   useEffect(() => {
@@ -60,20 +62,27 @@ export default function ChatInterface() {
       // If voice is offline, skip processing
       if (isVoiceOffline) return;
 
+      // Capture the current controller for this specific request chain
+      const currentController = ttsAbortController.current;
+
       // Chain the TTS requests to ensure audio is added to queue in order
       processingChain.current = processingChain.current.then(async () => {
           // Double check inside the async chain in case state changed
           if (isVoiceOffline) return;
+          // Check if the SPECIFIC controller for this task was aborted
+          if (currentController?.signal.aborted) return;
 
           const cleanSentence = cleanTextForSpeech(text);
           if (!cleanSentence.trim()) return;
 
           try {
               // Immediate Dispatch to ElevenLabs API
+              const signal = currentController?.signal;
               const ttsRes = await fetch('/api/tts', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ text: cleanSentence, lang: language })
+                  body: JSON.stringify({ text: cleanSentence, lang: language }),
+                  signal: signal
               });
 
               if (ttsRes.ok) {
@@ -84,9 +93,11 @@ export default function ChatInterface() {
                   // Reset failure count on success
                   setTtsFailureCount(0);
               } else {
-                  throw new Error(`TTS Error: ${ttsRes.status}`);
+                 if (signal?.aborted) return;
+                 throw new Error(`TTS Error: ${ttsRes.status}`);
               }
-          } catch (err) {
+          } catch (err: any) {
+              if (err.name === 'AbortError') return;
               console.error("TTS fetch failed for chunk:", cleanSentence, err);
               setTtsFailureCount(prev => {
                   const newCount = prev + 1;
@@ -106,6 +117,15 @@ export default function ChatInterface() {
 
   const handleSendMessage = async () => {
       if (!input.trim()) return;
+
+      // 1. Abort any pending TTS operations from previous turns
+      if (ttsAbortController.current) {
+          ttsAbortController.current.abort();
+      }
+      // 2. Clear existing audio queue to prevent overlap
+      clearQueue();
+      // 3. Create new controller for this turn
+      ttsAbortController.current = new AbortController();
 
       // Process First Prompt for Voice Lock
       if (!isLocked) {
