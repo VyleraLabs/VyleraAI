@@ -4,10 +4,20 @@ import React, { Suspense, useRef, useState, useEffect } from 'react'
 import AvatarCanvas, { AvatarHandle } from '@/components/Meti/AvatarCanvas'
 import { useRouter } from 'next/navigation'
 import { Send } from 'lucide-react'
+import { useAudioQueue } from '@/hooks/useAudioQueue'
 
 interface Message {
     role: 'ai' | 'user';
     text: string;
+}
+
+// Helper to sanitize text for TTS (client-side safety)
+function cleanTextForSpeech(text: string): string {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/##/g, '')
+        .replace(/\((.*?)\)/g, '')
+        .trim();
 }
 
 export default function InterfacePage() {
@@ -20,11 +30,45 @@ export default function InterfacePage() {
   ])
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // Audio Queue Hook
+  const { addToQueue, isPlaying } = useAudioQueue();
+
+  // Queue for sentences waiting to be converted to speech
+  // We use a ref to track the processing chain to ensure order without blocking render
+  const processingChain = useRef<Promise<void>>(Promise.resolve());
+
+  useEffect(() => {
+    // Sync logic (placeholders)
+  }, [isPlaying]);
+
   useEffect(() => {
       if (scrollRef.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight
       }
   }, [messages])
+
+  const processTextForTTS = (text: string) => {
+      // Chain the TTS requests to ensure audio is added to queue in order
+      processingChain.current = processingChain.current.then(async () => {
+          const cleanSentence = cleanTextForSpeech(text);
+          if (!cleanSentence.trim()) return;
+
+          try {
+              const ttsRes = await fetch('/api/tts', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ text: cleanSentence })
+              });
+
+              if (ttsRes.ok) {
+                  const blob = await ttsRes.blob();
+                  addToQueue(blob);
+              }
+          } catch (err) {
+              console.error("TTS fetch failed for chunk:", cleanSentence, err);
+          }
+      });
+  };
 
   const handleSendMessage = async () => {
       if (!input.trim()) return
@@ -34,6 +78,10 @@ export default function InterfacePage() {
       setMessages(prev => [...prev, userMsg])
       setInput('')
       setIsThinking(true)
+
+      // Create a placeholder for the AI message
+      const aiMsg: Message = { role: 'ai', text: '' }
+      setMessages(prev => [...prev, aiMsg])
 
       try {
         const res = await fetch('/api/chat', {
@@ -45,17 +93,50 @@ export default function InterfacePage() {
         })
 
         if (!res.ok) throw new Error('Failed to get response')
+        if (!res.body) throw new Error('No response body');
 
-        const data = await res.json()
-        const aiText = data.text
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
 
-        const aiMsg: Message = { role: 'ai', text: aiText }
-        setMessages(prev => [...prev, aiMsg])
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        // TRIGGER VOICE
-        if (avatarRef.current) {
-            avatarRef.current.speak(aiText)
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            fullText += chunk;
+
+            // Update UI with current full text immediately
+            setMessages(prev => {
+                const newArr = [...prev];
+                newArr[newArr.length - 1] = { role: 'ai', text: fullText };
+                return newArr;
+            });
+
+            // Sentence splitting logic
+            let match;
+            // eslint-disable-next-line no-cond-assign
+            while ((match = buffer.match(/[.?!]/))) {
+                if (match.index !== undefined) {
+                    const sentenceEnd = match.index + 1;
+                    const sentence = buffer.substring(0, sentenceEnd);
+                    buffer = buffer.substring(sentenceEnd); // Keep remainder
+
+                    // Offload to TTS processor (non-blocking)
+                    processTextForTTS(sentence);
+                } else {
+                    break;
+                }
+            }
         }
+
+        // Process remaining buffer
+        if (buffer.trim()) {
+             processTextForTTS(buffer);
+        }
+
       } catch (error) {
         console.error(error)
         const errorMsg: Message = { role: 'ai', text: 'Neural uplink failed. Please retry.' }
