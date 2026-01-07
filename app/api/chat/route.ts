@@ -43,10 +43,12 @@ export async function POST(req: Request) {
 
         let modeInstructions = "";
         if (lang === 'id') {
+            // Task 4: Locked Bilingual Identity
             // Indonesian Mode: Professional Indonesian + Jakarta Code-Switching
             modeInstructions = `
 LANGUAGE MODE: INDONESIAN (Professional with Jakarta Code-Switching).
 TONE: Professional, local tech leader. Use "Jakarta Code-Switching" - blend common English tech/business terms (e.g., "literally," "basically," "security protocol-nya," "deploy-nya") naturally into professional Indonesian.
+STYLE: Use slang like "literally", "basically" but keep the structure formal.
 AVOID: "Corporate IT" jargon, "Hijack" language, "Reseller" pricing structures.`;
         } else {
             // English Mode: Professional, High-End
