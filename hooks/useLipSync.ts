@@ -97,7 +97,8 @@ export function useLipSync() {
 
         if (isSpeakingRef.current && analyserRef.current && dataArrayRef.current) {
             try {
-                analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+                // Cast to any to resolve TS mismatch between Uint8Array<ArrayBufferLike> and Uint8Array<ArrayBuffer>
+                analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
 
                 // Low: Bins 0-4 (~0-350Hz)
                 let lowSum = 0;
