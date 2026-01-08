@@ -35,7 +35,11 @@ export default function EarlyAccess() {
                             <div className="pt-8">
                                 <a
                                     href="#contact"
-                                    className="inline-flex items-center gap-3 px-8 py-4 bg-cyan text-navy font-bold tracking-widest uppercase rounded hover:bg-cyan/90 transition-all shadow-[0_0_20px_rgba(100,255,218,0.3)] hover:shadow-[0_0_30px_rgba(100,255,218,0.5)] group/btn"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        window.dispatchEvent(new CustomEvent("vylera-open-beta"));
+                                    }}
+                                    className="inline-flex items-center gap-3 px-8 py-4 bg-cyan text-navy font-bold tracking-widest uppercase rounded hover:bg-cyan/90 transition-all shadow-[0_0_20px_rgba(100,255,218,0.3)] hover:shadow-[0_0_30px_rgba(100,255,218,0.5)] group/btn cursor-pointer"
                                 >
                                     <span>Request Access Key</span>
                                     <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />

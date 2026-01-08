@@ -17,6 +17,13 @@ export default function Navbar() {
     return () => window.removeEventListener("vylera-mascot-hover" as any, handleMascotHover);
   }, []);
 
+  // Handle External Beta Access Requests
+  useEffect(() => {
+    const handleOpenBeta = () => setIsWaitlistOpen(true);
+    window.addEventListener("vylera-open-beta", handleOpenBeta);
+    return () => window.removeEventListener("vylera-open-beta", handleOpenBeta);
+  }, []);
+
   // Handle Waitlist Open Logic (Body Lock)
   useEffect(() => {
     if (isWaitlistOpen) {
