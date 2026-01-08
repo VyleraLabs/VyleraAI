@@ -198,7 +198,6 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = '';
         let fullText = '';
 
         while (true) {
@@ -206,7 +205,6 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
             if (done) break;
 
             const chunk = decoder.decode(value, { stream: true });
-            buffer += chunk;
             fullText += chunk;
 
             // Update UI with current full text immediately
@@ -215,27 +213,11 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
                 newArr[newArr.length - 1] = { role: 'ai', text: fullText };
                 return newArr;
             });
-
-            // Sentence-Slicer Logic: Detect boundaries (., !, ?)
-            let match;
-            // eslint-disable-next-line no-cond-assign
-            while ((match = buffer.match(/[.?!]/))) {
-                if (match.index !== undefined) {
-                    const sentenceEnd = match.index + 1;
-                    const sentence = buffer.substring(0, sentenceEnd);
-                    buffer = buffer.substring(sentenceEnd); // Keep remainder
-
-                    // Immediate Dispatch: Trigger TTS for the complete sentence
-                    processTextForTTS(sentence);
-                } else {
-                    break;
-                }
-            }
         }
 
-        // Process remaining buffer if it contains meaningful text
-        if (buffer.trim()) {
-             processTextForTTS(buffer);
+        // Process full text for TTS after stream completes (No slicing)
+        if (fullText.trim()) {
+             processTextForTTS(fullText);
         }
 
       } catch (error) {

@@ -1,14 +1,9 @@
 export async function streamTextToSpeech(text: string, lang?: string): Promise<ReadableStream<Uint8Array>> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
 
-  // Select Voice ID based on language
-  // English: VOICE_ID_EN (fallback to ELEVENLABS_VOICE_ID or hardcoded)
-  // Indonesian: VOICE_ID_ID
-  let voiceId = process.env.VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID || 'iWydkXKoiVtvdn4vLKp9';
-
-  if (lang === 'id' && process.env.VOICE_ID_ID) {
-    voiceId = process.env.VOICE_ID_ID;
-  }
+  // Task 1: Unified Voice ID & Audio Logic
+  // Hardcoded to Indonesian Voice ID for single-voice bilingualism
+  const voiceId = 'iWydkXKoiVtvdn4vLKp9';
 
   if (!apiKey) {
     throw new Error('ELEVENLABS_API_KEY is not defined in environment variables');
