@@ -10,7 +10,8 @@ export async function POST(request: Request) {
 
   try {
     // PRIMARY ENGINE: ElevenLabs
-    const audioStream = await streamTextToSpeech(text, lang);
+    // Zero-Failure: Ignore 'lang' param, enforce strict one-voice policy
+    const audioStream = await streamTextToSpeech(text);
 
     return new Response(audioStream, {
       headers: {

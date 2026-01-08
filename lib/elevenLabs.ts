@@ -1,8 +1,8 @@
-export async function streamTextToSpeech(text: string, lang?: string): Promise<ReadableStream<Uint8Array>> {
+export async function streamTextToSpeech(text: string): Promise<ReadableStream<Uint8Array>> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
 
   // Task 1: Unified Voice ID & Audio Logic
-  // Hardcoded to Indonesian Voice ID for single-voice bilingualism
+  // Hardcoded to Indonesian Voice ID for single-voice bilingualism (Zero-Failure: One-Voice)
   const voiceId = 'iWydkXKoiVtvdn4vLKp9';
 
   if (!apiKey) {
