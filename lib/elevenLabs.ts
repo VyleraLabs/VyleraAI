@@ -3,6 +3,7 @@ export async function streamTextToSpeech(text: string): Promise<ReadableStream<U
 
   // Task 1: Unified Voice ID & Audio Logic
   // Hardcoded to Indonesian Voice ID for single-voice bilingualism (Zero-Failure: One-Voice)
+  // This adheres to the "Unified Indo-Accent Voice" requirement.
   const voiceId = 'iWydkXKoiVtvdn4vLKp9';
 
   if (!apiKey) {
