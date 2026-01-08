@@ -86,8 +86,34 @@ RULES:
             history: vertexHistory
         });
 
-        // 5. Send Message Stream
-        const resultStream = await chat.sendMessageStream(message);
+        // 5. Send Message Stream (with Fallback for Search Tool Failure)
+        let resultStream;
+        try {
+            resultStream = await chat.sendMessageStream(message);
+        } catch (searchError: any) {
+            console.warn("Primary generation failed (likely Search Tool issue). Retrying without search...", searchError);
+
+            // Re-initialize model without tools for fallback
+            const fallbackModel = vertexAI.getGenerativeModel({
+                model: 'gemini-2.5-flash',
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 200
+                },
+                systemInstruction: {
+                    role: 'system',
+                    parts: [{
+                        text: `${baseIdentity}\n${modeInstructions}\n${commonRules}\nNOTE: Search tools are currently unavailable. Rely on your internal knowledge.`
+                    }]
+                }
+            });
+
+            const fallbackChat = fallbackModel.startChat({
+                history: vertexHistory
+            });
+
+            resultStream = await fallbackChat.sendMessageStream(message);
+        }
 
         // 6. Return ReadableStream
         const stream = new ReadableStream({
@@ -106,6 +132,7 @@ RULES:
                     }
                     controller.close();
                 } catch (err) {
+                    console.error("Stream Processing Error:", err);
                     controller.error(err);
                 }
             }

@@ -193,7 +193,12 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
             })
         });
 
-        if (!res.ok) throw new Error('Failed to get response');
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            const errorMessage = errorData.error || errorData.text || 'Failed to get response';
+            console.error('API Error:', errorMessage);
+            throw new Error(errorMessage);
+        }
         if (!res.body) throw new Error('No response body');
 
         const reader = res.body.getReader();
