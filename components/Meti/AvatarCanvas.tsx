@@ -6,6 +6,7 @@ import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
 import { useMetiAnimations } from '../../hooks/useMetiAnimations'
+import { useLipSync } from '../../hooks/useLipSync'
 
 export interface AvatarHandle {
     speak: (text: string, lang?: string) => Promise<void>;
@@ -15,6 +16,7 @@ export interface AvatarHandle {
 
 export interface AvatarProps {
   isThinking?: boolean;
+  onCrash?: () => void;
 }
 
 function Loader() {
@@ -48,9 +50,8 @@ function CameraRig() {
   return null
 }
 
-const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
+const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking, onCrash }, ref) => {
   const [vrm, setVrm] = useState<any>(null)
-  const [isSpeaking, setIsSpeaking] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const gltf = useGLTF('/models/meti.vrm', undefined, undefined, (loader) => {
@@ -66,6 +67,9 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
   // Use Animations on the VRM scene
   const { actions } = useAnimations(animations, gltf.scene);
+
+  // Audio / Lip Sync Hook
+  const { playAudioBlob, stop, updateLipSync, isSpeaking } = useLipSync();
 
   // Animation Logic
   useEffect(() => {
@@ -115,105 +119,6 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
     duration: 0.15 // Duration of a blink
   })
 
-  // Audio Analyzer Ref
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const dataArrayRef = useRef<any>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const stop = () => {
-    if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-    }
-    if (sourceRef.current) {
-        sourceRef.current.disconnect();
-        sourceRef.current = null;
-    }
-    setIsSpeaking(false);
-    // Reset blend shapes
-    if (vrm && vrm.expressionManager) {
-        vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-        vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-        vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-    }
-  };
-
-  const playAudioBlob = async (blob: Blob): Promise<void> => {
-    stop(); // Stop any currently playing audio
-
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.crossOrigin = "anonymous";
-    audioRef.current = audio;
-
-    return new Promise<void>((resolve, reject) => {
-        audio.onplay = () => {
-            setIsSpeaking(true);
-
-            // Setup Audio Analysis for Lip Sync
-            if (!audioContextRef.current) {
-                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-            }
-            const ctx = audioContextRef.current;
-
-            if(ctx.state === 'suspended') {
-                ctx.resume();
-            }
-
-            if (sourceRef.current) {
-                sourceRef.current.disconnect();
-            }
-
-            const analyser = ctx.createAnalyser();
-            analyser.fftSize = 512; // Moderate resolution
-            analyserRef.current = analyser;
-
-            const bufferLength = analyser.frequencyBinCount;
-            // Explicitly cast ArrayBuffer to avoid Type error with Uint8Array vs Uint8Array<ArrayBuffer>
-            dataArrayRef.current = new Uint8Array(new ArrayBuffer(bufferLength));
-
-            try {
-                const source = ctx.createMediaElementSource(audio);
-                source.connect(analyser);
-                analyser.connect(ctx.destination);
-                sourceRef.current = source;
-            } catch(e) {
-                console.warn("MediaElementSource connection failed (already connected?)", e);
-            }
-        };
-
-        audio.onended = () => {
-            setIsSpeaking(false);
-            URL.revokeObjectURL(url);
-            if (sourceRef.current) {
-                sourceRef.current.disconnect();
-                sourceRef.current = null;
-            }
-            audioRef.current = null;
-            resolve();
-        };
-
-        audio.onerror = (e) => {
-            setIsSpeaking(false);
-            URL.revokeObjectURL(url);
-            console.error("Audio playback error", e);
-            reject(e);
-        };
-
-        audio.play().catch(e => {
-            if (e.message.indexOf('interrupted') === -1) {
-                console.error("Play failed", e);
-                reject(e);
-            } else {
-                resolve(); // Treat interruption as done
-            }
-        });
-    });
-  };
-
   const speak = async (text: string, lang?: string) => {
     // Abort previous
     if (abortControllerRef.current) {
@@ -239,7 +144,7 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
       if (e.name !== 'AbortError') {
           console.error(e)
       }
-      setIsSpeaking(false)
+      stop();
     }
   }
 
@@ -275,65 +180,8 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
           const t = state.clock.elapsedTime
 
-          // Lip Sync (Frequency Analysis)
-          if (vrm.expressionManager) {
-             if (isSpeaking && analyserRef.current && dataArrayRef.current) {
-                 // GPU Shield: Wrap analyser.getByteFrequencyData
-                 try {
-                     analyserRef.current.getByteFrequencyData(dataArrayRef.current);
-
-                     // Task 4: Real-Time Lip Sync Mapping (Zero-Failure)
-                     // Direct mapping of frequency bands to requested Viseme targets
-                     // Low -> 'oo' (Fcl_MTH_O)
-                     // Mid -> 'aa' (Fcl_MTH_A)
-                     // High -> 'ee' (Fcl_MTH_I)
-
-                     const bufferLength = analyserRef.current.frequencyBinCount;
-                     // Sample Rate is usually 44100 or 48000
-                     // fftSize 512 -> 256 bins.
-                     // binWidth = sampleRate / 512. Approx 86Hz per bin (at 44.1k)
-
-                     // Low: Bins 0-4 (~0-350Hz)
-                     let lowSum = 0;
-                     for(let i=0; i<4; i++) lowSum += dataArrayRef.current[i];
-                     const lowAvg = lowSum / 4;
-
-                     // Mid: Bins 4-20 (~350-1700Hz)
-                     let midSum = 0;
-                     for(let i=4; i<20; i++) midSum += dataArrayRef.current[i];
-                     const midAvg = midSum / 16;
-
-                     // High: Bins 20-100 (~1700-8600Hz)
-                     let highSum = 0;
-                     for(let i=20; i<100; i++) highSum += dataArrayRef.current[i];
-                     const highAvg = highSum / 80;
-
-                     // Normalize (0-255 -> 0-1) and apply sensitivity
-                     const sensitivity = 2.5; // Boost values
-                     // Mapping to specific Viseme targets
-                     const viseme_oo = Math.min(1, (lowAvg / 255) * sensitivity);
-                     const viseme_aa = Math.min(1, (midAvg / 255) * sensitivity);
-                     const viseme_ee = Math.min(1, (highAvg / 255) * sensitivity);
-
-                     // Apply smoothing or direct? Direct for responsiveness.
-                     vrm.expressionManager.setValue('Fcl_MTH_O', viseme_oo); // oo
-                     vrm.expressionManager.setValue('Fcl_MTH_A', viseme_aa); // aa
-                     vrm.expressionManager.setValue('Fcl_MTH_I', viseme_ee); // ee
-
-                 } catch (analyserError) {
-                     // Reset on error
-                     vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-                     vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-                     vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-                     console.warn("Audio analysis interrupted:", analyserError);
-                 }
-
-             } else {
-                 vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-                 vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-                 vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-             }
-          }
+          // Lip Sync Update using the Hook logic (includes lerp/smoothing)
+          updateLipSync(vrm, delta);
 
           // 1. Initial Pose (Arms down ~75 deg)
           // 75 degrees is approx 1.3 radians
@@ -425,6 +273,7 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
         // Critical Failure Recovery: Stop the animation loop to save the CPU/GPU
         console.error("CRITICAL RENDER FAILURE:", renderError);
         state.gl.setAnimationLoop(null);
+        if (onCrash) onCrash();
     }
   })
 
@@ -439,8 +288,36 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 Avatar.displayName = 'Avatar'
 
 const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
+  const [key, setKey] = useState(0); // Key for remounting on crash
+  const [hasCrashed, setHasCrashed] = useState(false);
+
+  // Crash Recovery Handler
+  // Task 4: Resolve WebGL Crash & Bone Mapping (Safety: Wrap in try/catch... wait 2 seconds and re-initialize)
+  const handleCrash = () => {
+      if (hasCrashed) return; // Prevent multiple triggers
+      setHasCrashed(true);
+
+      console.log("WebGL Context Lost. Attempting to reboot Neural Core in 2 seconds...");
+
+      setTimeout(() => {
+          setHasCrashed(false);
+          setKey(prev => prev + 1); // Remount component to re-initialize WebGL context/canvas
+      }, 2000);
+  };
+
+  if (hasCrashed) {
+      return (
+          <div className="flex items-center justify-center w-full h-full">
+               <div className="text-emerald-400 font-mono text-sm animate-pulse">
+                   SYSTEM REBOOTING...
+               </div>
+          </div>
+      )
+  }
+
   return (
     <Canvas
+      key={key}
       camera={{ fov: 30 }}
       gl={{ alpha: true }}
     >
@@ -452,7 +329,7 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
         <spotLight position={[-5, 5, 10]} intensity={2} />
 
         <Suspense fallback={<Loader />}>
-            <Avatar ref={ref} {...props} />
+            <Avatar ref={ref} {...props} onCrash={handleCrash} />
         </Suspense>
     </Canvas>
   )

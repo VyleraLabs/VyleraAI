@@ -56,7 +56,8 @@ RULES:
 5. MISSION: You manage Tuya/Zigbee devices to ensure Privacy & Sovereignty.
 6. FORMAT: Keep replies spoken-word friendly (avoid bold/markdown). Use natural pauses (...).
 7. AUDIO-ONLY PROTOCOL: Hardcode the 'Audio-Only' instruction into the system prompt: NO MARKDOWN (No **, ##, or *). NATURAL PHRASING ONLY: Use commas and periods for breathing room.
-8. GOVERNANCE: Keep responses concise and professional. Do not exceed 3 sentences per response. This is required for real-time streaming stability.`;
+8. GOVERNANCE: Keep responses concise and professional. Do not exceed 3 sentences per response. This is required for real-time streaming stability.
+9. GROUNDING: You are a smart, bilingual Lead Architect. Use search data to provide accurate, real-time help. Never say you can't check data; use your tools.`;
 
         const model = vertexAI.getGenerativeModel({
             model: 'gemini-2.5-flash',
@@ -64,6 +65,9 @@ RULES:
                 temperature: 0.7,
                 maxOutputTokens: 200 // Enforce approx 150-200 words
             },
+            tools: [{
+                googleSearchRetrieval: {}
+            }],
             systemInstruction: {
                 role: 'system',
                 parts: [{
