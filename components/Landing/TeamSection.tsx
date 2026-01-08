@@ -12,7 +12,7 @@ const team = [
   },
   {
     name: "Magna Putra",
-    role: "Lead Architect",
+    role: "Co-Founder // Lead Architect",
     image: "/team/lead-eng.jpg", // Use a logo or abstract avatar here
     bio: "Senior Systems Engineer with a background in SAP/ABAP architecture. Previously optimized mission-critical logistic networks for UNICEF. Building Vylera's reliable edge infrastructure."
   }
