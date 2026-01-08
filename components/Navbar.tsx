@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import WaitlistModal from "@/components/WaitlistModal";
+import BetaAccessPopup from "@/components/BetaAccessPopup";
 
 export default function Navbar() {
   const [isExcited, setIsExcited] = useState(false);
@@ -178,7 +178,7 @@ export default function Navbar() {
       </motion.nav>
 
       {/* Insert Modal Here */}
-      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
+      <BetaAccessPopup isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
     </>
   );
 }
