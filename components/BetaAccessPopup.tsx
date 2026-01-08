@@ -183,7 +183,7 @@ export default function BetaAccessPopup({ isOpen, onClose }: BetaAccessPopupProp
                         placeholder="Email Address"
                       />
                       <label className="absolute left-0 top-3 text-slate-500 text-sm transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-cyan-500 peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-[:not(:placeholder-shown)]:-top-4 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-cyan-500 pointer-events-none">
-                        Email Coordinates
+                        Email Address
                       </label>
                     </div>
 
