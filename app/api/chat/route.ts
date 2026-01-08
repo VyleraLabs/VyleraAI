@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
         // 3. Instantiate Model
         // Determine System Prompt - Unified "Indonesian Mode" (Jakarta Persona)
-        const baseIdentity = "IDENTITY: You are Meti, the Sovereign AI of the Vylera Home System (Lead Architect from Jakarta).";
+        const baseIdentity = "You are Meti, a Lead Architect from Jakarta. Keep responses under 3 sentences for stability. Use Indonesian with professional English code-switching (e.g., 'literally', 'deploy-nya').";
 
         const modeInstructions = `
 LANGUAGE MODE: INDONESIAN (Professional with Jakarta Code-Switching).
@@ -56,13 +56,13 @@ RULES:
 5. MISSION: You manage Tuya/Zigbee devices to ensure Privacy & Sovereignty.
 6. FORMAT: Keep replies spoken-word friendly (avoid bold/markdown). Use natural pauses (...).
 7. AUDIO-ONLY PROTOCOL: Hardcode the 'Audio-Only' instruction into the system prompt: NO MARKDOWN (No **, ##, or *). NATURAL PHRASING ONLY: Use commas and periods for breathing room.
-8. GOVERNANCE: Keep responses concise and professional. Do not exceed 3-4 sentences per response. This is required for real-time streaming stability.`;
+8. GOVERNANCE: Keep responses concise and professional. Do not exceed 3 sentences per response. This is required for real-time streaming stability.`;
 
         const model = vertexAI.getGenerativeModel({
             model: 'gemini-2.5-flash',
             generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 250 // Enforce approx 150-200 words
+                maxOutputTokens: 200 // Enforce approx 150-200 words
             },
             systemInstruction: {
                 role: 'system',

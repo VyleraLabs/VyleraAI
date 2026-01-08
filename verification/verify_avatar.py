@@ -1,32 +1,29 @@
-from playwright.sync_api import sync_playwright
+import asyncio
+from playwright.async_api import async_playwright
 
-def verify_avatar():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+async def verify_avatar_load():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
         try:
-            # Navigate to the interface page where the avatar is located
-            print("Navigating to /interface...")
-            page.goto("http://localhost:3000/interface")
+            # Navigate to the interface page where the avatar is loaded
+            await page.goto("http://localhost:3000/interface", timeout=60000)
 
-            # Wait for the canvas to be present (AvatarCanvas)
-            print("Waiting for canvas...")
-            page.wait_for_selector("canvas", timeout=30000)
+            # Wait for the canvas to be visible (it might take a moment to load 3D assets)
+            # We look for the canvas element which React Three Fiber creates
+            await page.wait_for_selector("canvas", timeout=30000)
 
-            # Wait a bit for the model to load (NEURAL CORE LOADING... might be visible first)
-            # We'll wait 10 seconds to ensure the model loads and settles
-            print("Waiting for model to load...")
-            page.wait_for_timeout(10000)
+            # Wait a bit more to ensure the avatar model would start loading/rendering
+            await asyncio.sleep(5)
 
             # Take a screenshot
-            print("Taking screenshot...")
-            page.screenshot(path="verification/avatar_verification.png")
-            print("Screenshot saved to verification/avatar_verification.png")
+            await page.screenshot(path="verification/avatar_render.png")
+            print("Screenshot taken successfully")
 
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Verification failed: {e}")
         finally:
-            browser.close()
+            await browser.close()
 
 if __name__ == "__main__":
-    verify_avatar()
+    asyncio.run(verify_avatar_load())

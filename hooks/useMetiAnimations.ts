@@ -11,15 +11,16 @@ export function useMetiAnimations(gltfAnimations: THREE.AnimationClip[] | undefi
     }, []);
 
     useEffect(() => {
-        if (!gltfAnimations || gltfAnimations.length === 0 || !root) return;
+        // Safety: If animations is empty, log it once and stop all further loading attempts
+        // to prevent the WebGL Context Lost crash.
+        if (!gltfAnimations || gltfAnimations.length === 0) {
+            console.warn('[useMetiAnimations] No animations found in GLTF. Stopping loader.');
+            return;
+        }
 
-        // Process embedded animations
-        // We look for clips named "Standby X" (1-8) and others we might need.
-        // Or we can just process all of them.
+        if (!root) return;
 
-        // Debug: Log animation names to find the exact names
-        // console.log("Embedded Animations:", gltfAnimations.map(c => c.name));
-
+        // Process embedded animations directly
         const processedClips: THREE.AnimationClip[] = [];
 
         gltfAnimations.forEach(clip => {

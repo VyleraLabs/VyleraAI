@@ -69,28 +69,19 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
   // Animation Logic
   useEffect(() => {
-     if (!actions || Object.keys(actions).length === 0) return;
+     if (!actions || Object.keys(actions).length === 0 || animations.length === 0) return;
 
-     const idleAnims = ['HappyIdle', 'Happy', 'Bashful', 'Bored'];
-     const talkingAnims = ['Talking', 'Talking1'];
-     const thinkingAnim = 'LookAround';
-
-     // Filter available animations
-     // Task 2: Randomized "Standby" Cycle (Standby 1-8)
-     const standbyAnims = Array.from({ length: 8 }, (_, i) => `Standby ${i + 1}`);
-     const availableStandbys = standbyAnims.filter(name => actions[name]);
-
-     const availableIdles = idleAnims.filter(name => actions[name]);
-     const availableTalks = talkingAnims.filter(name => actions[name]);
-     const hasThinking = actions[thinkingAnim];
+     // Zero-Failure: Use exact indices from internal clips
+     // Idle: Play animations[0] (Standby 1)
+     // Talking: Play animations[3] (Standby 4) while audio is active
 
      let currentAction: any = null;
-     let timeoutId: NodeJS.Timeout;
 
-     const play = (name: string) => {
-         const newAction = actions[name];
+     // Helper to play action by clip name
+     const playAction = (clipName: string) => {
+         const newAction = actions[clipName];
          if (currentAction && currentAction !== newAction) {
-             if (currentAction) currentAction.fadeOut(0.5);
+             currentAction.fadeOut(0.5);
          }
          if (newAction) {
              newAction.reset().fadeIn(0.5).play();
@@ -98,39 +89,23 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
          }
      };
 
-     if (isThinking && hasThinking) {
-         play(thinkingAnim);
-     } else if (isSpeaking && availableTalks.length > 0) {
-         const randomTalk = availableTalks[Math.floor(Math.random() * availableTalks.length)];
-         play(randomTalk);
-     } else if (availableStandbys.length > 0) {
-         // Task 2: Randomized "Standby" Cycle (20-30s)
-         const cycleStandby = () => {
-             if (isThinking || isSpeaking) return;
-             const randomStandby = availableStandbys[Math.floor(Math.random() * availableStandbys.length)];
-             play(randomStandby);
-             // Random duration between 20s (20000ms) and 30s (30000ms)
-             const duration = 20000 + Math.random() * 10000;
-             timeoutId = setTimeout(cycleStandby, duration);
-         };
-         cycleStandby();
-     } else if (availableIdles.length > 0) {
-         // Fallback to old Idles if Standbys are missing
-         const cycleIdle = () => {
-             if (isThinking || isSpeaking) return;
-             const randomIdle = availableIdles[Math.floor(Math.random() * availableIdles.length)];
-             play(randomIdle);
-             timeoutId = setTimeout(cycleIdle, 10000);
-         };
-         cycleIdle();
+     if (isSpeaking) {
+         // Talking: animations[3]
+         if (animations[3]) {
+             playAction(animations[3].name);
+         }
+     } else {
+         // Idle: animations[0]
+         if (animations[0]) {
+             playAction(animations[0].name);
+         }
      }
 
      return () => {
-         clearTimeout(timeoutId);
          if (currentAction) currentAction.fadeOut(0.5);
      };
 
-  }, [isSpeaking, isThinking, actions, animations]); // Dependent on animations loaded
+  }, [isSpeaking, isThinking, actions, animations]);
 
   // Blink State
   const blinkRef = useRef({
@@ -292,9 +267,10 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
   }, [gltf])
 
   useFrame((state, delta) => {
-    if (vrm) {
-      // GPU Shield: Wrap mixer.update() and sensitive logic in try/catch
-      try {
+    // GPU Shield: Wrap the ENTIRE render/update loop in a try/catch block
+    // to prevent WebGL Context Lost from crashing the whole app.
+    try {
+        if (vrm) {
           vrm.update(delta)
 
           const t = state.clock.elapsedTime
@@ -306,11 +282,11 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
                  try {
                      analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
-                     // Task 3: VRoid Morph Target Sync
-                     // Map Frequency Bands to Visemes:
-                     // Low (20-300Hz) -> 'oo' (Fcl_MTH_O)
-                     // Mid (300-2000Hz) -> 'aa' (Fcl_MTH_A)
-                     // High (2000Hz+) -> 'ee' (Fcl_MTH_I)
+                     // Task 4: Real-Time Lip Sync Mapping (Zero-Failure)
+                     // Direct mapping of frequency bands to requested Viseme targets
+                     // Low -> 'oo' (Fcl_MTH_O)
+                     // Mid -> 'aa' (Fcl_MTH_A)
+                     // High -> 'ee' (Fcl_MTH_I)
 
                      const bufferLength = analyserRef.current.frequencyBinCount;
                      // Sample Rate is usually 44100 or 48000
@@ -334,14 +310,15 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
 
                      // Normalize (0-255 -> 0-1) and apply sensitivity
                      const sensitivity = 2.5; // Boost values
-                     const valO = Math.min(1, (lowAvg / 255) * sensitivity);
-                     const valA = Math.min(1, (midAvg / 255) * sensitivity);
-                     const valI = Math.min(1, (highAvg / 255) * sensitivity);
+                     // Mapping to specific Viseme targets
+                     const viseme_oo = Math.min(1, (lowAvg / 255) * sensitivity);
+                     const viseme_aa = Math.min(1, (midAvg / 255) * sensitivity);
+                     const viseme_ee = Math.min(1, (highAvg / 255) * sensitivity);
 
                      // Apply smoothing or direct? Direct for responsiveness.
-                     vrm.expressionManager.setValue('Fcl_MTH_O', valO);
-                     vrm.expressionManager.setValue('Fcl_MTH_A', valA);
-                     vrm.expressionManager.setValue('Fcl_MTH_I', valI);
+                     vrm.expressionManager.setValue('Fcl_MTH_O', viseme_oo); // oo
+                     vrm.expressionManager.setValue('Fcl_MTH_A', viseme_aa); // aa
+                     vrm.expressionManager.setValue('Fcl_MTH_I', viseme_ee); // ee
 
                  } catch (analyserError) {
                      // Reset on error
@@ -443,17 +420,11 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking }, ref) => {
             }
           }
 
-      } catch (updateError) {
-          // Task 3: Reset mouth to neutral pose immediately to prevent a "Context Lost" loop
-          if (vrm && vrm.expressionManager) {
-             try {
-                vrm.expressionManager.setValue('Fcl_MTH_O', 0);
-                vrm.expressionManager.setValue('Fcl_MTH_A', 0);
-                vrm.expressionManager.setValue('Fcl_MTH_I', 0);
-             } catch (e) { /* ignore safe reset fail */ }
-          }
-          console.warn("VRM Update / Animation loop error (recovered):", updateError);
-      }
+      } // End if(vrm)
+    } catch (renderError) {
+        // Critical Failure Recovery: Stop the animation loop to save the CPU/GPU
+        console.error("CRITICAL RENDER FAILURE:", renderError);
+        state.gl.setAnimationLoop(null);
     }
   })
 
