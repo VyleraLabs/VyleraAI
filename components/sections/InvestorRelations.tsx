@@ -40,38 +40,6 @@ export default function InvestorRelations() {
                     </div>
                 </div>
 
-                {/* 3-Column Differentiator */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-                    {/* Card 1 */}
-                    <div className="p-8 bg-[#0a1525] border border-emerald-500/20 rounded-xl relative overflow-hidden group hover:border-emerald-500/40 transition-colors">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50" />
-                        <Server className="w-8 h-8 text-emerald-400 mb-6" />
-                        <h3 className="text-white font-bold text-lg mb-3">Vylera AI OEM (v1.0)</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            A localized telemetry hub that keeps your data in Jakarta. Dedicated hardware residency for enterprise compliance.
-                        </p>
-                    </div>
-
-                    {/* Card 2 */}
-                    <div className="p-8 bg-[#0a1525] border border-emerald-500/20 rounded-xl relative overflow-hidden group hover:border-emerald-500/40 transition-colors">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50" />
-                        <TrendingUp className="w-8 h-8 text-emerald-400 mb-6" />
-                        <h3 className="text-white font-bold text-lg mb-3">Wholesale Margins</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            By bundling with Google Workspace & YouTube Premium, we secure wholesale rates that guarantee &gt;65% SaaS margins.
-                        </p>
-                    </div>
-
-                    {/* Card 3 */}
-                    <div className="p-8 bg-[#0a1525] border border-emerald-500/20 rounded-xl relative overflow-hidden group hover:border-emerald-500/40 transition-colors">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50" />
-                        <Lock className="w-8 h-8 text-emerald-400 mb-6" />
-                        <h3 className="text-white font-bold text-lg mb-3">The Google AI-First Advantage</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">
-                            Being part of the Google Startup program gives us direct access to Gemini 3 Deep Reasoning pipelines before the mass market.
-                        </p>
-                    </div>
-                </div>
 
                 {/* Financial Glass Table (Unit Economics) */}
                 <div className="mb-20">
