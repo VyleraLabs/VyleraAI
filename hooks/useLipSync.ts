@@ -4,9 +4,8 @@ import * as THREE from 'three';
 export function useLipSync() {
     const audioContextRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
-    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-    const dataArrayRef = useRef<any>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+    const dataArrayRef = useRef<Uint8Array | null>(null);
     const isSpeakingRef = useRef(false);
 
     // Smoothing state
@@ -17,13 +16,13 @@ export function useLipSync() {
     });
 
     const stop = useCallback(() => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            audioRef.current = null;
-        }
         if (sourceRef.current) {
-            sourceRef.current.disconnect();
+            try {
+                sourceRef.current.stop();
+                sourceRef.current.disconnect();
+            } catch (e) {
+                // Ignore errors if already stopped
+            }
             sourceRef.current = null;
         }
         isSpeakingRef.current = false;
@@ -36,85 +35,57 @@ export function useLipSync() {
     useEffect(() => {
         return () => {
             stop();
+            if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+                audioContextRef.current.close();
+            }
         };
     }, [stop]);
 
     const playAudioBlob = useCallback(async (blob: Blob) => {
         stop(); // Stop any currently playing audio
 
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        audio.crossOrigin = "anonymous";
-        audioRef.current = audio;
+        try {
+            const arrayBuffer = await blob.arrayBuffer();
 
-        return new Promise<void>((resolve, reject) => {
-            audio.onplay = () => {
-                isSpeakingRef.current = true;
+            if (!audioContextRef.current) {
+                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+            }
+            const ctx = audioContextRef.current;
 
-                // Setup Audio Analysis for Lip Sync
-                if (!audioContextRef.current) {
-                    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-                }
-                const ctx = audioContextRef.current;
+            if (ctx.state === 'suspended') {
+                await ctx.resume();
+            }
 
-                if (ctx && ctx.state === 'suspended') {
-                    ctx.resume();
-                }
+            const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
 
-                if (sourceRef.current) {
-                    try {
-                        sourceRef.current.disconnect();
-                    } catch (e) {
-                        console.warn("Disconnect failed", e);
-                    }
-                }
+            const source = ctx.createBufferSource();
+            source.buffer = audioBuffer;
 
-                const analyser = ctx!.createAnalyser();
-                analyser.fftSize = 512; // Moderate resolution
-                analyserRef.current = analyser;
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 512; // Moderate resolution
+            analyserRef.current = analyser;
 
-                const bufferLength = analyser.frequencyBinCount;
-                dataArrayRef.current = new Uint8Array(bufferLength);
+            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
-                try {
-                    const source = ctx!.createMediaElementSource(audio);
-                    source.connect(analyser);
-                    analyser.connect(ctx!.destination);
-                    sourceRef.current = source;
-                } catch (e) {
-                    console.warn("MediaElementSource connection failed", e);
-                }
-            };
+            source.connect(analyser);
+            analyser.connect(ctx.destination);
 
-            audio.onended = () => {
+            source.onended = () => {
                 isSpeakingRef.current = false;
-                URL.revokeObjectURL(url);
-                if (sourceRef.current) {
-                    try {
-                        sourceRef.current.disconnect();
-                    } catch (e) {}
+                source.disconnect();
+                if (sourceRef.current === source) {
                     sourceRef.current = null;
                 }
-                audioRef.current = null;
-                resolve();
             };
 
-            audio.onerror = (e) => {
-                isSpeakingRef.current = false;
-                URL.revokeObjectURL(url);
-                console.error("Audio playback error", e);
-                reject(e);
-            };
+            sourceRef.current = source;
+            isSpeakingRef.current = true;
+            source.start(0);
 
-            audio.play().catch(e => {
-                if (e.message.indexOf('interrupted') === -1) {
-                    console.error("Play failed", e);
-                    reject(e);
-                } else {
-                    resolve();
-                }
-            });
-        });
+        } catch (e) {
+            console.error("Audio decode/play failed", e);
+            isSpeakingRef.current = false;
+        }
     }, [stop]);
 
     const updateLipSync = useCallback((vrm: any, deltaTime: number) => {
@@ -126,7 +97,8 @@ export function useLipSync() {
 
         if (isSpeakingRef.current && analyserRef.current && dataArrayRef.current) {
             try {
-                analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+                // Cast to any to resolve TS mismatch between Uint8Array<ArrayBufferLike> and Uint8Array<ArrayBuffer>
+                analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
 
                 // Low: Bins 0-4 (~0-350Hz)
                 let lowSum = 0;

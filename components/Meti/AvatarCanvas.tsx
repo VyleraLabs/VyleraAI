@@ -1,11 +1,10 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, useProgress, Html, useAnimations } from '@react-three/drei'
+import { useGLTF, useProgress, Html } from '@react-three/drei'
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 import { useEffect, useState, useRef, Suspense, forwardRef, useImperativeHandle } from 'react'
 import * as THREE from 'three'
-import { useMetiAnimations } from '../../hooks/useMetiAnimations'
 import { useLipSync } from '../../hooks/useLipSync'
 
 export interface AvatarHandle {
@@ -60,56 +59,8 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking, onCrash }, r
     })
   })
 
-  // --- SAFE ANIMATION LOADING ---
-  // Replaces direct useFBX calls to prevent crashes on missing files
-  // Now handled by custom hook with bone normalization
-  const { animations } = useMetiAnimations(gltf.animations, gltf.scene);
-
-  // Use Animations on the VRM scene
-  const { actions } = useAnimations(animations, gltf.scene);
-
   // Audio / Lip Sync Hook
   const { playAudioBlob, stop, updateLipSync, isSpeaking } = useLipSync();
-
-  // Animation Logic
-  useEffect(() => {
-     if (!actions || Object.keys(actions).length === 0 || animations.length === 0) return;
-
-     // Zero-Failure: Use exact indices from internal clips
-     // Idle: Play animations[0] (Standby 1)
-     // Talking: Play animations[3] (Standby 4) while audio is active
-
-     let currentAction: any = null;
-
-     // Helper to play action by clip name
-     const playAction = (clipName: string) => {
-         const newAction = actions[clipName];
-         if (currentAction && currentAction !== newAction) {
-             currentAction.fadeOut(0.5);
-         }
-         if (newAction) {
-             newAction.reset().fadeIn(0.5).play();
-             currentAction = newAction;
-         }
-     };
-
-     if (isSpeaking) {
-         // Talking: animations[3]
-         if (animations[3]) {
-             playAction(animations[3].name);
-         }
-     } else {
-         // Idle: animations[0]
-         if (animations[0]) {
-             playAction(animations[0].name);
-         }
-     }
-
-     return () => {
-         if (currentAction) currentAction.fadeOut(0.5);
-     };
-
-  }, [isSpeaking, isThinking, actions, animations]);
 
   // Blink State
   const blinkRef = useRef({
@@ -266,6 +217,14 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking, onCrash }, r
                  vrm.expressionManager.setValue('blink', blinkValue)
                }
             }
+
+            // 5. Thinking Expression (Joy)
+            // Map isThinking to a subtle "Joy" morph to simulate neural activity
+            const targetJoy = isThinking ? 0.3 : 0;
+            const currentJoy = vrm.expressionManager.getValue('joy') || 0;
+            // Smoothly interpolate joy expression
+            const smoothedJoy = THREE.MathUtils.lerp(currentJoy, targetJoy, 0.1);
+            vrm.expressionManager.setValue('joy', smoothedJoy);
           }
 
       } // End if(vrm)
