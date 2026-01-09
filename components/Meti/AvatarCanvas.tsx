@@ -278,15 +278,18 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
     <Canvas
       key={key}
       camera={{ fov: 30 }}
-      gl={{ alpha: true }}
-      onCreated={(state) => {
-        const canvas = state.gl.domElement;
-        const handleContextLost = (e: Event) => {
-            e.preventDefault();
-            console.warn("WebGL Context Lost Event Detected");
-            handleCrash();
-        };
-        canvas.addEventListener('webglcontextlost', handleContextLost);
+      gl={{
+        alpha: true,
+        preserveDrawingBuffer: true,
+        powerPreference: "high-performance"
+      }}
+      // CRITICAL: This disposes of everything when the component unmounts
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener('webglcontextlost', (event) => {
+          event.preventDefault();
+          console.warn('Meti: Context Lost - Attempting Restore');
+          handleCrash();
+        });
       }}
     >
         <CameraRig />
