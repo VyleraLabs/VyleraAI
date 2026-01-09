@@ -193,7 +193,17 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
             })
         });
 
-        if (!res.ok) throw new Error('Failed to get response');
+        if (!res.ok) {
+            let errorMessage = 'Failed to get response';
+            try {
+                const errorData = await res.json();
+                if (errorData?.error) errorMessage = errorData.error;
+                else if (errorData?.text) errorMessage = errorData.text;
+            } catch (e) {
+                // Ignore parsing error, keep default message
+            }
+            throw new Error(errorMessage);
+        }
         if (!res.body) throw new Error('No response body');
 
         const reader = res.body.getReader();
@@ -220,9 +230,14 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
              processTextForTTS(fullText);
         }
 
-      } catch (error) {
-        console.error(error);
-        const errorMsg: Message = { role: 'ai', text: 'Neural uplink failed. Please retry.' };
+      } catch (error: any) {
+        console.error("Chat Interface Error:", error);
+        // Display specific error message if available (e.g. "Server Configuration Error")
+        const displayError = error.message?.includes('Server Configuration Error')
+            ? error.message
+            : 'Neural uplink failed. Please retry.';
+
+        const errorMsg: Message = { role: 'ai', text: displayError };
         setMessages(prev => [...prev, errorMsg]);
       } finally {
         setIsThinking(false);
