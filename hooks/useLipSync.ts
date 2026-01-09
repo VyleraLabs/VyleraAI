@@ -10,9 +10,17 @@ export function useLipSync() {
 
     // Smoothing state
     const currentVisemes = useRef({
-        oo: 0,
-        aa: 0,
-        ee: 0
+        aa: 0, // "aa" sound (open mouth)
+        ih: 0, // "ih/ee" sound (wide mouth)
+        ou: 0  // "ou/oh" sound (rounded mouth)
+    });
+
+    // Blink state
+    const blinkRef = useRef({
+        nextBlinkTime: 0,
+        isBlinking: false,
+        blinkStartTime: 0,
+        duration: 0.15
     });
 
     const stop = useCallback(() => {
@@ -28,7 +36,7 @@ export function useLipSync() {
         isSpeakingRef.current = false;
 
         // Reset smoothing targets immediately on stop
-        currentVisemes.current = { oo: 0, aa: 0, ee: 0 };
+        currentVisemes.current = { aa: 0, ih: 0, ou: 0 };
     }, []);
 
     // Cleanup on unmount
@@ -62,13 +70,13 @@ export function useLipSync() {
             source.buffer = audioBuffer;
 
             const analyser = ctx.createAnalyser();
-            analyser.fftSize = 512; // Moderate resolution
+            analyser.fftSize = 1024; // High resolution for better frequency separation
             analyserRef.current = analyser;
 
             dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
             source.connect(analyser);
-            analyser.connect(ctx.destination);
+            analyser.connect(ctx.destination); // Connect to speakers
 
             source.onended = () => {
                 isSpeakingRef.current = false;
@@ -91,34 +99,39 @@ export function useLipSync() {
     const updateLipSync = useCallback((vrm: any, deltaTime: number) => {
         if (!vrm || !vrm.expressionManager) return;
 
-        let target_oo = 0;
+        // --- Lip Sync Logic ---
         let target_aa = 0;
-        let target_ee = 0;
+        let target_ih = 0;
+        let target_ou = 0;
 
         if (isSpeakingRef.current && analyserRef.current && dataArrayRef.current) {
             try {
-                // Cast to any to resolve TS mismatch between Uint8Array<ArrayBufferLike> and Uint8Array<ArrayBuffer>
+                // Cast to any to resolve TS mismatch
                 analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
+                const data = dataArrayRef.current;
 
-                // Low: Bins 0-4 (~0-350Hz)
+                // Frequency Mapping (Based on ~43Hz per bin at 44.1kHz/1024FFT)
+
+                // Low (OU/OH): ~0 - 400Hz (Bins 0-9) -> Vowel 'O' / 'U'
                 let lowSum = 0;
-                for (let i = 0; i < 4; i++) lowSum += dataArrayRef.current[i];
-                const lowAvg = lowSum / 4;
+                for (let i = 0; i < 10; i++) lowSum += data[i];
+                const lowAvg = lowSum / 10;
 
-                // Mid: Bins 4-20 (~350-1700Hz)
+                // Mid (AA/AH): ~400 - 2000Hz (Bins 10-46) -> Vowel 'A'
                 let midSum = 0;
-                for (let i = 4; i < 20; i++) midSum += dataArrayRef.current[i];
-                const midAvg = midSum / 16;
+                for (let i = 10; i < 47; i++) midSum += data[i];
+                const midAvg = midSum / 37;
 
-                // High: Bins 20-100 (~1700-8600Hz)
+                // High (IH/EE): ~2000Hz+ (Bins 47+) -> Vowel 'I'
                 let highSum = 0;
-                for (let i = 20; i < 100; i++) highSum += dataArrayRef.current[i];
-                const highAvg = highSum / 80;
+                for (let i = 47; i < 128; i++) highSum += data[i];
+                const highAvg = highSum / 81;
 
-                const sensitivity = 2.5;
-                target_oo = Math.min(1, (lowAvg / 255) * sensitivity);
+                // Sensitivity Adjustment
+                const sensitivity = 2.0;
+                target_ou = Math.min(1, (lowAvg / 255) * sensitivity);
                 target_aa = Math.min(1, (midAvg / 255) * sensitivity);
-                target_ee = Math.min(1, (highAvg / 255) * sensitivity);
+                target_ih = Math.min(1, (highAvg / 255) * sensitivity);
 
             } catch (e) {
                 console.warn("Lip sync analysis error", e);
@@ -126,17 +139,54 @@ export function useLipSync() {
         }
 
         // Apply Lerp (Smoothing)
-        // Lerp factor: 0.1 is standard smooth, adjust for responsiveness
-        const lerpFactor = 15.0 * deltaTime; // Time-based lerp for frame-rate independence
+        // 15.0 is a good speed for responsiveness without jitter
+        const lerpFactor = 15.0 * deltaTime;
         const clampLerp = Math.min(lerpFactor, 1.0);
 
-        currentVisemes.current.oo = THREE.MathUtils.lerp(currentVisemes.current.oo, target_oo, clampLerp);
         currentVisemes.current.aa = THREE.MathUtils.lerp(currentVisemes.current.aa, target_aa, clampLerp);
-        currentVisemes.current.ee = THREE.MathUtils.lerp(currentVisemes.current.ee, target_ee, clampLerp);
+        currentVisemes.current.ih = THREE.MathUtils.lerp(currentVisemes.current.ih, target_ih, clampLerp);
+        currentVisemes.current.ou = THREE.MathUtils.lerp(currentVisemes.current.ou, target_ou, clampLerp);
 
-        vrm.expressionManager.setValue('Fcl_MTH_O', currentVisemes.current.oo);
-        vrm.expressionManager.setValue('Fcl_MTH_A', currentVisemes.current.aa);
-        vrm.expressionManager.setValue('Fcl_MTH_I', currentVisemes.current.ee);
+        // Map to VRM Presets (Standard VRM 0.0/1.0)
+        // aa -> aa (A)
+        // ih -> ih (I)
+        // ou -> ou (U/O)
+        vrm.expressionManager.setValue('aa', currentVisemes.current.aa);
+        vrm.expressionManager.setValue('ih', currentVisemes.current.ih);
+        vrm.expressionManager.setValue('ou', currentVisemes.current.ou);
+
+
+        // --- Blinking Logic ---
+        // Using performance.now() for independent timing
+        const t = performance.now() / 1000;
+        const blink = blinkRef.current;
+
+        // Initialize next blink time if needed
+        if (blink.nextBlinkTime === 0) {
+            blink.nextBlinkTime = t + 2 + Math.random() * 3;
+        }
+
+        // Trigger Blink
+        if (!blink.isBlinking && t > blink.nextBlinkTime) {
+            blink.isBlinking = true;
+            blink.blinkStartTime = t;
+            // Next blink in 2-5 seconds
+            blink.nextBlinkTime = t + 2 + Math.random() * 3;
+        }
+
+        // Animate Blink
+        if (blink.isBlinking) {
+            const progress = (t - blink.blinkStartTime) / blink.duration;
+
+            if (progress >= 1) {
+                blink.isBlinking = false;
+                vrm.expressionManager.setValue('blink', 0);
+            } else {
+                // Sine wave for smooth open/close
+                const blinkValue = Math.sin(progress * Math.PI);
+                vrm.expressionManager.setValue('blink', blinkValue);
+            }
+        }
 
     }, []);
 
