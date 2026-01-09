@@ -62,14 +62,6 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking, onCrash }, r
   // Audio / Lip Sync Hook
   const { playAudioBlob, stop, updateLipSync, isSpeaking } = useLipSync();
 
-  // Blink State
-  const blinkRef = useRef({
-    nextBlinkTime: 0,
-    isBlinking: false,
-    blinkStartTime: 0,
-    duration: 0.15 // Duration of a blink
-  })
-
   const speak = async (text: string, lang?: string) => {
     // Abort previous
     if (abortControllerRef.current) {
@@ -190,35 +182,8 @@ const Avatar = forwardRef<AvatarHandle, AvatarProps>(({ isThinking, onCrash }, r
           track('upperChest', 0.1)
 
 
-          // 4. Blinking (Random interval 2-4s)
+          // 4. Thinking Expression (Joy)
           if (vrm.expressionManager) {
-            const blink = blinkRef.current
-
-            // Check if it's time to blink
-            if (!blink.isBlinking && t > blink.nextBlinkTime) {
-               blink.isBlinking = true
-               blink.blinkStartTime = t
-               // Set next blink time (current time + random between 2 and 4)
-               blink.nextBlinkTime = t + 2 + Math.random() * 2
-            }
-
-            if (blink.isBlinking) {
-               // Calculate blink progress (0 to 1 then back to 0) can be simple or bell curve
-               // Simple implementation: fully closed for duration
-               const progress = (t - blink.blinkStartTime) / blink.duration
-
-               if (progress >= 1) {
-                 blink.isBlinking = false
-                 vrm.expressionManager.setValue('blink', 0)
-               } else {
-                 // Peak blink at 0.5 progress? Or just close/open.
-                 // Let's do a sine wave for smooth blink
-                 const blinkValue = Math.sin(progress * Math.PI)
-                 vrm.expressionManager.setValue('blink', blinkValue)
-               }
-            }
-
-            // 5. Thinking Expression (Joy)
             // Map isThinking to a subtle "Joy" morph to simulate neural activity
             const targetJoy = isThinking ? 0.3 : 0;
             const currentJoy = vrm.expressionManager.getValue('joy') || 0;
