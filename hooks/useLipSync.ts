@@ -56,7 +56,9 @@ export function useLipSync() {
             const arrayBuffer = await blob.arrayBuffer();
 
             if (!audioContextRef.current) {
-                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+                // Use standard AudioContext
+                const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+                audioContextRef.current = new AudioContextClass();
             }
             const ctx = audioContextRef.current;
 
@@ -71,6 +73,7 @@ export function useLipSync() {
 
             const analyser = ctx.createAnalyser();
             analyser.fftSize = 1024; // High resolution for better frequency separation
+            analyser.smoothingTimeConstant = 0.5; // Additional smoothing at node level
             analyserRef.current = analyser;
 
             dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
@@ -104,34 +107,48 @@ export function useLipSync() {
         let target_ih = 0;
         let target_ou = 0;
 
+        const SENSITIVITY = 1.5;
+        const THRESHOLD = 0.1;
+
         if (isSpeakingRef.current && analyserRef.current && dataArrayRef.current) {
             try {
-                // Cast to any to resolve TS mismatch
-                analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
+                // Get frequency data (0-255)
+                analyserRef.current.getByteFrequencyData(dataArrayRef.current);
                 const data = dataArrayRef.current;
 
                 // Frequency Mapping (Based on ~43Hz per bin at 44.1kHz/1024FFT)
 
-                // Low (OU/OH): ~0 - 400Hz (Bins 0-9) -> Vowel 'O' / 'U'
+                // Low Band (Bass) -> OU (0-10, ~0-430Hz) -> Vowel 'O' / 'U'
                 let lowSum = 0;
-                for (let i = 0; i < 10; i++) lowSum += data[i];
-                const lowAvg = lowSum / 10;
+                const lowCount = 10;
+                for (let i = 0; i < lowCount; i++) lowSum += data[i];
+                const lowAvg = lowSum / lowCount;
 
-                // Mid (AA/AH): ~400 - 2000Hz (Bins 10-46) -> Vowel 'A'
+                // Mid Band (Mids) -> AA (10-46, ~430-2000Hz) -> Vowel 'A'
                 let midSum = 0;
-                for (let i = 10; i < 47; i++) midSum += data[i];
-                const midAvg = midSum / 37;
+                const midCount = 37;
+                for (let i = 10; i < 10 + midCount; i++) midSum += data[i];
+                const midAvg = midSum / midCount;
 
-                // High (IH/EE): ~2000Hz+ (Bins 47+) -> Vowel 'I'
+                // High Band (Treble) -> IH (47-128, ~2000-5500Hz) -> Vowel 'I' / 'E' / 'S'
                 let highSum = 0;
-                for (let i = 47; i < 128; i++) highSum += data[i];
-                const highAvg = highSum / 81;
+                const highCount = 81;
+                for (let i = 47; i < 47 + highCount; i++) highSum += data[i];
+                const highAvg = highSum / highCount;
 
-                // Sensitivity Adjustment
-                const sensitivity = 2.0;
-                target_ou = Math.min(1, (lowAvg / 255) * sensitivity);
-                target_aa = Math.min(1, (midAvg / 255) * sensitivity);
-                target_ih = Math.min(1, (highAvg / 255) * sensitivity);
+                // Calculate normalized values (0-1) with Sensitivity
+                let val_ou = (lowAvg / 255) * SENSITIVITY;
+                let val_aa = (midAvg / 255) * SENSITIVITY;
+                let val_ih = (highAvg / 255) * SENSITIVITY;
+
+                // Apply Noise Gate Threshold
+                if (val_ou < THRESHOLD) val_ou = 0;
+                if (val_aa < THRESHOLD) val_aa = 0;
+                if (val_ih < THRESHOLD) val_ih = 0;
+
+                target_ou = Math.min(1, val_ou);
+                target_aa = Math.min(1, val_aa);
+                target_ih = Math.min(1, val_ih);
 
             } catch (e) {
                 console.warn("Lip sync analysis error", e);
@@ -139,25 +156,19 @@ export function useLipSync() {
         }
 
         // Apply Lerp (Smoothing)
-        // 15.0 is a good speed for responsiveness without jitter
-        const lerpFactor = 15.0 * deltaTime;
-        const clampLerp = Math.min(lerpFactor, 1.0);
+        const lerpFactor = 0.1; // Smooth transition (approx 0.1)
 
-        currentVisemes.current.aa = THREE.MathUtils.lerp(currentVisemes.current.aa, target_aa, clampLerp);
-        currentVisemes.current.ih = THREE.MathUtils.lerp(currentVisemes.current.ih, target_ih, clampLerp);
-        currentVisemes.current.ou = THREE.MathUtils.lerp(currentVisemes.current.ou, target_ou, clampLerp);
+        currentVisemes.current.aa = THREE.MathUtils.lerp(currentVisemes.current.aa, target_aa, lerpFactor);
+        currentVisemes.current.ih = THREE.MathUtils.lerp(currentVisemes.current.ih, target_ih, lerpFactor);
+        currentVisemes.current.ou = THREE.MathUtils.lerp(currentVisemes.current.ou, target_ou, lerpFactor);
 
-        // Map to VRM Presets (Standard VRM 0.0/1.0)
-        // aa -> aa (A)
-        // ih -> ih (I)
-        // ou -> ou (U/O)
+        // Map to VRM Presets
         vrm.expressionManager.setValue('aa', currentVisemes.current.aa);
         vrm.expressionManager.setValue('ih', currentVisemes.current.ih);
         vrm.expressionManager.setValue('ou', currentVisemes.current.ou);
 
 
         // --- Blinking Logic ---
-        // Using performance.now() for independent timing
         const t = performance.now() / 1000;
         const blink = blinkRef.current;
 
