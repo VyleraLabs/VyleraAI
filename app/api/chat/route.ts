@@ -66,8 +66,8 @@ RULES:
                 maxOutputTokens: 200 // Enforce approx 150-200 words
             },
             tools: [{
-                googleSearchRetrieval: {}
-            }],
+                googleSearch: {}
+            } as any],
             systemInstruction: {
                 role: 'system',
                 parts: [{
