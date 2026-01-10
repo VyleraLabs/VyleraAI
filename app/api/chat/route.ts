@@ -63,7 +63,7 @@ RULES:
             model: 'gemini-2.5-flash',
             generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 200 // Enforce approx 150-200 words
+                maxOutputTokens: 800 // Enforce approx 150-200 words
             },
             tools: [{
                 googleSearch: {}
