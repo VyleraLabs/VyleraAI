@@ -1,11 +1,10 @@
 'use client'
 
 import { Canvas, useThree } from '@react-three/fiber'
-import { useProgress, Html } from '@react-three/drei'
+import { useProgress, Html, PerspectiveCamera } from '@react-three/drei'
 import { useEffect, useState, Suspense, forwardRef } from 'react'
 import * as THREE from 'three'
 import MetiAvatar, { AvatarHandle } from './MetiAvatar'
-import DebugAvatar from './DebugAvatar'
 
 export type { AvatarHandle } from './MetiAvatar'
 
@@ -25,41 +24,19 @@ function Loader() {
   )
 }
 
-function CameraRig() {
-  const { camera } = useThree()
-
-  // Task 3: MCU Camera Lock
-  // Ensure strict compliance with Z=2.1 and Head LookAt
-  useEffect(() => {
-    // Force reset position to ensure frame
-    camera.position.set(0, 1.4, 2.1)
-
-    // Lock LookAt to Head Bone center (approx 1.35m height)
-    const target = new THREE.Vector3(0, 1.35, 0)
-    camera.lookAt(target)
-
-    // Explicitly update matrices to prevent drift
-    camera.updateProjectionMatrix()
-  }, [camera])
-
-  return null
-}
-
 const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
-  const [key, setKey] = useState(0); // Key for remounting on crash
+  const [key, setKey] = useState(0);
   const [hasCrashed, setHasCrashed] = useState(false);
 
-  // Crash Recovery Handler
-  // Task 4: Resolve WebGL Crash & Bone Mapping (Safety: Wrap in try/catch... wait 2 seconds and re-initialize)
   const handleCrash = () => {
-      if (hasCrashed) return; // Prevent multiple triggers
+      if (hasCrashed) return;
       setHasCrashed(true);
 
       console.log("WebGL Context Lost. Attempting to reboot Neural Core in 2 seconds...");
 
       setTimeout(() => {
           setHasCrashed(false);
-          setKey(prev => prev + 1); // Remount component to re-initialize WebGL context/canvas
+          setKey(prev => prev + 1);
       }, 2000);
   };
 
@@ -73,16 +50,18 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
       )
   }
 
+  // Task: Re-implement the Scene setup.
+  // Return a <Canvas> with gl={{ preserveDrawingBuffer: true }}.
+  // Lighting: <ambientLight intensity={2} /> and <directionalLight position={[2, 5, 2]} intensity={1.5} />.
+  // Camera: <PerspectiveCamera makeDefault position={[0, 1.4, 3]} fov={40} />.
+  // Content: <Suspense fallback={null}><MetiAvatar /></Suspense>.
+
   return (
     <Canvas
       key={key}
-      camera={{ fov: 30 }}
       gl={{
-        alpha: true,
         preserveDrawingBuffer: true,
-        powerPreference: "high-performance"
       }}
-      // CRITICAL: This disposes of everything when the component unmounts
       onCreated={({ gl }) => {
         gl.domElement.addEventListener('webglcontextlost', (event) => {
           event.preventDefault();
@@ -91,16 +70,13 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
         });
       }}
     >
-        <CameraRig />
+        <PerspectiveCamera makeDefault position={[0, 1.4, 3]} fov={40} />
 
-        {/* Studio Lighting */}
-        <ambientLight intensity={1.5} />
-        <directionalLight position={[5, 10, 5]} intensity={2.0} />
-        <spotLight position={[-5, 5, 10]} intensity={2} />
+        <ambientLight intensity={2} />
+        <directionalLight position={[2, 5, 2]} intensity={1.5} />
 
         <Suspense fallback={<Loader />}>
-            <DebugAvatar ref={ref} />
-            {/* <MetiAvatar ref={ref} onCrash={handleCrash} /> */}
+            <MetiAvatar ref={ref} onCrash={handleCrash} />
         </Suspense>
     </Canvas>
   )
