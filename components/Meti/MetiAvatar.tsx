@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react'
-import { useGLTF, useAnimations, Preload } from '@react-three/drei'
+import { useGLTF, useAnimations } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useLivingBreathing } from '../../hooks/useLivingBreathing'
@@ -18,7 +18,7 @@ export interface MetiAvatarProps {
 }
 
 const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) => {
-    // Loader
+    // Logic: Load /models/meti_full.glb
     const { nodes, animations, scene } = useGLTF('/models/meti_full.glb') as any
     const { actions, mixer } = useAnimations(animations, scene)
 
@@ -27,8 +27,9 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
     const abortControllerRef = useRef<AbortController | null>(null)
 
     // Lip Sync Hook
-    const { playAudioBlob, stop: stopAudio, updateLipSync, isSpeaking } = useLipSync()
+    const { playAudioBlob, stop: stopAudio, updateLipSync } = useLipSync()
 
+    // Handlers
     const stop = () => {
         stopAudio();
         if (abortControllerRef.current) {
@@ -37,10 +38,8 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         }
     }
 
-    // Expose Handle
     useImperativeHandle(ref, () => ({
         speak: async (text: string, lang?: string) => {
-            // Abort previous
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
@@ -71,7 +70,7 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         stop
     }))
 
-    // Cleanup Actions on unmount
+    // Cleanup
     useEffect(() => {
         return () => {
             stop();
@@ -79,7 +78,7 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         }
     }, [mixer])
 
-    // Animation Sequence: Mount -> Hello -> Idle
+    // Logic: Play "hello" animation on mount (once), then switch isIdle state to true.
     useEffect(() => {
         const helloClip = actions['hello'];
         if (helloClip) {
@@ -88,7 +87,7 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
 
             const onFinished = (e: any) => {
                 if (e.action === helloClip) {
-                    setIsActive(true); // Activate procedural idle
+                    setIsActive(true); // Switch to idle
                 }
             }
             mixer.addEventListener('finished', onFinished);
@@ -97,51 +96,40 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
                 mixer.removeEventListener('finished', onFinished);
             }
         } else {
-            // If no hello animation, go straight to idle
+            // If no hello, start idle immediately
             setIsActive(true);
         }
     }, [actions, mixer])
 
-    // Task 1: Procedural Idle (Living Breathing)
+    // Logic: Pass nodes to the hook.
     useLivingBreathing(nodes, isActive);
 
-    // Frame Loop
+    // Frame Loop for Lip Sync (Optional but good for completeness if we keep speak)
     useFrame((state, delta) => {
         try {
-            // Task 2: Lip Sync Integration (Crucial)
-            // The avatar must speak via ElevenLabs.
-            // Placeholder/Integration: connecting useLipSync to Face Mesh
-
-            const faceMesh = nodes.Face || nodes.Body || nodes.mesh_0; // Attempt to find Face mesh
-
-            if (faceMesh && faceMesh.morphTargetDictionary && faceMesh.morphTargetInfluences) {
-                // Create a proxy VRM object that maps 'aa', 'ih', 'ou' to the mesh's morph targets
-                // This allows us to reuse the existing useLipSync logic which expects a vrm object
-                const proxyVRM = {
-                    expressionManager: {
-                        setValue: (name: string, value: number) => {
-                            const idx = faceMesh.morphTargetDictionary[name];
-                            if (idx !== undefined) {
-                                faceMesh.morphTargetInfluences[idx] = value;
-                            }
-                        }
-                    }
-                };
-
-                updateLipSync(proxyVRM, delta);
-            }
-
+           const faceMesh = nodes.Face || nodes.Body || nodes.mesh_0;
+           if (faceMesh && faceMesh.morphTargetDictionary && faceMesh.morphTargetInfluences) {
+               const proxyVRM = {
+                   expressionManager: {
+                       setValue: (name: string, value: number) => {
+                           const idx = faceMesh.morphTargetDictionary[name];
+                           if (idx !== undefined) {
+                               faceMesh.morphTargetInfluences[idx] = value;
+                           }
+                       }
+                   }
+               };
+               updateLipSync(proxyVRM, delta);
+           }
         } catch (e) {
-            console.error("Avatar Render Crash:", e);
+            console.error("Avatar Frame Error:", e);
             if (onCrash) onCrash();
         }
     })
 
+    // Logic: Return <primitive object={scene} position={[0, -1, 0]} />
     return (
-        <group dispose={null}>
-            <primitive object={scene} />
-            <Preload all />
-        </group>
+        <primitive object={scene} position={[0, -1, 0]} />
     )
 })
 

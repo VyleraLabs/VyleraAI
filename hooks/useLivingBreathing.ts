@@ -15,8 +15,10 @@ export function useLivingBreathing(nodes: any, isActive: boolean) {
   const bonesRef = useRef<{
     spine: THREE.Object3D | null;
     head: THREE.Object3D | null;
-    leftArm: THREE.Object3D | null;
-    rightArm: THREE.Object3D | null;
+    leftUpperArm: THREE.Object3D | null;
+    rightUpperArm: THREE.Object3D | null;
+    leftLowerArm: THREE.Object3D | null;
+    rightLowerArm: THREE.Object3D | null;
     face: THREE.Mesh | null; // For morph targets
   } | null>(null);
 
@@ -28,51 +30,74 @@ export function useLivingBreathing(nodes: any, isActive: boolean) {
       bonesRef.current = {
         spine: nodes.J_Bip_C_Spine || null,
         head: nodes.J_Bip_C_Head || null,
-        leftArm: nodes.J_Bip_C_UpperArm_L || null,
-        rightArm: nodes.J_Bip_C_UpperArm_R || null,
+        leftUpperArm: nodes.J_Bip_C_UpperArm_L || null,
+        rightUpperArm: nodes.J_Bip_C_UpperArm_R || null,
+        leftLowerArm: nodes.J_Bip_C_LowerArm_L || null,
+        rightLowerArm: nodes.J_Bip_C_LowerArm_R || null,
         face: nodes.Face || nodes.Body || null,
       };
     }
 
-    const { spine, leftArm, rightArm, face } = bonesRef.current;
+    const { spine, head, leftUpperArm, rightUpperArm, leftLowerArm, rightLowerArm, face } = bonesRef.current;
     const time = state.clock.elapsedTime;
-
-    // 1. Polite Pose (Arms clasped in front)
-    // Lerp arms to a specific rotation.
-    // Assuming T-pose or similar initial state.
-    // Approximate rotations for clasped hands:
-    // UpperArm L: Z ~ -80deg (-1.4 rad), X ~ 20deg (0.35 rad)
-    // UpperArm R: Z ~ 80deg (1.4 rad), X ~ 20deg (0.35 rad)
-
-    // Smooth interpolation factor
     const lerpFactor = 0.1;
 
-    if (leftArm) {
-      // Rotate down (Z) and slightly forward (X)
-      leftArm.rotation.z = THREE.MathUtils.lerp(leftArm.rotation.z, -1.3, lerpFactor);
-      leftArm.rotation.x = THREE.MathUtils.lerp(leftArm.rotation.x, 0.3, lerpFactor);
+    // 1. Polite Pose (Arms clasped in front)
+    // Target: UpperArm X ~20° (0.35), Z ~80° (1.4); LowerArm Z ~20° (0.35).
+    // Note: VRM standard bones usually have Z axis pointing down the bone or similar,
+    // but in Three.js Euler rotations depend on the bind pose.
+    // Assuming standard T-Pose where Z rotation brings arms down/up.
+
+    // Left Upper Arm (Sides)
+    if (leftUpperArm) {
+      // Rotation Z: +80 deg (1.4 rad) usually brings arm down to side in T-pose
+      // The prompt says "Sides" Z ~80°.
+      leftUpperArm.rotation.z = THREE.MathUtils.lerp(leftUpperArm.rotation.z, Math.PI / 180 * 80, lerpFactor);
+      // Rotation X: ~20 deg (0.35 rad) brings arm forward
+      leftUpperArm.rotation.x = THREE.MathUtils.lerp(leftUpperArm.rotation.x, Math.PI / 180 * 20, lerpFactor);
     }
 
-    if (rightArm) {
-      // Mirror for right arm
-      rightArm.rotation.z = THREE.MathUtils.lerp(rightArm.rotation.z, 1.3, lerpFactor);
-      rightArm.rotation.x = THREE.MathUtils.lerp(rightArm.rotation.x, 0.3, lerpFactor);
+    // Right Upper Arm (Sides - Mirrored)
+    if (rightUpperArm) {
+      // Rotation Z: -80 deg (-1.4 rad)
+      rightUpperArm.rotation.z = THREE.MathUtils.lerp(rightUpperArm.rotation.z, -(Math.PI / 180 * 80), lerpFactor);
+      // Rotation X: ~20 deg (0.35 rad)
+      rightUpperArm.rotation.x = THREE.MathUtils.lerp(rightUpperArm.rotation.x, Math.PI / 180 * 20, lerpFactor);
+    }
+
+    // Left Lower Arm (Inward)
+    if (leftLowerArm) {
+      // LowerArm Z ~20 deg ?? Usually Y rotation bends elbow in standard rig.
+      // But prompt says "LowerArm Z ~20° (Inward)". Let's follow instruction.
+      // If Z rotates the forearm, so be it.
+      leftLowerArm.rotation.z = THREE.MathUtils.lerp(leftLowerArm.rotation.z, Math.PI / 180 * 20, lerpFactor);
+    }
+
+    // Right Lower Arm (Inward - Mirrored)
+    if (rightLowerArm) {
+       // Mirroring Z
+       rightLowerArm.rotation.z = THREE.MathUtils.lerp(rightLowerArm.rotation.z, -(Math.PI / 180 * 20), lerpFactor);
     }
 
     // 2. Breathing (Sine wave on Spine X-axis)
     if (spine) {
-      // "Subtle Sine wave on Spine X-axis".
-      spine.rotation.x = Math.sin(time * 2.0) * 0.05; // 0.05 rad is subtle.
+      spine.rotation.x = Math.sin(time * 2.0) * 0.05;
     }
 
-    // 3. Blinking
+    // 3. Head Drift
+    if (head) {
+        // Subtle Perlin-like noise or compound sine
+        head.rotation.y = Math.sin(time * 0.5) * 0.05 + Math.sin(time * 0.3) * 0.02;
+        head.rotation.x = Math.sin(time * 0.7) * 0.02;
+    }
+
+    // 4. Blinking
     if (face && face.morphTargetInfluences && face.morphTargetDictionary) {
-        const blinkIndex = face.morphTargetDictionary['blink'];
+        const blinkIndex = face.morphTargetDictionary['blink'] ?? face.morphTargetDictionary['Blink'];
         if (blinkIndex !== undefined) {
             const t = state.clock.elapsedTime;
             const bs = blinkState.current;
 
-            // Init next blink time
             if (bs.nextBlinkTime === 0) {
                 bs.nextBlinkTime = t + 2 + Math.random() * 4;
             }
@@ -89,7 +114,6 @@ export function useLivingBreathing(nodes: any, isActive: boolean) {
                     bs.isBlinking = false;
                     face.morphTargetInfluences[blinkIndex] = 0;
                 } else {
-                    // Sine for smooth blink
                     const progress = elapsed / bs.duration;
                     const value = Math.sin(progress * Math.PI);
                     face.morphTargetInfluences[blinkIndex] = value;
