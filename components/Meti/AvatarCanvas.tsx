@@ -5,6 +5,7 @@ import { useProgress, Html } from '@react-three/drei'
 import { useEffect, useState, Suspense, forwardRef } from 'react'
 import * as THREE from 'three'
 import MetiAvatar, { AvatarHandle } from './MetiAvatar'
+import DebugAvatar from './DebugAvatar'
 
 export type { AvatarHandle } from './MetiAvatar'
 
@@ -98,7 +99,8 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
         <spotLight position={[-5, 5, 10]} intensity={2} />
 
         <Suspense fallback={<Loader />}>
-            <MetiAvatar ref={ref} onCrash={handleCrash} />
+            <DebugAvatar ref={ref} />
+            {/* <MetiAvatar ref={ref} onCrash={handleCrash} /> */}
         </Suspense>
     </Canvas>
   )
