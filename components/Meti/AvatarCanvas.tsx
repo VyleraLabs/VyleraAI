@@ -1,9 +1,8 @@
 'use client'
 
-import { Canvas, useThree } from '@react-three/fiber'
-import { useProgress, Html, PerspectiveCamera } from '@react-three/drei'
-import { useEffect, useState, Suspense, forwardRef } from 'react'
-import * as THREE from 'three'
+import { Canvas } from '@react-three/fiber'
+import { PerspectiveCamera } from '@react-three/drei'
+import { useState, Suspense, forwardRef } from 'react'
 import MetiAvatar, { AvatarHandle } from './MetiAvatar'
 
 export type { AvatarHandle } from './MetiAvatar'
@@ -11,17 +10,6 @@ export type { AvatarHandle } from './MetiAvatar'
 export interface AvatarProps {
   isThinking?: boolean;
   onCrash?: () => void;
-}
-
-function Loader() {
-  const { progress } = useProgress()
-  return (
-    <Html center zIndexRange={[100, 0]}>
-      <div className="text-white text-sm font-mono tracking-widest whitespace-nowrap">
-        NEURAL CORE LOADING... {progress.toFixed(0)}%
-      </div>
-    </Html>
-  )
 }
 
 const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
@@ -50,17 +38,12 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
       )
   }
 
-  // Task: Re-implement the Scene setup.
-  // Return a <Canvas> with gl={{ preserveDrawingBuffer: true }}.
-  // Lighting: <ambientLight intensity={2} /> and <directionalLight position={[2, 5, 2]} intensity={1.5} />.
-  // Camera: <PerspectiveCamera makeDefault position={[0, 1.4, 3]} fov={40} />.
-  // Content: <Suspense fallback={null}><MetiAvatar /></Suspense>.
-
   return (
     <Canvas
       key={key}
       gl={{
         preserveDrawingBuffer: true,
+        alpha: true
       }}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener('webglcontextlost', (event) => {
@@ -70,12 +53,12 @@ const AvatarCanvas = forwardRef<AvatarHandle, AvatarProps>((props, ref) => {
         });
       }}
     >
-        <PerspectiveCamera makeDefault position={[0, 1.4, 3]} fov={40} />
+        <PerspectiveCamera makeDefault position={[0, 1.45, 3.2]} fov={35} />
 
-        <ambientLight intensity={2} />
-        <directionalLight position={[2, 5, 2]} intensity={1.5} />
+        <hemisphereLight intensity={2.5} groundColor="#202020" color="#ffffff" />
+        <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow />
 
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={null}>
             <MetiAvatar ref={ref} onCrash={handleCrash} />
         </Suspense>
     </Canvas>

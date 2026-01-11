@@ -78,7 +78,25 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         }
     }, [mixer])
 
-    // Logic: Play "hello" animation on mount (once), then switch isIdle state to true.
+    // Material Fix (CRITICAL)
+    useEffect(() => {
+        if (scene) {
+            scene.traverse((child: any) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    // FIX MISSING HAIR: Force DoubleSide rendering
+                    if (child.material) {
+                        child.material.side = THREE.DoubleSide;
+                        child.material.alphaTest = 0.5; // Fix transparency sorting
+                        child.material.needsUpdate = true;
+                    }
+                }
+            });
+        }
+    }, [scene]);
+
+    // Animation Logic
     useEffect(() => {
         const helloClip = actions['hello'];
         if (helloClip) {
@@ -87,6 +105,7 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
 
             const onFinished = (e: any) => {
                 if (e.action === helloClip) {
+                    helloClip.fadeOut(0.5);
                     setIsActive(true); // Switch to idle
                 }
             }
@@ -101,12 +120,13 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         }
     }, [actions, mixer])
 
-    // Logic: Pass nodes to the hook.
-    useLivingBreathing(nodes, isActive);
+    // Logic: Pass scene to the hook.
+    useLivingBreathing(scene, isActive);
 
-    // Frame Loop for Lip Sync (Optional but good for completeness if we keep speak)
+    // Frame Loop for Lip Sync
     useFrame((state, delta) => {
         try {
+           // We need to find the face mesh for lip sync
            const faceMesh = nodes.Face || nodes.Body || nodes.mesh_0;
            if (faceMesh && faceMesh.morphTargetDictionary && faceMesh.morphTargetInfluences) {
                const proxyVRM = {
@@ -127,7 +147,6 @@ const MetiAvatar = forwardRef<AvatarHandle, MetiAvatarProps>(({ onCrash }, ref) 
         }
     })
 
-    // Logic: Return <primitive object={scene} position={[0, -1, 0]} />
     return (
         <primitive object={scene} position={[0, -1, 0]} />
     )
