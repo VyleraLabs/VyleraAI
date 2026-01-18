@@ -6,15 +6,33 @@ import Image from "next/image";
 const team = [
   {
     name: "Katherina Aytakin",
-    role: "Founder // Lead Engineer",
+    role: "Founder & Lead Engineer",
     image: "/team/founder.jpg",
     bio: "Former Security Analyst specializing in high-stakes penetration testing (Denuvo) and industrial Oracle architectures. Architecting the secure, sovereign neural fabric of Vylera."
   },
   {
     name: "Magna Putra",
-    role: "Co-Founder // Lead Architect",
-    image: "/team/lead-eng.jpg", // Use a logo or abstract avatar here
+    role: "Founder & Lead Architect",
+    image: "/team/lead-eng.jpg",
     bio: "Senior Systems Engineer with a background in SAP/ABAP architecture. Previously optimized mission-critical logistic networks for UNICEF. Building Vylera's reliable edge infrastructure."
+  },
+  {
+    name: "Sandy Permadi",
+    role: "CFO",
+    image: "/team/CFO.jpg",
+    bio: "A veteran of the Southeast Asian e-commerce ecosystem with high-growth leadership at JD.ID, Lazada, and Bluebird Group. Sandy architects Vylera’s financial infrastructure and capital strategy, ensuring our technical vision is grounded in robust fiscal discipline."
+  },
+  {
+    name: "Jordi Tan",
+    role: "COO",
+    image: "/team/COO.jpg",
+    bio: "A seasoned executive and engineer bridging the gap between strategic foresight and technical execution. Drawing from experience as a CEO in game development and a Full-Stack architect at OnlinePajak, Jordi focuses on scaling Vylera’s global operations."
+  },
+  {
+    name: "Kristiyan Dimitrov Mechev",
+    role: "Hardware Engineer",
+    image: "/team/kmechev.jpg",
+    bio: "A specialist in embedded systems and hardware-software interoperability. Kristiyan leads the development of Vylera’s physical layer, engineering custom IoT gateways and sensor arrays that bridge the digital Sovereign OS with the physical world at the edge."
   }
 ];
 
@@ -40,7 +58,7 @@ export default function TeamSection() {
                      <div className="w-px h-16 bg-gradient-to-b from-cyan/0 via-cyan/50 to-cyan/0 mx-auto mt-8" />
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center">
+                <div className="flex flex-wrap justify-center gap-8">
                     {team.map((member, index) => (
                         <motion.div
                             key={member.name}
@@ -53,7 +71,7 @@ export default function TeamSection() {
                             <div className="relative w-full aspect-square mb-6 rounded-md overflow-hidden bg-[#000]">
                                 <Image
                                     src={member.image}
-                                    alt={member.name}
+                                    alt={`${member.name} - ${member.role}`}
                                     fill
                                     className="object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
                                 />
