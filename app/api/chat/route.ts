@@ -1,21 +1,24 @@
 import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
 
-// Initialize Vertex AI with our project credentials
-const vertex_ai = new VertexAI({
-  project: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  location: 'us-central1'
-});
+// GLOBAL FIX: Do not initialize VertexAI here.
+// It causes build failures because env vars aren't always ready during build time.
 
 export async function POST(req: Request) {
   try {
+    // 1. Initialize Vertex AI *only* when a request comes in (Runtime)
+    const vertex_ai = new VertexAI({
+      project: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      location: 'us-central1'
+    });
+
     const { messages } = await req.json();
 
-    // THE SWITCH: Priority to Custom Brain, Fallback to 2.5 Flash
+    // 2. THE SWITCH: Priority to Custom Brain, Fallback to 2.5 Flash
     const modelName = process.env.VYLERA_TUNED_MODEL_ID || 'gemini-2.5-flash';
 
     console.log(`[VyleraAI] Initializing neural core: ${modelName}`);
 
-    // Instantiate the model with CORRECT TYPED safety settings
+    // 3. Instantiate the model
     const model = vertex_ai.getGenerativeModel({
       model: modelName,
       safetySettings: [
@@ -26,7 +29,7 @@ export async function POST(req: Request) {
       ],
     });
 
-    // Create the chat session
+    // 4. Create chat session
     const chat = model.startChat({
       history: messages.slice(0, -1).map((m: any) => ({
         role: m.role === 'user' ? 'user' : 'model',
@@ -34,7 +37,7 @@ export async function POST(req: Request) {
       })),
     });
 
-    // Send message
+    // 5. Send message
     const lastMessage = messages[messages.length - 1].content;
     const result = await chat.sendMessage(lastMessage);
     const response = await result.response;
