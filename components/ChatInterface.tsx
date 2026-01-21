@@ -184,12 +184,17 @@ export default function ChatInterface({ avatarRef }: ChatInterfaceProps) {
       setMessages(prev => [...prev, aiMsg]);
 
       try {
+        // Construct full conversation history for the new backend
+        // Map internal 'ai'/'user' to API 'model'/'user' and 'text' to 'content'
+        const conversation = [...messages, userMsg].map(m => ({
+            role: m.role === 'ai' ? 'model' : 'user',
+            content: m.text
+        }));
+
         const res = await fetch('/api/chat', {
             method: 'POST',
             body: JSON.stringify({
-                message: userMsg.text,
-                history: messages,
-                lang: language
+                messages: conversation
             })
         });
 
