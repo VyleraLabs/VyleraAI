@@ -310,5 +310,17 @@
     "bioCFO": "Seorang veteran ekosistem e-commerce Asia Tenggara dengan kepemimpinan pertumbuhan tinggi di JD.ID, Lazada, dan Bluebird Group. Sandy merancang infrastruktur keuangan dan strategi modal Vylera, memastikan visi teknis kami didasarkan pada disiplin fiskal yang kuat.",
     "roleCOO": "COO dan Kepala Insinyur Perangkat Keras",
     "bioCOO": "Seorang spesialis dalam sistem tertanam dan interoperabilitas perangkat keras dan perangkat lunak. Kristiyan memimpin pengembangan lapisan fisik Vylera, merekayasa gateway IoT kustom dan array sensor yang menjembatani OS Berdaulat digital dengan dunia fisik di tepinya."
+  },
+  "ContactModal": {
+    "title": "Koneksi Langsung",
+    "desc": "Pilih departemen untuk merutekan pertanyaan Anda secara akurat ke tim inti.",
+    "emailLabel": "Email",
+    "copyLabel": "Disalin!",
+    "deptEnterpriseName": "Solusi Perusahaan",
+    "deptEnterpriseDesc": "Untuk integrasi platform B2B dan arsitektur perusahaan.",
+    "deptInvestorName": "Hubungan Investor",
+    "deptInvestorDesc": "Untuk pertanyaan investasi dan kemitraan strategis.",
+    "deptResidentialName": "Akses Perumahan",
+    "deptResidentialDesc": "Untuk akses awal ke OS Berdaulat perumahan."
   }
 }

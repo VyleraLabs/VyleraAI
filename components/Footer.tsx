@@ -64,7 +64,7 @@ export default function Footer() {
                         <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">{t('company')}</span>
                         <Link href="/about" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('about')}</Link>
                         <Link href="/investors" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{t('investors')}</Link>
-                        <Link href="/tech#contact" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('contact')}</Link>
+                        <button onClick={() => window.dispatchEvent(new Event('open-contact-modal'))} className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider text-left">{tNav('contact')}</button>
                     </div>
 
                     <div className="flex flex-col gap-3 text-center md:text-left">

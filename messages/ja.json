@@ -310,5 +310,17 @@
     "bioCFO": "東南アジアのeコマースエコシステムのベテランであり、JD.ID、Lazada、およびBluebird Groupで高成長のリーダーシップを発揮しました。SandyはVyleraの財務インフラストラクチャと資本戦略を設計し、私たちの技術的ビジョンが強固な財政規律に基づいていることを保証します。",
     "roleCOO": "COO 兼 リードハードウェアエンジニア",
     "bioCOO": "組み込みシステムとハードウェアとソフトウェアの相互運用性のスペシャリスト。KristiyanはVyleraの物理層の開発を主導し、エッジの物理世界とデジタルのソブリンOSを架け渡すカスタムIoTゲートウェイとセンサーアレイを設計します。"
+  },
+  "ContactModal": {
+    "title": "ダイレクトコネクト",
+    "desc": "コアチームに正確に問い合わせをルーティングするために部門を選択してください。",
+    "emailLabel": "メール",
+    "copyLabel": "コピーしました！",
+    "deptEnterpriseName": "エンタープライズソリューション",
+    "deptEnterpriseDesc": "B2Bプラットフォームの統合と企業アーキテクチャについて。",
+    "deptInvestorName": "投資家情報",
+    "deptInvestorDesc": "投資に関するお問い合わせと戦略的パートナーシップについて。",
+    "deptResidentialName": "レジデンシャルアクセス",
+    "deptResidentialDesc": "住宅用Sovereign OSのアーリーアクセスについて。"
   }
 }

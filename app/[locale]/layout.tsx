@@ -9,6 +9,7 @@ import NeuralStatusBar from "@/components/NeuralStatusBar";
 import Footer from "@/components/Footer";
 import { NextAuthProvider } from "@/components/NextAuthProvider";
 import SchemaLD from "@/components/SchemaLD";
+import ContactModal from "@/components/ContactModal";
 
 
 const geistSans = Geist({
@@ -77,6 +78,7 @@ export default async function RootLayout({
           <NextAuthProvider>
             {children}
             <Footer />
+            <ContactModal />
             <NeuralStatusBar />
             <FooterStatus />
           </NextAuthProvider>

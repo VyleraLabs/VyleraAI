@@ -310,5 +310,17 @@
     "bioCFO": "A veteran of the Southeast Asian e-commerce ecosystem with high-growth leadership at JD.ID, Lazada, and Bluebird Group. Sandy architects Vylera’s financial infrastructure and capital strategy, ensuring our technical vision is grounded in robust fiscal discipline.",
     "roleCOO": "COO and Lead Hardware Engineer",
     "bioCOO": "A specialist in embedded systems and hardware-software interoperability. Kristiyan leads the development of Vylera's physical layer, engineering custom IoT gateways and sensor arrays that bridge the digital Sovereign OS with the physical world at the edge."
+  },
+  "ContactModal": {
+    "title": "Direct Connect",
+    "desc": "Select a department to route your inquiry accurately to the core team.",
+    "emailLabel": "Email",
+    "copyLabel": "Copied!",
+    "deptEnterpriseName": "Enterprise Solutions",
+    "deptEnterpriseDesc": "For B2B platform integration and corporate architecture.",
+    "deptInvestorName": "Investor Relations",
+    "deptInvestorDesc": "For investment inquiries and strategic partnerships.",
+    "deptResidentialName": "Residential Access",
+    "deptResidentialDesc": "For early access to the residential Sovereign OS."
   }
 }
