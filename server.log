@@ -1,0 +1,20 @@
+
+> @vyleralabs/vylera-ai@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 1093ms
+○ Compiling / ...
+ GET / 200 in 19.9s (compile: 18.4s, render: 1503ms)
+ POST / 200 in 304ms (compile: 118ms, render: 186ms)
+ GET / 200 in 586ms (compile: 122ms, render: 464ms)
+ POST / 200 in 74ms (compile: 17ms, render: 57ms)

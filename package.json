@@ -1,0 +1,47 @@
+{
+  "name": "@vyleralabs/vylera-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@google-cloud/text-to-speech": "^6.4.0",
+    "@google-cloud/vertexai": "^1.10.0",
+    "@pixiv/three-vrm": "^3.4.4",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@types/nodemailer": "^7.0.11",
+    "@types/three": "^0.182.0",
+    "axios": "^1.13.2",
+    "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
+    "firebase": "^12.7.0",
+    "framer-motion": "^12.23.26",
+    "google-auth-library": "^9.0.0",
+    "lucide-react": "^0.562.0",
+    "next": "^16.1.1",
+    "next-auth": "^4.24.13",
+    "nodemailer": "^7.0.13",
+    "playwright": "^1.57.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "three": "^0.182.0",
+    "three-stdlib": "^2.36.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.3"
+  }
+}

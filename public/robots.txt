@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /_next/static/
+
+# Disallow sensitive paths
+Disallow: /api/
+Disallow: /admin/
+
+# Host
+Host: http://localhost:3001
+
+# Sitemaps (Optional, but good practice)
+# Sitemap: http://localhost:3001/sitemap.xml
