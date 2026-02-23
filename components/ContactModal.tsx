@@ -71,7 +71,7 @@ export default function ContactModal() {
                             {/* Close Button */}
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-white/5 z-50"
                                 aria-label="Close modal"
                             >
                                 <X size={20} />
@@ -109,15 +109,13 @@ export default function ContactModal() {
                                         </div>
 
                                         <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                            <a
-                                                href={`mailto:${dept.email}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                            <button
+                                                onClick={() => { window.location.href = `mailto:${dept.email}`; }}
                                                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-mono rounded border border-cyan-500/20 transition-colors"
                                             >
                                                 <Mail size={14} />
                                                 {t('emailLabel')}
-                                            </a>
+                                            </button>
                                             <button
                                                 onClick={() => handleCopy(dept.email)}
                                                 className="flex items-center justify-center p-2 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded border border-white/10 transition-colors relative"
