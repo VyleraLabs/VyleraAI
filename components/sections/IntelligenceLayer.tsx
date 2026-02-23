@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import { Cpu, ShieldAlert, Brain, Zap, Radio, CheckCircle2, ArrowRight, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 
 const IntelligenceMascotCanvas = dynamic(() => import("../3d/IntelligenceMascotCanvas"), { ssr: false });
 
 
 export default function IntelligenceLayer() {
+    const t = useTranslations('IntelligenceLayer');
     const [mascotState, setMascotState] = useState<"emerald" | "cyan" | "amber">("emerald");
 
     return (
@@ -25,14 +27,12 @@ export default function IntelligenceLayer() {
                 {/* 1. Header */}
                 <div className="text-center mb-20 space-y-4">
                     <h2 className="text-cyan font-mono text-sm tracking-widest uppercase">
-                        The Vylera Neural Core
+                        {t('headerSubtitle')}
                     </h2>
                     <h3 className="text-3xl md:text-5xl font-bold text-light tracking-tight">
-                        Hardware Agnostic. <span className="text-slate">Intelligence Centric.</span>
+                        {t('headerTitle1')}<span className="text-slate">{t('headerTitle2')}</span>
                     </h3>
-                    <p className="text-slate text-lg font-light max-w-2xl mx-auto pt-4">
-                        Powered by the <strong>Vylera AI</strong>—Our proprietary ingestion engine that tames raw IoT telemetry into sentient context.
-                    </p>
+                    <p className="text-slate text-lg font-light max-w-2xl mx-auto pt-4" dangerouslySetInnerHTML={{ __html: t.raw('headerDesc') }} />
                 </div>
 
                 {/* 2. Visual Specification: Neural Pipeline */}
@@ -54,7 +54,7 @@ export default function IntelligenceLayer() {
                                 className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 bg-white text-navy p-4 rounded-xl rounded-bl-none shadow-xl z-20 pointer-events-none"
                             >
                                 <p className="text-xs font-bold leading-relaxed">
-                                    "I've optimized the kitchen lights for your cooking vibe. Shall I play some Lofi?"
+                                    {t('mascotBubble')}
                                 </p>
                             </motion.div>
 
@@ -87,9 +87,9 @@ export default function IntelligenceLayer() {
                                     ${mascotState === "cyan" ? "text-cyan" : ""}
                                     ${mascotState === "amber" ? "text-amber-400" : ""}
                                 `}>
-                                    {mascotState === "amber" ? "Social Mode" : "System Optimal"}
+                                    {mascotState === "amber" ? t('mascotModeSocial') : t('mascotModeSystem')}
                                 </div>
-                                <div className="text-slate-400 text-sm">Vylera Hub Avatar</div>
+                                <div className="text-slate-400 text-sm">{t('mascotLabel')}</div>
                             </div>
                         </motion.div>
 
@@ -128,19 +128,19 @@ export default function IntelligenceLayer() {
                             </div>
 
                             <div className="text-center">
-                                <div className="text-cyan font-mono text-xs uppercase tracking-wider mb-1">Vylera Neural Core</div>
+                                <div className="text-cyan font-mono text-xs uppercase tracking-wider mb-1">{t('processorTitle')}</div>
                                 <div className="h-6 overflow-hidden relative w-48 bg-black/20 rounded border border-white/5">
                                     <motion.div
                                         animate={{ y: ["0%", "-50%"] }}
                                         transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                                         className="text-[10px] font-mono text-cyan/70 space-y-1 p-1 text-left"
                                     >
-                                        <div>&gt; Analyzing Gait...</div>
-                                        <div>&gt; Vertex AI Sync...</div>
-                                        <div>&gt; Context: URGENT</div>
-                                        <div>&gt; Tokenizing...</div>
-                                        <div>&gt; Analyzing Gait...</div>
-                                        <div>&gt; Vertex AI Sync...</div>
+                                        <div>{t('processorLog1')}</div>
+                                        <div>{t('processorLog2')}</div>
+                                        <div>{t('processorLog3')}</div>
+                                        <div>{t('processorLog4')}</div>
+                                        <div>{t('processorLog1')}</div>
+                                        <div>{t('processorLog2')}</div>
                                     </motion.div>
                                 </div>
                             </div>
@@ -164,8 +164,8 @@ export default function IntelligenceLayer() {
                                 <Zap className="w-8 h-8 text-cyan" />
                             </div>
                             <div className="text-center">
-                                <div className="text-cyan font-mono text-xs uppercase tracking-wider mb-1">Action Executed</div>
-                                <div className="text-light text-sm">Contextual Response</div>
+                                <div className="text-cyan font-mono text-xs uppercase tracking-wider mb-1">{t('outcomeTitle')}</div>
+                                <div className="text-light text-sm">{t('outcomeDesc')}</div>
                             </div>
                         </div>
                     </div>
@@ -178,35 +178,35 @@ export default function IntelligenceLayer() {
                     <div className="bg-[#112240] p-8 rounded-xl border border-white/5 opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0 transition-all duration-500">
                         <div className="flex items-start gap-4 mb-4">
                             <ShieldAlert className="w-6 h-6 text-slate" />
-                            <h4 className="text-slate font-bold text-lg">Level 0: Reactive (Legacy)</h4>
+                            <h4 className="text-slate font-bold text-lg">{t('scenario0Title')}</h4>
                         </div>
                         <div className="font-mono text-xs bg-black/30 p-4 rounded text-slate-400 mb-4 border border-white/5">
-                            [14:02:01] MOTION_DETECTED (Zone: Front_Door)<br />
-                            [14:02:05] RECORDING_STARTED<br />
-                            [14:02:10] NOTIFICATION_SENT
+                            {t('scenario0Log1')}<br />
+                            {t('scenario0Log2')}<br />
+                            {t('scenario0Log3')}
                         </div>
                         <p className="text-slate-300 text-sm font-light">
-                            The system waits for an event to complete before flagging it. Usually too late to act.
+                            {t('scenario0Desc')}
                         </p>
                     </div>
 
                     {/* Level 1: Contextual */}
                     <div className="bg-[#0f2942] p-8 rounded-xl border border-cyan/30 shadow-[0_0_30px_rgba(100,255,218,0.05)] relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-2 bg-cyan/10 border-b border-l border-cyan/20 rounded-bl-lg">
-                            <span className="text-[10px] font-mono text-cyan uppercase tracking-widest">Vylera Active</span>
+                            <span className="text-[10px] font-mono text-cyan uppercase tracking-widest">{t('scenario1Badge')}</span>
                         </div>
                         <div className="flex items-start gap-4 mb-4">
                             <Brain className="w-6 h-6 text-cyan" />
-                            <h4 className="text-light font-bold text-lg">Level 1: Proactive (Vylera)</h4>
+                            <h4 className="text-light font-bold text-lg">{t('scenario1Title')}</h4>
                         </div>
                         <div className="font-mono text-xs bg-black/30 p-4 rounded text-cyan/80 mb-4 border border-cyan/10">
-                            [14:01:55] VISUAL_SCAN: Known_Subject (Confidence: 99%)<br />
-                            [14:01:56] ANALYZING: Gait=Urgent, Expression=Distress<br />
-                            [14:01:57] ACTION: Disarm_Alarm | Unlock_Door<br />
-                            [14:01:57] LOG: "Welcome Home (Emergency Protocol)"
+                            {t('scenario1Log1')}<br />
+                            {t('scenario1Log2')}<br />
+                            {t('scenario1Log3')}<br />
+                            {t('scenario1Log4')}
                         </div>
                         <p className="text-slate-300 text-sm font-light">
-                            Anticipates intent before the user reaches the threshold. Frictionless entry when it matters most.
+                            {t('scenario1Desc')}
                         </p>
                     </div>
                 </div>
@@ -217,9 +217,9 @@ export default function IntelligenceLayer() {
                         <CheckCircle2 className="w-6 h-6 text-cyan" />
                     </div>
                     <div className="flex-1">
-                        <h5 className="text-light font-semibold mb-2">Reinforcement Learning Loop</h5>
+                        <h5 className="text-light font-semibold mb-2">{t('feedbackTitle')}</h5>
                         <p className="text-slate-300 text-sm font-light leading-relaxed">
-                            System auto-corrects based on sentiment analysis. If a user scowls at an automation, our Vision API logs 'Negative Sentiment' and re-weights the probability model instantly.
+                            {t('feedbackDesc')}
                         </p>
                     </div>
                 </div>

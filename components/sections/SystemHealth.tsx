@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import { Server, Zap, Globe, Database, Cpu, BrainCircuit } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function SystemHealth() {
+    const t = useTranslations('SystemHealth');
     return (
         <section className="bg-[#020617] py-24 px-6 md:px-12 border-t border-emerald-500/20 relative overflow-hidden">
             {/* Cyber-Grid Background */}
@@ -13,10 +15,10 @@ export default function SystemHealth() {
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center mb-20">
                     <h2 className="text-emerald-500 font-mono text-sm tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
-                        <Zap className="w-4 h-4" /> System Architecture
+                        <Zap className="w-4 h-4" /> {t('subtitle')}
                     </h2>
                     <h3 className="text-3xl md:text-5xl font-serif text-white tracking-tight">
-                        The Vylera Neural Mesh
+                        {t('title')}
                     </h3>
                 </div>
 
@@ -78,10 +80,10 @@ export default function SystemHealth() {
                                 <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                                     <Server className="w-8 h-8 text-emerald-400" />
                                 </div>
-                                <h4 className="text-white font-bold text-lg mb-2">THE EDGE</h4>
-                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">Indonesian Home</div>
+                                <h4 className="text-white font-bold text-lg mb-2">{t('node1Title')}</h4>
+                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">{t('node1Badge')}</div>
                                 <p className="text-slate-400 text-sm">
-                                    Vylera AI + Matter/Tuya Device Mesh.
+                                    {t('node1Desc')}
                                 </p>
                             </div>
                         </motion.div>
@@ -100,10 +102,10 @@ export default function SystemHealth() {
                                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                                     />
                                 </div>
-                                <h4 className="text-white font-bold text-lg mb-2">THE TRANSPORT</h4>
-                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">Meti Cloud</div>
+                                <h4 className="text-white font-bold text-lg mb-2">{t('node2Title')}</h4>
+                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">{t('node2Badge')}</div>
                                 <p className="text-slate-400 text-sm">
-                                    High-velocity data streaming + Sanctuary Protocol (Local Vectorization).
+                                    {t('node2Desc')}
                                 </p>
                             </div>
                         </motion.div>
@@ -118,16 +120,16 @@ export default function SystemHealth() {
                                     <BrainCircuit className="w-8 h-8 text-emerald-400" />
                                     <div className="absolute top-0 right-0 w-3 h-3 bg-emerald-400 rounded-full animate-ping" />
                                 </div>
-                                <h4 className="text-white font-bold text-lg mb-2">THE BRAIN</h4>
-                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">GCP Jakarta Region</div>
+                                <h4 className="text-white font-bold text-lg mb-2">{t('node3Title')}</h4>
+                                <div className="text-emerald-500/60 font-mono text-xs uppercase mb-4">{t('node3Badge')}</div>
                                 <p className="text-slate-400 text-sm">
-                                    Vertex AI + Gemini 3 Pro + Memory Bank.
+                                    {t('node3Desc')}
                                 </p>
-                                <div className="mt-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">asia-southeast2 Local Residency</div>
+                                <div className="mt-2 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">{t('node3Loc')}</div>
 
                                 {/* Hover Tooltip */}
                                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 bg-emerald-900/90 border border-emerald-500/50 text-emerald-100 text-xs text-center p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl backdrop-blur-md">
-                                    Gemini 3 Deep Reasoning Active.
+                                    {t('node3Tooltip')}
                                     <div className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-2 h-2 bg-emerald-900/90 border-b border-r border-emerald-500/50 rotate-45"></div>
                                 </div>
                             </div>
@@ -138,9 +140,7 @@ export default function SystemHealth() {
 
                 {/* Logic Text */}
                 <div className="mt-20 max-w-3xl mx-auto text-center border-t border-emerald-500/10 pt-10">
-                    <p className="text-slate-400 text-sm md:text-base leading-relaxed italic">
-                        "Our architecture utilizes <strong>Asynchronous Memory Fact Extraction</strong>. Vylera doesn't just process data; it builds a persistent cultural profile for every inhabitant, ensuring 100% 'Unggah-ungguh' compliance."
-                    </p>
+                    <p className="text-slate-400 text-sm md:text-base leading-relaxed italic" dangerouslySetInnerHTML={{ __html: t.raw('footerQuote') }} />
                 </div>
             </div>
         </section>

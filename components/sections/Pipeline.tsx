@@ -3,43 +3,45 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Thermometer, Lightbulb, Lock, LockOpen, Zap, Terminal, Fan } from "lucide-react";
-
-const DEMOS = [
-    {
-        id: "camera",
-        label: "Legacy Door Cam",
-        icon: Camera,
-        outputLabel: "Smart Lock",
-        outputIcon: LockOpen,
-        log: "> PROACTIVE ACTION: UNLOCKING (DETECTED DISPLEASURE)",
-        description: "Visual Sentiment Analysis",
-        y: 100,
-    },
-    {
-        id: "thermo",
-        label: "Tuya Thermostat",
-        icon: Thermometer,
-        outputLabel: "Climate Control",
-        outputIcon: Fan,
-        log: "> ADJUSTING: OPTIMIZING FOR COMFORT (DETECTED CHILL)",
-        description: "Thermal Preference Vector",
-        y: 200,
-    },
-    {
-        id: "switch",
-        label: "Generic Switch",
-        icon: Lightbulb,
-        outputLabel: "Ambient Logic",
-        outputIcon: Lightbulb,
-        log: "> SCENE SET: EVENING RELAXATION MODE",
-        description: "Contextual Lighting Graph",
-        y: 300,
-    },
-];
+import { useTranslations } from "next-intl";
 
 export default function Pipeline() {
+    const t = useTranslations('Pipeline');
     const [activeId, setActiveId] = useState<string | null>(null);
     const [phase, setPhase] = useState<"idle" | "ingress" | "processing" | "egress">("idle");
+
+    const DEMOS = [
+        {
+            id: "camera",
+            label: t('cameraLabel'),
+            icon: Camera,
+            outputLabel: t('cameraOutput'),
+            outputIcon: LockOpen,
+            log: t('cameraLog'),
+            description: t('cameraDesc'),
+            y: 100,
+        },
+        {
+            id: "thermo",
+            label: t('thermoLabel'),
+            icon: Thermometer,
+            outputLabel: t('thermoOutput'),
+            outputIcon: Fan,
+            log: t('thermoLog'),
+            description: t('thermoDesc'),
+            y: 200,
+        },
+        {
+            id: "switch",
+            label: t('switchLabel'),
+            icon: Lightbulb,
+            outputLabel: t('switchOutput'),
+            outputIcon: Lightbulb,
+            log: t('switchLog'),
+            description: t('switchDesc'),
+            y: 300,
+        },
+    ];
 
     // Auto-play sequence when a node is activated
     useEffect(() => {
@@ -77,10 +79,8 @@ export default function Pipeline() {
             <div className="max-w-7xl mx-auto">
 
                 <div className="text-center mb-12">
-                    <h2 className="text-cyan font-mono text-sm tracking-widest uppercase mb-4">The Vylera Translation Engine</h2>
-                    <p className="text-slate text-lg font-light max-w-2xl mx-auto">
-                        Select a hardware input to visualize the transformation from "Dumb Data" to "Sentient Action."
-                    </p>
+                    <h2 className="text-cyan font-mono text-sm tracking-widest uppercase mb-4">{t('title')}</h2>
+                    <p className="text-slate text-lg font-light max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: t.raw('subtitle') }} />
                 </div>
 
                 <div className="relative aspect-[1.5/1] md:aspect-[2.5/1] w-full bg-[#050f1e] rounded-xl border border-white/5 shadow-2xl overflow-hidden">
@@ -157,7 +157,7 @@ export default function Pipeline() {
                                     style={{
                                         offsetDistance: "0%",
                                         offsetPath: `path("M100 ${DEMOS.find(d => d.id === activeId)?.y} C 250 ${DEMOS.find(d => d.id === activeId)?.y}, 250 200, 400 200")`
-                                    }}
+                                    } as any}
                                     animate={{ offsetDistance: "100%" }}
                                     transition={{ duration: 1, ease: "linear" }}
                                 />
@@ -172,7 +172,7 @@ export default function Pipeline() {
                                     style={{
                                         offsetDistance: "0%",
                                         offsetPath: `path("M400 200 L700 200")`
-                                    }}
+                                    } as any}
                                     animate={{ offsetDistance: "100%" }}
                                     transition={{ duration: 1, ease: "easeOut" }}
                                 />
@@ -242,7 +242,7 @@ export default function Pipeline() {
                                     </div>
                                     <div className="text-center bg-[#0a192f] border border-cyan/30 p-4 rounded-lg shadow-xl backdrop-blur-md">
                                         <div className="text-cyan font-bold text-sm mb-1">{activeDemo.outputLabel}</div>
-                                        <div className="text-xs font-mono text-slate-400">ACTION EXECUTED</div>
+                                        <div className="text-xs font-mono text-slate-400">{t('actionExecuted')}</div>
                                     </div>
                                 </motion.div>
                             ) : (
@@ -252,7 +252,7 @@ export default function Pipeline() {
                                     animate={{ opacity: 0.3 }}
                                     className="w-20 h-20 rounded-full border-2 border-dashed border-slate-700 flex items-center justify-center p-4"
                                 >
-                                    <span className="text-[10px] text-center text-slate-600 font-mono">AWAITING LOGIC</span>
+                                    <span className="text-[10px] text-center text-slate-600 font-mono">{t('awaitingLogic')}</span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -268,10 +268,10 @@ export default function Pipeline() {
                             >
                                 <div className="flex items-center gap-2 mb-1 opacity-50 border-b border-cyan/10 pb-1">
                                     <Terminal className="w-3 h-3" />
-                                    VYLERA_KERNEL.log
+                                    {t('kernelLog')}
                                 </div>
-                                {phase === "ingress" && "> INGESTING_TELEMETRY_STREAM..."}
-                                {phase === "processing" && "> VECTORIZING_SENTIMENT_NODES..."}
+                                {phase === "ingress" && t('ingesting')}
+                                {phase === "processing" && t('vectorizing')}
                                 {phase === "egress" && activeDemo.log}
                             </motion.div>
                         </div>

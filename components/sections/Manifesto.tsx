@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function Manifesto() {
+    const t = useTranslations('Manifesto');
     return (
         <section id="manifesto" className="relative bg-[#0a0a0f] text-light py-32 overflow-hidden">
             {/* Background Noise & Gradient */}
@@ -21,8 +23,8 @@ export default function Manifesto() {
                     className="text-center mb-24"
                 >
                     <h2 className="font-serif text-5xl md:text-7xl mb-6 tracking-tight text-white/90">
-                        The Invisible Era:<br />
-                        <span className="italic text-cyan/80">A Vylera Manifesto.</span>
+                        {t('title')}<br />
+                        <span className="italic text-cyan/80">{t('subtitle')}</span>
                     </h2>
                     <div className="w-px h-24 bg-gradient-to-b from-cyan/0 via-cyan/50 to-cyan/0 mx-auto mt-12" />
                 </motion.div>
@@ -36,10 +38,9 @@ export default function Manifesto() {
                         transition={{ duration: 0.8 }}
                         className="text-right"
                     >
-                        <h3 className="font-serif text-3xl mb-4 text-white">The End of Manual Living.</h3>
+                        <h3 className="font-serif text-3xl mb-4 text-white">{t('sec1Title')}</h3>
                         <p className="text-slate/80 text-lg font-light leading-relaxed">
-                            Why do we still 'manage' our homes? True intelligence shouldn't require an app or a voice command.
-                            Vylera observes the subtle rhythms of your life—a tired gait, a frustrated sigh—and responds before you ask.
+                            {t('sec1Desc')}
                         </p>
                     </motion.div>
 
@@ -65,11 +66,8 @@ export default function Manifesto() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h3 className="font-serif text-3xl mb-4 text-white">The Intelligence Compound.<br /><span className="text-cyan font-sans text-xl tracking-widest font-bold">1 + 1 = 3</span></h3>
-                        <p className="text-slate/80 text-lg font-light leading-relaxed">
-                            Vylera AI bridges the gap between generic hardware and elite intelligence. By linking a simple Tuya PIR sensor with a Door Cam and a Google-powered Thermostat, we create a <strong>'Sensory Net'</strong>.
-                            The more devices you add, the more 'context' Vylera AI gains, turning fragmented gadgets into a unified, sentient ecosystem.
-                        </p>
+                        <h3 className="font-serif text-3xl mb-4 text-white">{t('sec2Title')}<br /><span className="text-cyan font-sans text-xl tracking-widest font-bold">{t('sec2Badge')}</span></h3>
+                        <p className="text-slate/80 text-lg font-light leading-relaxed" dangerouslySetInnerHTML={{ __html: t.raw('sec2Desc') }} />
                     </motion.div>
                 </div>
 
@@ -83,10 +81,9 @@ export default function Manifesto() {
                         transition={{ duration: 0.8 }}
                         className="text-right"
                     >
-                        <h3 className="font-serif text-3xl mb-4 text-white">The Sanctuary Protocol.</h3>
+                        <h3 className="font-serif text-3xl mb-4 text-white">{t('sec3Title')}</h3>
                         <p className="text-slate/80 text-lg font-light leading-relaxed">
-                            Ethical AI means local-first logic. Your home’s 'eyes' are for your benefit alone.
-                            We process micro-expressions into anonymous vectors, ensuring your sanctuary remains yours.
+                            {t('sec3Desc')}
                         </p>
                     </motion.div>
 
@@ -112,17 +109,15 @@ export default function Manifesto() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h3 className="font-serif text-3xl mb-4 text-white">The Google Cloud Nexus.</h3>
-                        <p className="text-slate/80 text-lg font-light leading-relaxed">
-                            We leverage the world's most advanced AI infrastructure—<strong>Google Vertex AI</strong>—to give ordinary electronics a human-level understanding of comfort and safety.
-                        </p>
+                        <h3 className="font-serif text-3xl mb-4 text-white">{t('sec4Title')}</h3>
+                        <p className="text-slate/80 text-lg font-light leading-relaxed" dangerouslySetInnerHTML={{ __html: t.raw('sec4Desc') }} />
                     </motion.div>
                 </div>
 
 
                 {/* Footer Signature */}
                 <div className="text-center opacity-60">
-                    <div className="font-serif italic text-2xl tracking-widest text-cyan">Vylera Labs Founding Team</div>
+                    <div className="font-serif italic text-2xl tracking-widest text-cyan">{t('footer')}</div>
                     <div className="h-px w-32 bg-cyan/30 mx-auto mt-4" />
                 </div>
 

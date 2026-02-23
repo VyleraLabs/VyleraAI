@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { motion } from "framer-motion";
 import BrandLogo from "@/components/Landing/BrandLogo";
 import { signIn } from "next-auth/react";
 import MobileMenu from "@/components/MobileMenu";
 
 export default function Navbar() {
+  const t = useTranslations('Navigation');
   const [scrolled, setScrolled] = useState(false);
 
   // Handle Scroll Transparency
@@ -42,46 +45,34 @@ export default function Navbar() {
             href="/enterprise"
             className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-300 hover:text-cyan-400 transition-colors duration-300 relative group"
           >
-            Enterprise
+            {t('enterprise')}
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-400 transition-all duration-300 group-hover:w-full" />
           </Link>
           <Link
             href="/tech"
             className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-300 hover:text-emerald-400 transition-colors duration-300 relative group"
           >
-            Residential
+            {t('residential')}
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald-400 transition-all duration-300 group-hover:w-full" />
-          </Link>
-          <Link
-            href="/tech"
-            className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-400 hover:text-white transition-colors duration-300 relative group"
-          >
-            Tech
-            <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full" />
           </Link>
           <Link
             href="/about"
             className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-400 hover:text-white transition-colors duration-300 relative group"
           >
-            About Us
-            <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full" />
-          </Link>
-          <Link
-            href="/investors"
-            className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-400 hover:text-white transition-colors duration-300 relative group"
-          >
-            Investors
+            {t('about')}
             <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full" />
           </Link>
         </div>
 
         {/* Right: Actions */}
         <div className="flex items-center justify-end">
+          <LanguageSwitcher />
+
           <button
             onClick={() => signIn("google", { callbackUrl: "/contact" })}
             className="relative group px-6 py-2.5 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-cyan-400/50 transition-all duration-500"
           >
-            <span className="relative z-10 group-hover:text-cyan-300 transition-colors">Contact Us</span>
+            <span className="relative z-10 group-hover:text-cyan-300 transition-colors">{t('contact')}</span>
 
             {/* Embedded Glow Effect matching EntryNavbar */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent translate-x-[-100%] group-hover:animate-[shimmer_2s_infinite] pointer-events-none" />

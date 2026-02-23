@@ -2,39 +2,42 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-
-const team = [
-    {
-        name: "Katherina Aytakin",
-        role: "Founder & CEO",
-        image: "/team/founder.jpg",
-        linkedin: "https://www.linkedin.com/in/katherina-aytakin",
-        bio: "Former Security Analyst specializing in high-stakes penetration testing (Denuvo) and industrial Oracle architectures. Architecting the secure, sovereign neural fabric of Vylera."
-    },
-    {
-        name: "Magna Putra",
-        role: "Co-Founder & CTO",
-        image: "/team/lead-eng.jpg",
-        linkedin: "https://www.linkedin.com/in/magna-bumi-putra-33523555/",
-        bio: "Senior Systems Engineer with a background in SAP/ABAP architecture. Previously optimized mission-critical logistic networks for UNICEF. Building Vylera's reliable edge infrastructure."
-    },
-    {
-        name: "Sandy Permadi",
-        role: "CFO",
-        image: "/team/CFO.jpg",
-        linkedin: "https://www.linkedin.com/in/sandy-permadi-462bb63/",
-        bio: "A veteran of the Southeast Asian e-commerce ecosystem with high-growth leadership at JD.ID, Lazada, and Bluebird Group. Sandy architects Vylera’s financial infrastructure and capital strategy, ensuring our technical vision is grounded in robust fiscal discipline."
-    },
-    {
-        name: "Kristiyan Dimitrov Mechev",
-        role: "COO and Lead Hardware Engineer",
-        image: "/team/kmechev.jpg",
-        linkedin: "https://www.linkedin.com/in/kristiyan-mechev-a51803247/",
-        bio: "A specialist in embedded systems and hardware-software interoperability. Kristiyan leads the development of Vylera’s physical layer, engineering custom IoT gateways and sensor arrays that bridge the digital Sovereign OS with the physical world at the edge."
-    }
-];
+import { useTranslations } from "next-intl";
 
 export default function TeamSection() {
+    const t = useTranslations('TeamSection');
+
+    const team = [
+        {
+            name: "Katherina Aytakin",
+            role: t('roleFounder'),
+            image: "/team/founder.webp",
+            linkedin: "https://www.linkedin.com/in/katherina-aytakin",
+            bio: t('bioFounder')
+        },
+        {
+            name: "Magna Putra",
+            role: t('roleCTO'),
+            image: "/team/CTO.webp",
+            linkedin: "https://www.linkedin.com/in/magna-bumi-putra-33523555/",
+            bio: t('bioCTO')
+        },
+        {
+            name: "Sandy Permadi",
+            role: t('roleCFO'),
+            image: "/team/CFO.webp",
+            linkedin: "https://www.linkedin.com/in/sandy-permadi-462bb63/",
+            bio: t('bioCFO')
+        },
+        {
+            name: "Kristiyan Dimitrov Mechev",
+            role: t('roleCOO'),
+            image: "/team/kmechev.webp",
+            linkedin: "https://www.linkedin.com/in/kristiyan-mechev-a51803247/",
+            bio: t('bioCOO')
+        }
+    ];
+
     return (
         <section id="team" className="relative bg-[#0a0a0f] text-slate-300 pb-32 pt-10 overflow-hidden">
             {/* Background Noise & Gradient similar to Manifesto - ID added for navigation */}
@@ -50,9 +53,7 @@ export default function TeamSection() {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <h2 className="font-serif text-3xl md:text-4xl mb-4 tracking-tight text-white/90">
-                        The Architects of <span className="italic text-cyan/80">Vylera.</span>
-                    </h2>
+                    <h2 className="font-serif text-3xl md:text-4xl mb-4 tracking-tight text-white/90" dangerouslySetInnerHTML={{ __html: t.raw('title') }} />
                     <div className="w-px h-12 bg-gradient-to-b from-cyan/0 via-cyan/50 to-cyan/0 mx-auto mt-6" />
                 </motion.div>
 

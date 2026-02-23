@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Shield, Lock, EyeOff, Server, Activity, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function Security() {
+    const t = useTranslations('Security');
     return (
         <section className="bg-[#050f1e] py-24 px-6 md:px-12 relative border-t border-white/5 overflow-hidden">
             {/* Background Glow */}
@@ -17,12 +19,9 @@ export default function Security() {
                         <div>
                             <h2 className="text-cyan font-mono text-xs tracking-widest uppercase mb-4 flex items-center gap-2">
                                 <Shield className="w-4 h-4" />
-                                The Sanctuary Protocol
+                                {t('subtitle')}
                             </h2>
-                            <h3 className="text-3xl md:text-5xl font-bold text-light tracking-tight">
-                                Privacy by Design. <br />
-                                <span className="text-slate-400">Not by Policy.</span>
-                            </h3>
+                            <h3 className="text-3xl md:text-5xl font-bold text-light tracking-tight" dangerouslySetInnerHTML={{ __html: t.raw('title') }} />
                         </div>
 
                         <div className="space-y-6">
@@ -31,9 +30,9 @@ export default function Security() {
                                     <Activity className="w-5 h-5 text-cyan" />
                                 </div>
                                 <div>
-                                    <h4 className="text-light font-bold text-lg">The Vectorization Principle</h4>
+                                    <h4 className="text-light font-bold text-lg">{t('feature1Title')}</h4>
                                     <p className="text-slate-300 font-light text-sm leading-relaxed mt-2">
-                                        Vylera does NOT store images or audio. Raw sensor data is converted into mathematical vectors (tensors) LOCALLY on the edge. Only these abstract vectors reach our logic core.
+                                        {t('feature1Desc')}
                                     </p>
                                 </div>
                             </div>
@@ -43,9 +42,9 @@ export default function Security() {
                                     <Lock className="w-5 h-5 text-cyan" />
                                 </div>
                                 <div>
-                                    <h4 className="text-light font-bold text-lg">AES-256 Vault</h4>
+                                    <h4 className="text-light font-bold text-lg">{t('feature2Title')}</h4>
                                     <p className="text-slate-300 font-light text-sm leading-relaxed mt-2">
-                                        All telemetry data is encrypted at rest using AES-256 and transmitted via TLS 1.3. Your home’s behavioral signature looks like static to the outside world.
+                                        {t('feature2Desc')}
                                     </p>
                                 </div>
                             </div>
@@ -55,9 +54,9 @@ export default function Security() {
                                     <EyeOff className="w-5 h-5 text-cyan" />
                                 </div>
                                 <div>
-                                    <h4 className="text-light font-bold text-lg">Zero-Knowledge Architecture</h4>
+                                    <h4 className="text-light font-bold text-lg">{t('feature3Title')}</h4>
                                     <p className="text-slate-300 font-light text-sm leading-relaxed mt-2">
-                                        We cannot see into your home. Our system only sees anonymized "Intent Triggers" (e.g., "Lights: ON"). We have no access to the raw visual or audio feed.
+                                        {t('feature3Desc')}
                                     </p>
                                 </div>
                             </div>
@@ -76,34 +75,34 @@ export default function Security() {
                             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full bg-cyan animate-pulse shadow-[0_0_10px_#64ffda]" />
-                                    <span className="text-light font-mono text-sm tracking-widest">SYSTEM_INTEGRITY</span>
+                                    <span className="text-light font-mono text-sm tracking-widest">{t('widgetHeader')}</span>
                                 </div>
                                 <Lock className="w-5 h-5 text-cyan/50" />
                             </div>
 
                             <div className="space-y-4 font-mono text-xs">
                                 <div className="flex items-center justify-between p-4 bg-[#112240] rounded border border-white/5">
-                                    <span className="text-slate-400">LOCAL_ENCRYPTION</span>
+                                    <span className="text-slate-400">{t('widgetRow1Name')}</span>
                                     <span className="text-cyan flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3" /> ACTIVE
+                                        <CheckCircle2 className="w-3 h-3" /> {t('widgetRow1Status')}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between p-4 bg-[#112240] rounded border border-white/5">
-                                    <span className="text-slate-400">VECTORIZATION_ENGINE</span>
+                                    <span className="text-slate-400">{t('widgetRow2Name')}</span>
                                     <span className="text-cyan flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3" /> SECURE
+                                        <CheckCircle2 className="w-3 h-3" /> {t('widgetRow2Status')}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between p-4 bg-[#112240] rounded border border-white/5">
-                                    <span className="text-slate-400">CLOUD_BRIDGE (TLS 1.3)</span>
+                                    <span className="text-slate-400">{t('widgetRow3Name')}</span>
                                     <span className="text-cyan flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3" /> ENCRYPTED
+                                        <CheckCircle2 className="w-3 h-3" /> {t('widgetRow3Status')}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between p-4 bg-[#112240] rounded border border-white/5">
-                                    <span className="text-slate-400">ANONYMIZATION_LAYER</span>
+                                    <span className="text-slate-400">{t('widgetRow4Name')}</span>
                                     <span className="text-cyan flex items-center gap-2">
-                                        <CheckCircle2 className="w-3 h-3" /> VERIFIED
+                                        <CheckCircle2 className="w-3 h-3" /> {t('widgetRow4Status')}
                                     </span>
                                 </div>
                             </div>
@@ -111,7 +110,7 @@ export default function Security() {
                             <div className="mt-8 text-center">
                                 <div className="inline-flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-widest border border-white/5 px-3 py-1 rounded-full">
                                     <Server className="w-3 h-3" />
-                                    Audited by 3rd Party Security Firm
+                                    {t('widgetFooter')}
                                 </div>
                             </div>
 

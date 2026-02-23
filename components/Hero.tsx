@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 
 const TechnicalHeroCanvas = dynamic(() => import("./3d/TechnicalHeroCanvas"), { ssr: false });
 
 export default function Hero() {
+    const t = useTranslations('TechHero');
     const [mount3D, setMount3D] = useState(false);
 
     useEffect(() => {
@@ -68,11 +70,11 @@ export default function Hero() {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <div className="inline-block mb-4 px-3 py-1 rounded-full border border-cyan/20 bg-cyan/5 text-cyan font-mono text-xs tracking-[0.2em] uppercase">
-                        Status: Private Beta (v0.9) // Powered by Google Cloud
+                        {t('status')}
                     </div>
 
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-light tracking-tight leading-[1.1] mb-8">
-                        The Sovereign OS for Fragmented IoT.
+                        {t('title')}
                     </h1>
                 </motion.div>
 
@@ -82,7 +84,7 @@ export default function Hero() {
                     transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                     className="text-slate text-lg md:text-2xl font-light tracking-wide max-w-3xl mx-auto leading-relaxed"
                 >
-                    Vylera unifies disparate hardware ecosystems (Tuya, Zigbee, Matter) into a single, intelligent Neural Core. Powered by Google Vertex AI.
+                    {t('description')}
                 </motion.p>
             </div>
         </section>

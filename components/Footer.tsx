@@ -1,10 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import BrandLogo from "@/components/Landing/BrandLogo";
 
 export default function Footer() {
+    const t = useTranslations('Footer');
+    const tNav = useTranslations('Navigation');
+
     return (
         <footer className="w-full bg-[#050B14] border-t border-white/5 py-12 px-6 md:px-12 relative z-50">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
@@ -21,7 +25,7 @@ export default function Footer() {
                         </a>
                     </div>
                     <p className="text-slate-400 text-xs font-mono tracking-widest uppercase">
-                        © 2026 Vylera Labs. All Rights Reserved.
+                        {t('rights')}
                     </p>
 
                     <div className="mt-4">
@@ -31,7 +35,7 @@ export default function Footer() {
                             aria-label="Download Vylera Labs Company Profile PDF"
                             className="relative group px-6 py-2.5 bg-white/5 border border-amber-500/30 text-amber-500 text-[10px] tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-amber-400/80 transition-all duration-500 flex items-center justify-center gap-2 w-fit"
                         >
-                            <span className="relative z-10 group-hover:text-amber-300 transition-colors">Download Profile</span>
+                            <span className="relative z-10 group-hover:text-amber-300 transition-colors">{t('download')}</span>
                             <svg className="w-3.5 h-3.5 relative z-10 group-hover:text-amber-300 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
@@ -50,21 +54,21 @@ export default function Footer() {
                 {/* Quick Links */}
                 <div className="flex gap-6 md:gap-12">
                     <div className="flex flex-col gap-3 text-center md:text-left">
-                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">Platform</span>
-                        <Link href="/enterprise" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">Enterprise</Link>
-                        <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">Residential</Link>
-                        <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">Technology</Link>
+                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">{t('platform')}</span>
+                        <Link href="/enterprise" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('enterprise')}</Link>
+                        <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('residential')}</Link>
+                        <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{t('technology')}</Link>
                     </div>
 
                     <div className="flex flex-col gap-3 text-center md:text-left">
-                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">Company</span>
-                        <Link href="/about" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">About</Link>
-                        <Link href="/investors" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">Investors</Link>
-                        <Link href="/tech#contact" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">Contact</Link>
+                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">{t('company')}</span>
+                        <Link href="/about" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('about')}</Link>
+                        <Link href="/investors" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{t('investors')}</Link>
+                        <Link href="/tech#contact" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('contact')}</Link>
                     </div>
 
-                    <div className="flex flex-col gap-3 text-center md:text-left max-w-[220px]">
-                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">Indonesian Branch</span>
+                    <div className="flex flex-col gap-3 text-center md:text-left">
+                        <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">{t('branch')}</span>
                         <p className="text-xs text-slate-400 leading-relaxed tracking-wider font-light">
                             PT Vylera Labs Indonesia<br />
                             Wisma BCA BSD, HQ, Lt. 1 Suite 102<br />

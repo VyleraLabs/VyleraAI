@@ -2,49 +2,52 @@
 
 import { motion } from "framer-motion";
 import { ScanEye, Cpu, MessageSquareText, Radio, Lock, Activity, Server } from "lucide-react";
-
-const features = [
-    {
-        title: "Proactive",
-        description: "Anticipates needs via Privacy-First Observation. We process locally, ensuring your data never leaves the sanctuary.",
-        icon: ScanEye,
-    },
-    {
-        title: "Universal",
-        description: "Hardware Agnostic (Tuya/Zigbee). We provide the Brain, connecting disparate devices into a single coherent organism.",
-        icon: Cpu,
-    },
-    {
-        title: "Native Fluency",
-        description: "Standard American English core with Hyper-Regional fine-tuning (e.g., Ammani, Jaksel). Conversational, not robotic.",
-        icon: MessageSquareText,
-    },
-];
-
-const specs = [
-    {
-        label: "Ingestion",
-        value: "Zigbee 3.0, Matter, MQTT, BLE Mesh",
-        icon: Radio,
-    },
-    {
-        label: "Intelligence",
-        value: "Google Vertex AI, Vision API, Sentiment Vectorization",
-        icon: Server,
-    },
-    {
-        label: "Privacy",
-        value: "The Sanctuary Protocol (AES-256 Local Encryption)",
-        icon: Lock,
-    },
-    {
-        label: "Latency",
-        value: "Sub-100ms Proactive Triggering",
-        icon: Activity,
-    },
-];
+import { useTranslations } from "next-intl";
 
 export default function Features() {
+    const t = useTranslations('Features');
+
+    const features = [
+        {
+            title: t('feature1Title'),
+            description: t('feature1Desc'),
+            icon: ScanEye,
+        },
+        {
+            title: t('feature2Title'),
+            description: t('feature2Desc'),
+            icon: Cpu,
+        },
+        {
+            title: t('feature3Title'),
+            description: t('feature3Desc'),
+            icon: MessageSquareText,
+        },
+    ];
+
+    const specs = [
+        {
+            label: t('spec1Label'),
+            value: t('spec1Value'),
+            icon: Radio,
+        },
+        {
+            label: t('spec2Label'),
+            value: t('spec2Value'),
+            icon: Server,
+        },
+        {
+            label: t('spec3Label'),
+            value: t('spec3Value'),
+            icon: Lock,
+        },
+        {
+            label: t('spec4Label'),
+            value: t('spec4Value'),
+            icon: Activity,
+        },
+    ];
+
     return (
         <section id="platform" className="bg-navy py-24 px-6 md:px-12 relative z-10">
             <div className="max-w-7xl mx-auto space-y-32">
@@ -83,7 +86,7 @@ export default function Features() {
                 <div>
                     <div className="flex items-center gap-4 mb-8">
                         <div className="h-px bg-white/10 flex-1" />
-                        <h3 className="text-cyan font-mono text-sm tracking-widest uppercase">Technical Specifications</h3>
+                        <h3 className="text-cyan font-mono text-sm tracking-widest uppercase">{t('techSpecs')}</h3>
                         <div className="h-px bg-white/10 flex-1" />
                     </div>
 

@@ -1,35 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const milestones = [
-    {
-        quarter: "Q1 2026",
-        title: "The Ingestion Layer",
-        description: "Vylera AI & Sanctuary Protocol. Local vectorization of 15+ hardware standards (Zigbee, Matter, Tuya) into a unified privacy-first local stream.",
-        status: "Completed",
-    },
-    {
-        quarter: "Q2 2026",
-        title: "Sentiment-Aware Alpha",
-        description: "Deployment of Vertex AI feedback loops. System begins quantizing vocal tone and facial micro-expressions to determine automation success rates.",
-        status: "In Progress",
-    },
-    {
-        quarter: "Q4 2026",
-        title: "Behavioral Synthesis",
-        description: "Gait analysis integration. Vylera learns to distinguish occupants by footsteps and movement patterns, enabling intent-based proactive entry.",
-        status: "Upcoming",
-    },
-    {
-        quarter: "Q2 2027",
-        title: "Vylera 1.0",
-        description: "Full hardware agnosticism and Ambient OS API launch. Opening the neural core for third-party context-aware plugin development.",
-        status: "Upcoming",
-    },
-];
+import { useTranslations } from "next-intl";
 
 export default function Roadmap() {
+    const t = useTranslations('Roadmap');
+
+    const milestones = [
+        {
+            quarter: "Q1 2026",
+            title: t('q1Title'),
+            description: t('q1Desc'),
+            status: t('statusCompleted'),
+            origStatus: "Completed",
+        },
+        {
+            quarter: "Q2 2026",
+            title: t('q2Title'),
+            description: t('q2Desc'),
+            status: t('statusInProgress'),
+            origStatus: "In Progress",
+        },
+        {
+            quarter: "Q4 2026",
+            title: t('q3Title'),
+            description: t('q3Desc'),
+            status: t('statusUpcoming'),
+            origStatus: "Upcoming",
+        },
+        {
+            quarter: "Q2 2027",
+            title: t('q4Title'),
+            description: t('q4Desc'),
+            status: t('statusUpcoming'),
+            origStatus: "Upcoming",
+        },
+    ];
+
     return (
         <section id="research" className="bg-[#0a192f] py-32 px-6 md:px-12 relative overflow-hidden border-t border-white/5">
             {/* Background Blueprint Grid */}
@@ -37,8 +44,8 @@ export default function Roadmap() {
 
             <div className="max-w-4xl mx-auto relative">
                 <div className="text-center mb-16">
-                    <h2 className="text-cyan font-mono text-sm tracking-widest uppercase mb-4">Development Timeline</h2>
-                    <h3 className="text-3xl md:text-5xl font-bold text-light tracking-tight">The Road to Sentience</h3>
+                    <h2 className="text-cyan font-mono text-sm tracking-widest uppercase mb-4">{t('title')}</h2>
+                    <h3 className="text-3xl md:text-5xl font-bold text-light tracking-tight">{t('subtitle')}</h3>
                 </div>
 
                 {/* Vertical Center Line */}
@@ -65,8 +72,8 @@ export default function Roadmap() {
                                 <div className={`flex flex-col ${index % 2 === 0 ? "md:items-start md:text-left" : "md:items-end md:text-right"}`}>
                                     <span className="text-cyan font-mono text-xs mb-2 tracking-wider flex items-center gap-2">
                                         {milestone.quarter}
-                                        <span className={`px-2 py-0.5 rounded text-[10px] uppercase border ${milestone.status === "Completed" ? "border-green-500/30 text-green-400 bg-green-500/10" :
-                                            milestone.status === "In Progress" ? "border-cyan/30 text-cyan bg-cyan/10" :
+                                        <span className={`px-2 py-0.5 rounded text-[10px] uppercase border ${milestone.origStatus === "Completed" ? "border-green-500/30 text-green-400 bg-green-500/10" :
+                                            milestone.origStatus === "In Progress" ? "border-cyan/30 text-cyan bg-cyan/10" :
                                                 "border-slate-500/30 text-slate-500 bg-slate-500/10"
                                             }`}>
                                             {milestone.status}

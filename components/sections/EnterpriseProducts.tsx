@@ -1,21 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const products = [
-    { name: "Vylera Pulse (AI POS)", market: "Adaptive Point of Sale", desc: "Transforms transactions into real-time consumer behavior analytics and inventory foresight." },
-    { name: "Vylera Talent (AI HRIS)", market: "Human Capital Intelligence", desc: "Unifies payroll, performance, and recruitment into a frictionless, AI-optimized employee lifecycle." },
-    { name: "Vylera Move (AI FMS)", market: "Autonomous Fleet Intelligence", desc: "Optimizes logistics by embedding AI into route planning, fuel management, and predictive maintenance." },
-    { name: "Vylera Nexus (AI Web)", market: "Intelligent Web Ecosystem", desc: "Deploys self-optimizing, AI-driven digital platforms designed for maximum conversion and user intent." },
-    { name: "Vylera Scribe (AI Note Taker)", market: "Executive Intelligence", desc: "Context-aware recording that synthesizes meetings into actionable tasks and strategic summaries." },
-    { name: "Vylera Authenticate (AI E-Sign)", market: "Secure Protocol Signing", desc: "AI-verified digital signatures that ensure document integrity and cross-platform compliance." },
-    { name: "Vylera Sentinel (AI DLP)", market: "Defensive Security Layer", desc: "High-stakes Data Loss Prevention designed by elite pentesters to safeguard proprietary intelligence." },
-    { name: "Vylera Core (AI DWH)", market: "Unified Data Warehouse", desc: "The 'Single Source of Truth' that ingests fragmented data from across the enterprise for instant analysis." },
-    { name: "Vylera Ledger (AI Finance)", market: "Autonomous Accounting", desc: "Seamlessly integrates with existing finance systems to automate reconciliation and fiscal forecasting." },
-    { name: "Vylera Relation (AI CRM)", market: "Predictive Client Mgmt.", desc: "Moves beyond basic tracking to predict customer needs and automate high-value relationship building." },
-];
+import { useTranslations } from "next-intl";
 
 export default function EnterpriseProducts() {
+    const t = useTranslations('EnterpriseProducts');
+
+    const products = [
+        { name: "Vylera Pulse (AI POS)", market: t('products.posMarket'), desc: t('products.posDesc') },
+        { name: "Vylera Talent (AI HRIS)", market: t('products.hrMarket'), desc: t('products.hrDesc') },
+        { name: "Vylera Move (AI FMS)", market: t('products.fmsMarket'), desc: t('products.fmsDesc') },
+        { name: "Vylera Nexus (AI Web)", market: t('products.webMarket'), desc: t('products.webDesc') },
+        { name: "Vylera Scribe (AI Note Taker)", market: t('products.noteMarket'), desc: t('products.noteDesc') },
+        { name: "Vylera Authenticate (AI E-Sign)", market: t('products.esignMarket'), desc: t('products.esignDesc') },
+        { name: "Vylera Sentinel (AI DLP)", market: t('products.dlpMarket'), desc: t('products.dlpDesc') },
+        { name: "Vylera Core (AI DWH)", market: t('products.dwhMarket'), desc: t('products.dwhDesc') },
+        { name: "Vylera Ledger (AI Finance)", market: t('products.finMarket'), desc: t('products.finDesc') },
+        { name: "Vylera Relation (AI CRM)", market: t('products.crmMarket'), desc: t('products.crmDesc') },
+    ];
+
     return (
         <section className="relative w-full min-h-screen bg-[#050B14] py-32 px-6 md:px-12 overflow-hidden z-10">
             {/* Background Grid */}
@@ -30,10 +33,10 @@ export default function EnterpriseProducts() {
                     transition={{ duration: 0.8 }}
                     className="mb-20 text-center md:text-left"
                 >
-                    <span className="text-cyan-400 font-mono tracking-[0.3em] text-xs uppercase mb-4 block">Strategic Intelligence Suite</span>
-                    <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight mb-6">Enterprise SaaS Lineup</h2>
+                    <span className="text-cyan-400 font-mono tracking-[0.3em] text-xs uppercase mb-4 block">{t('subtitle')}</span>
+                    <h2 className="text-4xl md:text-6xl font-serif text-white tracking-tight mb-6">{t('title')}</h2>
                     <p className="text-slate-400 max-w-2xl font-light text-sm md:text-base leading-relaxed">
-                        A proprietary ecosystem of deep-tech solutions engineered to optimize, automate, and dominate across every sector of corporate architecture.
+                        {t('desc')}
                     </p>
                 </motion.div>
 

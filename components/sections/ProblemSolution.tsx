@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { AlertTriangle, Zap } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function ProblemSolution() {
+    const t = useTranslations('ProblemSolution');
     return (
         <section id="mission" className="bg-navy py-24 px-6 md:px-12 border-t border-white/5 relative z-20">
             <div className="max-w-7xl mx-auto">
@@ -15,7 +17,7 @@ export default function ProblemSolution() {
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-emerald-400 mb-12">
-                        WHY VYLERA?
+                        {t('title')}
                     </h2>
                 </motion.div>
 
@@ -32,11 +34,11 @@ export default function ProblemSolution() {
 
                         <div className="flex items-center gap-3 mb-4">
                             <AlertTriangle className="w-6 h-6 text-red-400" />
-                            <h3 className="text-light font-serif text-2xl">The Problem</h3>
+                            <h3 className="text-light font-serif text-2xl">{t('problemTitle')}</h3>
                         </div>
 
                         <p className="text-lg text-gray-300 leading-relaxed font-light">
-                            Smart home hardware is fragmented. Devices from different manufacturers (e.g., Tuya, Xiaomi) operate in isolated data silos, locking telemetry in foreign clouds.
+                            {t('problemDesc')}
                         </p>
                     </motion.div>
 
@@ -52,11 +54,11 @@ export default function ProblemSolution() {
 
                         <div className="flex items-center gap-3 mb-4">
                             <Zap className="w-6 h-6 text-emerald-400" />
-                            <h3 className="text-light font-serif text-2xl">The Solution</h3>
+                            <h3 className="text-light font-serif text-2xl">{t('solutionTitle')}</h3>
                         </div>
 
                         <p className="text-lg text-gray-300 leading-relaxed font-light">
-                            Vylera acts as the Universal Interoperability Bridge. We process device signals locally on the Edge, allowing mixed-brand hardware to function as a single, privacy-first organism—without external cloud dependencies.
+                            {t('solutionDesc')}
                         </p>
                     </motion.div>
                 </div>

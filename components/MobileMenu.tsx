@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { Menu, X } from "lucide-react";
 
 interface MobileMenuProps {
@@ -14,12 +15,12 @@ export default function MobileMenu({ isEntryRoute = false }: MobileMenuProps) {
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    // Contextual references depending on global root layout position
+    const t = useTranslations('Navigation');
     const links = [
-        { label: "Enterprise", href: "/enterprise" },
-        { label: "Residential", href: "/tech" },
+        { label: t('enterprise'), href: "/enterprise" },
+        { label: t('residential'), href: "/tech" },
         { label: "Tech", href: "/tech" },
-        { label: "About Us", href: "/about" },
+        { label: t('about'), href: "/about" },
         { label: "Investors", href: "/investors" },
     ];
 

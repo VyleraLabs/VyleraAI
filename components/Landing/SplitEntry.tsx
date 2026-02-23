@@ -1,162 +1,174 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { useRef } from "react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "@/i18n/routing";
+import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function SplitEntry() {
-    const enterpriseVideoRef = useRef<HTMLVideoElement>(null);
-    const residentialVideoRef = useRef<HTMLVideoElement>(null);
-
-    const playVideo = (ref: React.RefObject<HTMLVideoElement | null>) => {
-        if (ref.current) {
-            ref.current.play().catch(e => console.log("Playback prevented:", e));
-        }
-    };
-
-    const pauseVideo = (ref: React.RefObject<HTMLVideoElement | null>) => {
-        if (ref.current) {
-            ref.current.pause();
-        }
-    };
+    const t = useTranslations('SplitEntry');
+    const [hoveredSector, setHoveredSector] = useState<"enterprise" | "residential" | null>(null);
 
     return (
-        <div className="relative z-10 w-full h-screen overflow-hidden flex flex-col pointer-events-none">
+        <section className="relative w-full h-screen bg-[#03070C] flex flex-col items-center justify-center overflow-hidden z-20 pb-12 pt-24">
 
-            {/* Enterprise Section (Top Half) */}
-            <section
-                id="enterprise"
-                className="relative h-1/2 w-full flex items-center justify-center pointer-events-auto group border-b border-white/5"
-                onMouseEnter={() => playVideo(enterpriseVideoRef)}
-                onMouseLeave={() => pauseVideo(enterpriseVideoRef)}
-                onClick={() => playVideo(enterpriseVideoRef)}
+            {/* Ambient Base Void - Pure Opacity Transitions (GPU Accelerated & Glitch Free) */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02)_0%,rgba(3,7,12,1)_50%)] transition-opacity duration-1000 ease-in-out" style={{ opacity: hoveredSector === null ? 1 : 0 }} />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1)_0%,rgba(3,7,12,1)_60%)] transition-opacity duration-1000 ease-in-out" style={{ opacity: hoveredSector === "enterprise" ? 1 : 0 }} />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(52,211,153,0.1)_0%,rgba(3,7,12,1)_60%)] transition-opacity duration-1000 ease-in-out" style={{ opacity: hoveredSector === "residential" ? 1 : 0 }} />
+            </div>
+
+            {/* Typography Header */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1 }}
+                className="relative z-30 text-center mb-16 px-6"
             >
-                {/* Background Setup */}
-                <div className="absolute inset-0 bg-[#050B14] z-0 overflow-hidden">
-                    {/* The background should only fill the photo area logically, but for glowing purposes we cover it all and layer the layout on top */}
-                    <div className="w-full h-full bg-gradient-to-br from-cyan-950/30 to-black/80 group-hover:bg-cyan-900/10 transition-colors duration-700" />
-                </div>
+                <h2 className="text-sm tracking-[0.4em] uppercase font-mono text-slate-500 mb-4 opacity-80">
+                    {t('title')}
+                </h2>
+                <div className="w-px h-8 bg-gradient-to-b from-transparent via-slate-500/30 to-transparent mx-auto" />
+            </motion.div>
 
-                {/* 65% Photo / 35% Text Flex Wrapper */}
-                <div className="relative z-10 w-full h-full flex flex-col md:flex-row">
-
-                    {/* Text Column - 50% Width */}
-                    <div className="w-full md:w-[50%] h-full flex flex-col justify-center px-12 lg:px-20 border-r border-white/5 bg-[#050B14]/95 z-20 shadow-2xl">
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: false, amount: 0.5 }}
-                            transition={{ duration: 0.8, delay: 0.1 }}
-                        >
-                            <span className="text-cyan-400 font-mono text-[10px] md:text-sm tracking-[0.3em] mb-4 block uppercase opacity-90">
-                                Strategic Intelligence
-                            </span>
-                            <h2 className="text-4xl md:text-6xl font-serif text-white mb-6 tracking-tight">
-                                Enterprise
-                            </h2>
-                            <p className="text-slate-300 font-light leading-relaxed text-sm md:text-md mb-8">
-                                Unified analytics, neural security, and profound system controls tailored for high-stakes infrastructure.
-                            </p>
-
-                            <Link href="/enterprise" className="inline-flex items-center gap-3 text-cyan-400 tracking-[0.2em] text-xs md:text-sm uppercase font-bold group/link">
-                                Explore Sector
-                                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5 group-hover/link:translate-x-2 transition-transform">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                                </svg>
-                            </Link>
-                        </motion.div>
-                    </div>
-
-                    {/* Video Column - 50% Width */}
-                    <div className="hidden md:block w-[50%] h-full relative overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity duration-700 bg-black/50 z-10 order-1 md:order-2">
+            {/* The Monoliths */}
+            <div
+                className="relative z-30 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 w-full max-w-[90vw] md:max-w-7xl h-[60vh] md:h-[65vh] px-4"
+                onMouseLeave={() => setHoveredSector(null)}
+            >
+                {/* Enterprise Monolith */}
+                <motion.div
+                    onMouseEnter={() => setHoveredSector("enterprise")}
+                    onClick={() => setHoveredSector("enterprise")}
+                    animate={{
+                        width: hoveredSector === "residential" ? "20%" : hoveredSector === "enterprise" ? "80%" : "50%",
+                        opacity: hoveredSector === "residential" ? 0.4 : 1,
+                    }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative h-full flex-[1] rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl min-w-[20%]"
+                >
+                    {/* Background Video */}
+                    <div className="absolute inset-0 z-0 bg-black">
                         <video
-                            ref={enterpriseVideoRef}
-                            preload="none"
-                            poster="/assets/enterprise_poster.png"
+                            autoPlay
                             loop
                             muted
                             playsInline
-                            aria-hidden="true"
-                            className="absolute inset-0 w-full h-full object-cover transform-gpu"
+                            preload="auto"
+                            poster="/assets/enterprise_poster.webp"
+                            className="w-full h-full object-cover opacity-20 group-hover:opacity-60 transition-opacity duration-1000 will-change-[opacity]"
                         >
                             <source src="/assets/enterpriseplaceholder.mp4" type="video/mp4" />
                         </video>
-
-                        {/* Darken Overlay so text remains extremely readable */}
-                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
-
-                        {/* Inner Gradient for Style (Optimized for GPU natively without expensive mix-blend modes) */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-900/40 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#03070C] via-[#03070C]/60 to-transparent" />
+                        <div className="absolute inset-0 bg-cyan-900/10 mix-blend-overlay" />
                     </div>
-                </div>
-            </section>
 
-            {/* Residential Section (Bottom Half) */}
-            <section
-                id="residential"
-                className="relative h-1/2 w-full flex items-center justify-center pointer-events-auto group"
-                onMouseEnter={() => playVideo(residentialVideoRef)}
-                onMouseLeave={() => pauseVideo(residentialVideoRef)}
-                onClick={() => playVideo(residentialVideoRef)}
-            >
-                <div className="absolute inset-0 bg-[#050B14] z-0 overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-bl from-emerald-950/30 to-black/80 group-hover:bg-emerald-900/10 transition-colors duration-700" />
-                </div>
+                    {/* Content */}
+                    <motion.div
+                        className="relative z-10 w-full h-full flex flex-col justify-end p-8 md:p-12 lg:p-16"
+                        animate={{ x: hoveredSector === "enterprise" ? 0 : 0 }}
+                    >
+                        <span className="text-cyan-400 font-mono tracking-[0.2em] text-[10px] uppercase mb-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                            {t('sector01')}
+                        </span>
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-serif text-white tracking-tight mb-4 whitespace-nowrap">
+                            {t('enterpriseTitle')}
+                        </h3>
 
-                {/* 65% Photo / 35% Text Flex Wrapper (Reversed) */}
-                <div className="relative z-10 w-full h-full flex flex-col md:flex-row">
+                        <AnimatePresence>
+                            {(hoveredSector === "enterprise" || hoveredSector === null) && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="overflow-hidden"
+                                >
+                                    <p className="text-slate-400 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
+                                        {t('enterpriseDesc')}
+                                    </p>
+                                    <Link href="/enterprise" className="inline-flex items-center gap-3 px-6 py-3 border border-cyan-500/30 text-cyan-400 text-xs tracking-widest uppercase font-bold hover:bg-cyan-500/10 transition-colors rounded-sm group/btn w-max">
+                                        {t('enterpriseBtn')}
+                                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                    </Link>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
 
-                    {/* Video Column - 50% Width */}
-                    <div className="hidden md:block w-[50%] h-full relative overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity duration-700 bg-black/50 z-10 order-2 md:order-1 border-r border-white/5">
+                    {/* Edge Highlight */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                </motion.div>
+
+                {/* Residential Monolith */}
+                <motion.div
+                    onMouseEnter={() => setHoveredSector("residential")}
+                    onClick={() => setHoveredSector("residential")}
+                    animate={{
+                        width: hoveredSector === "enterprise" ? "20%" : hoveredSector === "residential" ? "80%" : "50%",
+                        opacity: hoveredSector === "enterprise" ? 0.4 : 1,
+                    }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative h-full flex-[1] rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl min-w-[20%]"
+                >
+                    {/* Background Video */}
+                    <div className="absolute inset-0 z-0 bg-black">
                         <video
-                            ref={residentialVideoRef}
-                            preload="none"
-                            poster="/assets/residential_poster.png"
+                            autoPlay
                             loop
                             muted
                             playsInline
-                            aria-hidden="true"
-                            className="absolute inset-0 w-full h-full object-cover transform-gpu"
+                            preload="auto"
+                            poster="/assets/residential_poster.webp"
+                            className="w-full h-full object-cover opacity-20 group-hover:opacity-60 transition-opacity duration-1000 will-change-[opacity]"
                         >
                             <source src="/assets/residentialplaceholder.mp4" type="video/mp4" />
                         </video>
-
-                        {/* Darken Overlay so text remains extremely readable */}
-                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-700" />
-
-                        {/* Inner Gradient for Style (Optimized for GPU natively without expensive mix-blend modes) */}
-                        <div className="absolute inset-0 bg-gradient-to-tl from-emerald-900/40 to-transparent pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#03070C] via-[#03070C]/60 to-transparent" />
+                        <div className="absolute inset-0 bg-emerald-900/10 mix-blend-overlay" />
                     </div>
 
-                    {/* Text Column - 50% Width */}
-                    <div className="w-full md:w-[50%] h-full flex flex-col justify-center px-12 lg:px-20 bg-[#050B14]/95 shadow-2xl order-1 md:order-2 z-20">
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: false, amount: 0.5 }}
-                            transition={{ duration: 0.8, delay: 0.1 }}
-                        >
-                            <span className="text-emerald-400 font-mono text-[10px] md:text-sm tracking-[0.3em] mb-4 block uppercase opacity-90">
-                                Ambient Living
-                            </span>
-                            <h2 className="text-4xl md:text-6xl font-serif text-white mb-6 tracking-tight">
-                                Residential
-                            </h2>
-                            <p className="text-slate-300 font-light leading-relaxed text-sm md:text-md mb-8">
-                                Context-aware environment orchestration designed for unparalleled personal luxury, efficiency, and ease.
-                            </p>
+                    {/* Content */}
+                    <motion.div
+                        className="relative z-10 w-full h-full flex flex-col justify-end p-8 md:p-12 lg:p-16"
+                        animate={{ x: hoveredSector === "residential" ? 0 : 0 }}
+                    >
+                        <span className="text-emerald-400 font-mono tracking-[0.2em] text-[10px] uppercase mb-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                            {t('sector02')}
+                        </span>
+                        <h3 className="text-3xl md:text-5xl lg:text-6xl font-serif text-white tracking-tight mb-4 whitespace-nowrap">
+                            {t('residentialTitle')}
+                        </h3>
 
-                            <Link href="/tech" className="inline-flex items-center gap-3 text-emerald-400 tracking-[0.2em] text-xs md:text-sm uppercase font-bold group/link">
-                                Explore Sector
-                                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5 group-hover/link:translate-x-2 transition-transform">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                                </svg>
-                            </Link>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
+                        <AnimatePresence>
+                            {(hoveredSector === "residential" || hoveredSector === null) && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="overflow-hidden"
+                                >
+                                    <p className="text-slate-400 font-light text-sm md:text-base leading-relaxed max-w-md mb-8">
+                                        {t('residentialDesc')}
+                                    </p>
+                                    <Link href="/tech" className="inline-flex items-center gap-3 px-6 py-3 border border-emerald-500/30 text-emerald-400 text-xs tracking-widest uppercase font-bold hover:bg-emerald-500/10 transition-colors rounded-sm group/btn w-max">
+                                        {t('residentialBtn')}
+                                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                    </Link>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
 
-        </div>
+                    {/* Edge Highlight */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                </motion.div>
+            </div>
+        </section>
     );
 }

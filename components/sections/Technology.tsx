@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function Technology() {
+    const t = useTranslations('Technology');
     return (
         <section id="technology" className="min-h-screen bg-navy flex items-center justify-center px-6 md:px-12 py-24 border-t border-white/5">
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -16,25 +18,23 @@ export default function Technology() {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     >
                         <h2 className="text-cyan font-mono text-sm tracking-widest uppercase mb-4">
-                            Neural Architecture
+                            {t('archTitle')}
                         </h2>
-                        <h3 className="text-4xl md:text-5xl font-bold text-light mb-6 tracking-tight">
-                            Hybrid-Edge <br /> Processing.
-                        </h3>
+                        <h3 className="text-4xl md:text-5xl font-bold text-light mb-6 tracking-tight" dangerouslySetInnerHTML={{ __html: t.raw('title') }} />
                         <p className="text-slate-300 text-lg font-light leading-relaxed max-w-md">
-                            Your home is a sanctuary, not a data mine. Vylera processes strictly on-device using a local LLM neural fabric.
+                            {t('desc1')}
                         </p>
                         <p className="text-slate-300 text-lg font-light leading-relaxed max-w-md mt-4">
-                            Raw data never leaves the premises. Only "Intent Vectors"—anonymized and stripped of context—cross the firewall for complex query resolution.
+                            {t('desc2')}
                         </p>
                     </motion.div>
 
                     <div className="flex gap-4 pt-4">
                         <div className="px-4 py-2 border border-slate/20 rounded text-xs text-slate-400 font-mono uppercase tracking-wider">
-                            Local inference: 100%
+                            {t('stat1')}
                         </div>
                         <div className="px-4 py-2 border border-slate/20 rounded text-xs text-slate-400 font-mono uppercase tracking-wider">
-                            Latency: &lt;50ms
+                            {t('stat2')}
                         </div>
                     </div>
                 </div>
@@ -52,11 +52,11 @@ export default function Technology() {
 
                     {/* Label: CLOUD (Outside) */}
                     <div className="absolute top-4 right-4 text-[10px] font-mono text-slate/30 uppercase tracking-widest">
-                        External / Cloud Layer
+                        {t('cloudLayer')}
                     </div>
                     {/* Label: PREMISE (Inside) */}
                     <div className="absolute bottom-4 left-4 text-[10px] font-mono text-cyan/30 uppercase tracking-widest">
-                        Local / Premise Layer
+                        {t('premiseLayer')}
                     </div>
 
 
@@ -71,7 +71,7 @@ export default function Technology() {
                     {/* Home Node */}
                     <div className="relative w-40 h-40 rounded-full bg-[#112240] border border-cyan/20 z-10 flex items-center justify-center shadow-[0_0_30px_rgba(10,25,47,0.8)]">
                         <div className="absolute inset-0 bg-cyan/5 rounded-full animate-pulse" />
-                        <span className="text-cyan font-mono text-xs tracking-widest">CORE</span>
+                        <span className="text-cyan font-mono text-xs tracking-widest">{t('core')}</span>
 
                         {/* Data Particles (Trapped Inside) */}
                         {[...Array(6)].map((_, i) => (

@@ -5,7 +5,6 @@
 
 import React, { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
 export function MetiMascot() {
@@ -32,8 +31,6 @@ export function MetiMascot() {
         <>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} color={colors[systemState]} />
-
-            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
 
             <group ref={group} position={[0, 0, 0]} scale={2}>
                 {/* CORE NEURAL MESH (Sphere of Points) */}

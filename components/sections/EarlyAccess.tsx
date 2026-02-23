@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function EarlyAccess() {
+    const t = useTranslations('EarlyAccess');
     return (
         <section className="bg-navy py-24 px-6 md:px-12 border-t border-white/5 relative z-20">
             <div className="max-w-7xl mx-auto">
@@ -21,15 +23,15 @@ export default function EarlyAccess() {
 
                         <div className="relative z-10 text-center space-y-6">
                             <h2 className="text-cyan font-mono text-sm tracking-widest uppercase">
-                                Early Access
+                                {t('subtitle')}
                             </h2>
 
                             <h3 className="text-4xl md:text-5xl font-serif text-white tracking-tight">
-                                Join the Neural Network
+                                {t('title')}
                             </h3>
 
                             <p className="text-slate-300 text-lg font-light leading-relaxed max-w-xl mx-auto">
-                                Vylera is currently inviting select residential users to the Private Beta. Experience the first proactive AI OS for your home.
+                                {t('desc')}
                             </p>
 
                             <div className="pt-8">
@@ -41,7 +43,7 @@ export default function EarlyAccess() {
                                     }}
                                     className="inline-flex items-center gap-3 px-8 py-4 bg-cyan text-navy font-bold tracking-widest uppercase rounded hover:bg-cyan/90 transition-all shadow-[0_0_20px_rgba(100,255,218,0.3)] hover:shadow-[0_0_30px_rgba(100,255,218,0.5)] group/btn cursor-pointer"
                                 >
-                                    <span>Request Access Key</span>
+                                    <span>{t('cta')}</span>
                                     <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                                 </a>
                             </div>
