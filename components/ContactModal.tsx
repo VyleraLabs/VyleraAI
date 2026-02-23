@@ -111,6 +111,8 @@ export default function ContactModal() {
                                         <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                                             <a
                                                 href={`mailto:${dept.email}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-mono rounded border border-cyan-500/20 transition-colors"
                                             >
                                                 <Mail size={14} />
