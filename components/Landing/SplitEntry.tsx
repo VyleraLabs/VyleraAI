@@ -44,11 +44,11 @@ export default function SplitEntry() {
                     onMouseEnter={() => setHoveredSector("enterprise")}
                     onClick={() => setHoveredSector("enterprise")}
                     animate={{
-                        width: hoveredSector === "residential" ? "20%" : hoveredSector === "enterprise" ? "80%" : "50%",
+                        flex: hoveredSector === "residential" ? 1 : hoveredSector === "enterprise" ? 4 : 2,
                         opacity: hoveredSector === "residential" ? 0.4 : 1,
                     }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative h-full flex-[1] rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl min-w-[20%]"
+                    className="relative w-full h-full rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl"
                 >
                     {/* Background Video */}
                     <div className="absolute inset-0 z-0 bg-black">
@@ -109,11 +109,11 @@ export default function SplitEntry() {
                     onMouseEnter={() => setHoveredSector("residential")}
                     onClick={() => setHoveredSector("residential")}
                     animate={{
-                        width: hoveredSector === "enterprise" ? "20%" : hoveredSector === "residential" ? "80%" : "50%",
+                        flex: hoveredSector === "enterprise" ? 1 : hoveredSector === "residential" ? 4 : 2,
                         opacity: hoveredSector === "enterprise" ? 0.4 : 1,
                     }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative h-full flex-[1] rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl min-w-[20%]"
+                    className="relative w-full h-full rounded-2xl md:rounded-3xl border border-white/5 bg-[#03070C] backdrop-blur-md overflow-hidden cursor-pointer group shadow-2xl"
                 >
                     {/* Background Video */}
                     <div className="absolute inset-0 z-0 bg-black">

@@ -70,7 +70,7 @@ export default function Navbar() {
 
           <button
             onClick={() => window.dispatchEvent(new Event('open-contact-modal'))}
-            className="relative group px-6 py-2.5 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-cyan-400/50 transition-all duration-500"
+            className="hidden md:block relative group px-6 py-2.5 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-cyan-400/50 transition-all duration-500"
           >
             <span className="relative z-10 group-hover:text-cyan-300 transition-colors">{t('contact')}</span>
 

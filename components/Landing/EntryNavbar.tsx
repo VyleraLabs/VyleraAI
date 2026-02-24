@@ -30,9 +30,8 @@ export default function EntryNavbar() {
             className={`fixed top-0 left-0 right-0 z-[100] h-24 flex items-center justify-between px-6 md:px-12 transition-all duration-500 ${scrolled ? "backdrop-blur-xl bg-[#050B14]/80 border-b border-white/5 shadow-2xl" : "bg-transparent border-b border-transparent"
                 }`}
         >
-            {/* Left: Enhanced Animated Logo */}
             <div className="flex items-center gap-4 h-full">
-                <Link href="/" className="h-24 w-56 flex items-center justify-start group pl-2 md:pl-0">
+                <Link href="/" className="h-20 w-44 md:h-24 md:w-56 flex items-center justify-start group pl-2 md:pl-0">
                     {/* Logo itself handles the VYLERA LABS text inside the ring */}
                     <BrandLogo className="w-full h-full group-hover:scale-105 transition-transform duration-500 origin-left" />
                 </Link>
@@ -69,7 +68,7 @@ export default function EntryNavbar() {
 
                 <button
                     onClick={() => window.dispatchEvent(new Event('open-contact-modal'))}
-                    className="relative group px-6 py-2.5 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-cyan-400/50 transition-all duration-500"
+                    className="hidden md:block relative group px-6 py-2.5 bg-white/5 border border-white/10 text-white text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-cyan-400/50 transition-all duration-500"
                 >
                     <span className="relative z-10 group-hover:text-cyan-300 transition-colors">{t('contact')}</span>
 

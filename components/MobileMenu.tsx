@@ -19,9 +19,9 @@ export default function MobileMenu({ isEntryRoute = false }: MobileMenuProps) {
     const links = [
         { label: t('enterprise'), href: "/enterprise" },
         { label: t('residential'), href: "/tech" },
-        { label: "Tech", href: "/tech" },
         { label: t('about'), href: "/about" },
         { label: "Investors", href: "/investors" },
+        { label: t('contact'), action: "contact" }
     ];
 
     return (
@@ -51,13 +51,22 @@ export default function MobileMenu({ isEntryRoute = false }: MobileMenuProps) {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 * idx, duration: 0.5, ease: "easeOut" }}
                                 >
-                                    <Link
-                                        href={link.href}
-                                        onClick={() => setIsOpen(false)}
-                                        className="text-4xl md:text-5xl font-serif text-slate-300 hover:text-cyan-400 transition-colors tracking-tight text-center block"
-                                    >
-                                        {link.label}
-                                    </Link>
+                                    {link.action === "contact" ? (
+                                        <button
+                                            onClick={() => { setIsOpen(false); window.dispatchEvent(new Event('open-contact-modal')); }}
+                                            className="text-4xl md:text-5xl font-serif text-slate-300 hover:text-cyan-400 transition-colors tracking-tight text-center block w-full"
+                                        >
+                                            {link.label}
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href={link.href!}
+                                            onClick={() => setIsOpen(false)}
+                                            className="text-4xl md:text-5xl font-serif text-slate-300 hover:text-cyan-400 transition-colors tracking-tight text-center block w-full"
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    )}
                                 </motion.div>
                             ))}
                         </div>
