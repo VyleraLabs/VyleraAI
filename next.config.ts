@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  productionBrowserSourceMaps: true,
   async headers() {
     return [
       {
