@@ -1,7 +1,3 @@
-"use client";
-
-import Script from "next/script";
-
 export default function SchemaLD() {
     // 1. Core Organizational Data
     const organizationUrl = "https://vyleralabs.com";
@@ -116,7 +112,7 @@ export default function SchemaLD() {
     };
 
     return (
-        <Script
+        <script
             id="schema-ld-global"
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(globalGraph) }}
