@@ -28,6 +28,10 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://vyleralabs.com"),
+  alternates: {
+    canonical: "./",
+  },
   title: "Vylera Labs | Intelligence for Fragmented IoT",
   description: "Vylera transforms your home into a proactive, context-aware sanctuary. Powered by Google Vertex AI and Sovereign Edge logic.",
   keywords: ["Ambient AI", "IoT Operating System", "Privacy-First Smart Home", "Vylera Labs", "Vertex AI Home", "Edge Computing"],
@@ -38,21 +42,12 @@ export const metadata: Metadata = {
     url: "https://vyleralabs.com",
     siteName: "Vylera Labs",
     locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: "https://vyleralabs.com/logo.webp",
-        width: 1200,
-        height: 630,
-        alt: "Vylera Labs - Sovereign Intelligence",
-      },
-    ],
+    type: "website"
   },
   twitter: {
     card: "summary_large_image",
     title: "Vylera Labs | Intelligence for Fragmented IoT",
-    description: "The Sovereign OS for Fragmented IoT hardware.",
-    images: ["https://vyleralabs.com/logo.webp"],
+    description: "The Sovereign OS for Fragmented IoT hardware."
   },
   robots: {
     index: true,
