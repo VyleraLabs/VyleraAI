@@ -4,6 +4,17 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-    // Match all pathnames except for SEO arrays, APIs, Next static blocks, and Next images.
-    matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|robots.txt|sitemap.xml).*)']
+    matcher: [
+        // Enable a redirect to a matching locale at the root
+        '/',
+
+        // Set a cookie to remember the previous locale for
+        // all requests that have a locale prefix
+        '/(ru|id|ja|en)/:path*',
+
+        // Enable redirects that add a locale prefix to
+        // requests without one, explicitly bypassing
+        // all files with a dot (e.g. .webp, .png, .xml, .txt)
+        '/((?!_next|_vercel|.*\\..*).*)'
+    ]
 };
