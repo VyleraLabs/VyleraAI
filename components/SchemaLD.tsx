@@ -3,7 +3,7 @@ export default function SchemaLD() {
     const organizationUrl = "https://vyleralabs.com";
     const organizationName = "Vylera Labs";
     const organizationLogo = "https://vyleralabs.com/logo.webp";
-    const organizationPhone = "+62 21 0000 0000"; // Placeholder for actual contact
+    const organizationPhone = "+62 819-9880-0088";
 
     // 2. Exact HQ Details (Derived from Footer)
     const hqAddress = {
@@ -17,10 +17,10 @@ export default function SchemaLD() {
 
     // 3. Team Roster with Explicit LinkedIn Mappings
     const teamMembers = [
-        { name: "Katherina Aytakin", jobTitle: "Founder & CEO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/katherina-aytakin"] },
-        { name: "Magna Putra", jobTitle: "Co-Founder & CTO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/magna-bumi-putra-33523555/"] },
-        { name: "Sandy Permadi", jobTitle: "CFO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/sandy-permadi-462bb63/"] },
-        { name: "Kristiyan Dimitrov Mechev", jobTitle: "COO and Lead Hardware Engineer", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/kristiyan-mechev-a51803247/"] }
+        { "@id": `${organizationUrl}/#person-katherina`, name: "Katherina Aytakin", jobTitle: "Founder & CEO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/katherina-aytakin"] },
+        { "@id": `${organizationUrl}/#person-magna`, name: "Magna Putra", jobTitle: "Co-Founder & CTO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/magna-bumi-putra-33523555/"] },
+        { "@id": `${organizationUrl}/#person-sandy`, name: "Sandy Permadi", jobTitle: "CFO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/sandy-permadi-462bb63/"] },
+        { "@id": `${organizationUrl}/#person-kristiyan`, name: "Kristiyan Dimitrov Mechev", jobTitle: "COO and Lead Hardware Engineer", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/kristiyan-mechev-a51803247/"] }
     ];
 
     // 4. Enterprise Software Suite Generation
@@ -79,12 +79,14 @@ export default function SchemaLD() {
                 ],
                 "founder": teamMembers.filter(m => m.jobTitle.includes("Founder")).map(founder => ({
                     "@type": "Person",
+                    "@id": founder["@id"],
                     "name": founder.name,
                     "jobTitle": founder.jobTitle,
                     "sameAs": founder.sameAs
                 })),
                 "employee": teamMembers.map(member => ({
                     "@type": "Person",
+                    "@id": member["@id"],
                     "name": member.name,
                     "jobTitle": member.jobTitle,
                     "sameAs": member.sameAs
@@ -99,13 +101,6 @@ export default function SchemaLD() {
                 "category": "Smart Home Hub",
                 "description": "Military-grade secure smart home infrastructure with proactive edge intelligence.",
                 "manufacturer": { "@id": `${organizationUrl}/#organization` },
-                "engineers": [
-                    {
-                        "@type": "Person",
-                        "name": "Kristiyan Dimitrov Mechev",
-                        "jobTitle": "Lead Hardware Engineer"
-                    }
-                ],
                 "url": `${organizationUrl}/tech`
             }
         ]
