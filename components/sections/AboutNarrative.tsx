@@ -99,7 +99,7 @@ export default function AboutNarrative() {
                 >
                     <h3 className="text-xl md:text-2xl font-serif text-white mb-8 tracking-tight">{t('downloadTitle')}</h3>
                     <a
-                        href="/assets/COMPRO%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf"
+                        href="/assets/COMPROWEB%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf"
                         download="Vylera_Labs_Company_Profile_2026.pdf"
                         className="relative group px-8 py-3.5 bg-white/5 border border-amber-500/30 text-amber-500 text-xs tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-amber-400/80 transition-all duration-500 flex items-center gap-3"
                     >

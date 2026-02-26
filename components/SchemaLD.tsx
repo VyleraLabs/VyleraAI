@@ -19,7 +19,7 @@ export default function SchemaLD() {
     const teamMembers = [
         { "@id": `${organizationUrl}/#person-katherina`, name: "Katherina Aytakin", jobTitle: "Founder & CEO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/katherina-aytakin"] },
         { "@id": `${organizationUrl}/#person-magna`, name: "Magna Putra", jobTitle: "Co-Founder & CTO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/magna-bumi-putra-33523555/"] },
-        { "@id": `${organizationUrl}/#person-sandy`, name: "Sandy Permadi", jobTitle: "CFO", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/sandy-permadi-462bb63/"] },
+
         { "@id": `${organizationUrl}/#person-kristiyan`, name: "Kristiyan Dimitrov Mechev", jobTitle: "COO and Lead Hardware Engineer", url: organizationUrl, sameAs: ["https://www.linkedin.com/in/kristiyan-mechev-a51803247/"] }
     ];
 

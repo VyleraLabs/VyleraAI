@@ -22,13 +22,7 @@ export default function TeamSection() {
             linkedin: "https://www.linkedin.com/in/magna-bumi-putra-33523555/",
             bio: t('bioCTO')
         },
-        {
-            name: "Sandy Permadi",
-            role: t('roleCFO'),
-            image: "/team/CFO.webp",
-            linkedin: "https://www.linkedin.com/in/sandy-permadi-462bb63/",
-            bio: t('bioCFO')
-        },
+
         {
             name: "Kristiyan Dimitrov Mechev",
             role: t('roleCOO'),

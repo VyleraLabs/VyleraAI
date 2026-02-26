@@ -30,7 +30,7 @@ export default function Footer() {
 
                     <div className="mt-4">
                         <a
-                            href="/assets/COMPRO%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf"
+                            href="/assets/COMPROWEB%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf"
                             download="Vylera_Labs_Company_Profile_2026.pdf"
                             aria-label="Download Vylera Labs Company Profile PDF"
                             className="relative group px-6 py-2.5 bg-white/5 border border-amber-500/30 text-amber-500 text-[10px] tracking-[0.2em] uppercase font-bold overflow-hidden rounded-sm hover:border-amber-400/80 transition-all duration-500 flex items-center justify-center gap-2 w-fit"
