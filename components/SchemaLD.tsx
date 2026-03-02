@@ -75,7 +75,8 @@ export default function SchemaLD() {
                 "telephone": organizationPhone,
                 "address": hqAddress,
                 "sameAs": [
-                    "https://www.linkedin.com/company/vyleralabs/"
+                    "https://www.linkedin.com/company/vyleralabs/",
+                    "https://share.google/iyR3jsawEQjh9NHUD"
                 ],
                 "founder": teamMembers.filter(m => m.jobTitle.includes("Founder")).map(founder => ({
                     "@type": "Person",

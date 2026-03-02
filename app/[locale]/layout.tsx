@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
   title: "Vylera Labs | Intelligence for Fragmented IoT",
   description: "Vylera transforms your home into a proactive, context-aware sanctuary. Powered by Google Vertex AI and Sovereign Edge logic.",
-  keywords: ["Ambient AI", "IoT Operating System", "Privacy-First Smart Home", "Vylera Labs", "Vertex AI Home", "Edge Computing"],
+  keywords: ["Ambient AI", "IoT Operating System", "Privacy-First Smart Home", "Vylera Labs", "Vertex AI Home", "Edge Computing", "vyleralabs", "vyrela labs"],
   authors: [{ name: "Vylera Labs Team" }],
   openGraph: {
     title: "Vylera Labs | The Ambient Operating System",
