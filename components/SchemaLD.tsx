@@ -95,13 +95,14 @@ export default function SchemaLD() {
             },
             ...enterpriseSuite,
             {
-                "@type": "Product",
+                "@type": "SoftwareApplication",
                 "@id": `${organizationUrl}/#sovereign-iot-ecosystem`,
                 "name": "Sovereign IoT Ecosystem",
+                "applicationCategory": "SecurityApplication",
+                "operatingSystem": "Hardware Intelligence Platform",
                 "brand": { "@id": `${organizationUrl}/#organization` },
-                "category": "Smart Home Hub",
                 "description": "Military-grade secure smart home infrastructure with proactive edge intelligence.",
-                "manufacturer": { "@id": `${organizationUrl}/#organization` },
+                "provider": { "@id": `${organizationUrl}/#organization` },
                 "url": `${organizationUrl}/tech`
             }
         ]
