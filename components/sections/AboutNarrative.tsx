@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 export default function AboutNarrative() {
     const t = useTranslations('AboutNarrative');
@@ -36,7 +37,7 @@ export default function AboutNarrative() {
                     transition={{ duration: 0.8, delay: 0.1 }}
                     className="flex flex-col items-center gap-2 mb-12"
                 >
-                    <img src="/assets/logo-komdigi-pse.png" alt="Komdigi PSE Certification" className="h-10 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
+                    <Image src="/assets/logo-komdigi-pse.webp" alt="Komdigi PSE Certification" width={129} height={40} className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
                     <span className="text-[10px] tracking-widest text-slate-400 font-mono uppercase">PB UMKU: 210226005725900000002</span>
                 </motion.div>
 

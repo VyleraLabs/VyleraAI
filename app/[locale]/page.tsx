@@ -1,7 +1,9 @@
 import NeuralBackground from "@/components/Landing/NeuralBackground";
-import SplitEntry from "@/components/Landing/SplitEntry";
 import EntryNavbar from "@/components/Landing/EntryNavbar";
 import EntryHero from "@/components/Landing/EntryHero";
+import dynamic from "next/dynamic";
+
+const SplitEntry = dynamic(() => import("@/components/Landing/SplitEntry"));
 
 export default async function Home({
   params,

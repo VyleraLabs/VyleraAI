@@ -22,7 +22,7 @@ export default function EntryHero() {
             {/* Hero Main Graphic - Fullscreen */}
             <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
                 <Image
-                    src="/assets/herolanding.webp"
+                    src="/assets/herolanding_optimized.webp"
                     alt="Vylera Neural Core"
                     fill
                     className="object-cover object-center opacity-90"

@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import BrandLogo from "@/components/Landing/BrandLogo";
+import Image from "next/image";
 
 export default function Footer() {
     const t = useTranslations('Footer');
@@ -29,7 +30,7 @@ export default function Footer() {
                     </p>
 
                     <div className="mt-6 flex flex-col items-center md:items-start gap-1">
-                        <img src="/assets/logo-komdigi-pse.png" alt="Komdigi PSE" className="h-8 object-contain" />
+                        <Image src="/assets/logo-komdigi-pse.webp" alt="Komdigi PSE" width={103} height={32} className="h-8 w-auto object-contain" />
                         <span className="text-[10px] text-slate-500 font-mono tracking-widest">PB UMKU: 210226005725900000002</span>
                     </div>
 
