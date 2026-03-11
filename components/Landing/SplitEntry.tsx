@@ -57,8 +57,8 @@ export default function SplitEntry() {
                             loop
                             muted
                             playsInline
-                            preload="auto"
-                            poster="/assets/enterprise_poster.webp"
+                            preload="none"
+                            poster="/assets/enterprise_poster_opt.webp"
                             className="w-full h-full object-cover opacity-20 group-hover:opacity-60 transition-opacity duration-1000 will-change-[opacity]"
                         >
                             <source src="/assets/enterpriseplaceholder.mp4" type="video/mp4" />
@@ -122,8 +122,8 @@ export default function SplitEntry() {
                             loop
                             muted
                             playsInline
-                            preload="auto"
-                            poster="/assets/residential_poster.webp"
+                            preload="none"
+                            poster="/assets/residential_poster_opt.webp"
                             className="w-full h-full object-cover opacity-20 group-hover:opacity-60 transition-opacity duration-1000 will-change-[opacity]"
                         >
                             <source src="/assets/residentialplaceholder.mp4" type="video/mp4" />

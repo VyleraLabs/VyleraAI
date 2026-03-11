@@ -32,10 +32,8 @@ export default function EntryHero() {
 
             {/* Bottom-left text "vylera." */}
             <div className="relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, x: -40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                <div
+                    className="animate-fade-in-up"
                 >
                     <h1
                         className="text-white font-serif text-6xl md:text-8xl xl:text-[10rem] tracking-tight leading-none flex items-baseline"
@@ -44,7 +42,7 @@ export default function EntryHero() {
                         {t('vylera')}
                         <span className="text-cyan-400 drop-shadow-[0_0_40px_rgba(34,211,238,0.9)] ml-1 md:ml-2">.</span>
                     </h1>
-                </motion.div>
+                </div>
             </div>
         </section>
     );
