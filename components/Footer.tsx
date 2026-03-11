@@ -28,6 +28,11 @@ export default function Footer() {
                         {t('rights')}
                     </p>
 
+                    <div className="mt-6 flex flex-col items-center md:items-start gap-1">
+                        <img src="/assets/logo-komdigi-pse.png" alt="Komdigi PSE" className="h-8 object-contain" />
+                        <span className="text-[10px] text-slate-500 font-mono tracking-widest">PB UMKU: 210226005725900000002</span>
+                    </div>
+
                     <div className="mt-4">
                         <a
                             href="/assets/COMPROWEB%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf"
