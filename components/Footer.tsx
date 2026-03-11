@@ -31,7 +31,7 @@ export default function Footer() {
 
                     <div className="mt-6 flex flex-col items-center md:items-start gap-1">
                         <Image src="/assets/logo-komdigi-pse.webp" alt="Komdigi PSE" width={103} height={32} className="h-8 w-auto object-contain" />
-                        <span className="text-[10px] text-slate-500 font-mono tracking-widest">PB UMKU: 210226005725900000002</span>
+                        <span className="text-[10px] text-slate-400 font-mono tracking-widest">PB UMKU: 210226005725900000002</span>
                     </div>
 
                     <div className="mt-4">
