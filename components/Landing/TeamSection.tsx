@@ -9,7 +9,7 @@ export default function TeamSection() {
 
     const teams = [
         {
-            region: "Vylera Indonesia",
+            region: t('regionIndonesia'),
             members: [
                 {
                     name: "Katherina Aytakin",
@@ -35,28 +35,28 @@ export default function TeamSection() {
             ]
         },
         {
-            region: "Vylera Philippines",
+            region: t('regionPhilippines'),
             members: [
                 {
                     name: "Paolo Gonzales",
-                    role: "CEO and Co-founder",
+                    role: t('rolePaoloGonzales'),
                     image: "/team/paolo-gonzales.jpg",
                     linkedin: "https://www.linkedin.com/in/aapagonzales/",
-                    bio: "Paolo guides Vylera Philippines with a focus on disciplined market entry, partner relationships, and practical AI adoption. He runs the Philippine business and the company's marketing division at the same time, so the brand and the business decisions come from the same person. His standard: disciplined market entry, real partnerships over paper ones, and AI that works in production, not just in a demo."
+                    bio: t('bioPaoloGonzales')
                 },
                 {
                     name: "Paolo Garciano",
-                    role: "COO and Co-founder",
+                    role: t('rolePaoloGarciano'),
                     image: "/team/paolo-garciano.jpg",
                     linkedin: "https://www.linkedin.com/in/juan-paolo-garciano-2317a7190/",
-                    bio: "Paolo leads Vylera Philippines' operational execution, partner coordination, and practical AI adoption. As COO and Co-Founder, he helps translate business opportunities into structured projects, aligning technical, client-facing, and implementation teams to deliver AI-enabled solutions that improve real operational workflows."
+                    bio: t('bioPaoloGarciano')
                 },
                 {
                     name: "Dan Santos",
-                    role: "CTO and Co-founder",
+                    role: t('roleDanSantos'),
                     image: "/team/dan-santos.jpg",
                     linkedin: "https://www.linkedin.com/in/gilan-daniel-santos-549719120/",
-                    bio: "Dan steers the technical direction for Vylera Philippines, bringing over a decade of expertise in architecture and DevOps. With a deep background in scaling high-growth E-Commerce and Fintech platforms, he specializes in connecting high-level product strategy with implementation realities to build resilient, production-ready systems."
+                    bio: t('bioDanSantos')
                 }
             ]
         }

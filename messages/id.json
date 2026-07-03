@@ -301,6 +301,14 @@
     "downloadButton": "Unduh Profil Perusahaan"
   },
   "TeamSection": {
+    "regionIndonesia": "Vylera Indonesia",
+    "regionPhilippines": "Vylera Filipina",
+    "rolePaoloGonzales": "Pendiri & CEO",
+    "bioPaoloGonzales": "Paolo memandu Vylera Filipina dengan fokus pada masuk pasar yang disiplin, hubungan kemitraan, dan adopsi AI yang praktis. Ia menjalankan bisnis Filipina sekaligus divisi pemasaran perusahaan, sehingga arah merek dan keputusan bisnis berasal dari orang yang sama. Standarnya: masuk pasar yang disiplin, kemitraan nyata alih-alih sekadar di atas kertas, dan AI yang bekerja di produksi, bukan hanya dalam demo.",
+    "rolePaoloGarciano": "Rekan Pendiri dan COO",
+    "bioPaoloGarciano": "Paolo memimpin eksekusi operasional Vylera Filipina, koordinasi mitra, dan adopsi AI yang praktis. Sebagai COO dan Co-Founder, ia membantu menerjemahkan peluang bisnis menjadi proyek yang terstruktur, menyelaraskan tim teknis, tim yang berhadapan dengan klien, dan tim implementasi untuk menghadirkan solusi berbasis AI yang meningkatkan alur kerja operasional nyata.",
+    "roleDanSantos": "Rekan Pendiri dan CTO",
+    "bioDanSantos": "Dan mengarahkan strategi teknis Vylera Filipina, dengan pengalaman lebih dari satu dekade dalam arsitektur dan DevOps. Dengan latar belakang mendalam dalam menskalakan platform E-Commerce dan Fintech berpertumbuhan tinggi, ia ahli menghubungkan strategi produk tingkat tinggi dengan realitas implementasi untuk membangun sistem yang tangguh dan siap produksi.",
     "title": "Para Arsitek dari <span class=\"italic text-cyan/80\">Vylera.</span>",
     "roleFounder": "Pendiri & CEO",
     "bioFounder": "Mantan Analis Keamanan dengan spesialisasi dalam pengujian penetrasi tingkat tinggi (Denuvo) dan arsitektur industri Oracle. Merancang jalinan saraf yang aman dan berdaulat dari Vylera.",
