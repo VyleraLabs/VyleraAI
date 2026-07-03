@@ -301,6 +301,14 @@
     "downloadButton": "会社概要をダウンロードする"
   },
   "TeamSection": {
+    "regionIndonesia": "Vylera Indonesia",
+    "regionPhilippines": "Vylera Philippines",
+    "rolePaoloGonzales": "創設者 兼 CEO",
+    "bioPaoloGonzales": "Paoloは、規律ある市場参入、パートナー関係、実践的なAI導入に重点を置いてVylera Philippinesを率いています。フィリピン事業と会社のマーケティング部門を同時に統括することで、ブランドと事業判断を一貫した視点から進めています。彼の基準は、規律ある市場参入、形だけではない実質的なパートナーシップ、そしてデモではなく本番環境で機能するAIです。",
+    "rolePaoloGarciano": "共同創設者 兼 COO",
+    "bioPaoloGarciano": "Paoloは、Vylera Philippinesの業務遂行、パートナー調整、実践的なAI導入を主導しています。COO兼Co-Founderとして、ビジネス機会を構造化されたプロジェクトへと変換し、技術、顧客対応、実装チームを連携させ、実際の業務フローを改善するAI活用ソリューションを提供します。",
+    "roleDanSantos": "共同創設者 兼 CTO",
+    "bioDanSantos": "Danは、アーキテクチャとDevOpsにおける10年以上の専門知識を活かし、Vylera Philippinesの技術方針をリードしています。高成長のE-CommerceおよびFintechプラットフォームをスケールさせてきた深い経験をもとに、上位のプロダクト戦略と実装現場の現実を結びつけ、堅牢で本番運用に耐えるシステムを構築します。",
     "title": "<span class=\"italic text-cyan/80\">Vylera</span>のアーキテクトたち。",
     "roleFounder": "創設者 兼 CEO",
     "bioFounder": "重要な侵入テスト（Denuvo）と産業用Oracleアーキテクチャを専門とする元セキュリティアナリスト。Vyleraの安全で主権的なニューラルファブリックを設計します。",

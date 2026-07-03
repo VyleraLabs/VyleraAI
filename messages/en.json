@@ -302,6 +302,8 @@
   },
   "TeamSection": {
     "title": "The Architects of <span class=\"italic text-cyan/80\">Vylera.</span>",
+    "regionIndonesia": "Vylera Indonesia",
+    "regionPhilippines": "Vylera Philippines",
     "roleFounder": "Founder & CEO",
     "bioFounder": "Former Security Analyst specializing in high-stakes penetration testing (Denuvo) and industrial Oracle architectures. Architecting the secure, sovereign neural fabric of Vylera.",
     "roleCTO": "Co-Founder & CTO",
@@ -309,7 +311,13 @@
     "roleCFO": "CFO",
     "bioCFO": "A veteran of the Southeast Asian e-commerce ecosystem with high-growth leadership at JD.ID, Lazada, and Bluebird Group. Sandy architects Vylera’s financial infrastructure and capital strategy, ensuring our technical vision is grounded in robust fiscal discipline.",
     "roleCOO": "COO and Lead Hardware Engineer",
-    "bioCOO": "A specialist in embedded systems and hardware-software interoperability. Kristiyan leads the development of Vylera's physical layer, engineering custom IoT gateways and sensor arrays that bridge the digital Sovereign OS with the physical world at the edge."
+    "bioCOO": "A specialist in embedded systems and hardware-software interoperability. Kristiyan leads the development of Vylera's physical layer, engineering custom IoT gateways and sensor arrays that bridge the digital Sovereign OS with the physical world at the edge.",
+    "rolePaoloGonzales": "Founder & CEO",
+    "bioPaoloGonzales": "Paolo guides Vylera Philippines with a focus on disciplined market entry, partner relationships, and practical AI adoption. He runs the Philippine business and the company's marketing division at the same time, so the brand and the business decisions come from the same person. His standard: disciplined market entry, real partnerships over paper ones, and AI that works in production, not just in a demo.",
+    "rolePaoloGarciano": "Co-Founder and COO",
+    "bioPaoloGarciano": "Paolo leads Vylera Philippines' operational execution, partner coordination, and practical AI adoption. As COO and Co-Founder, he helps translate business opportunities into structured projects, aligning technical, client-facing, and implementation teams to deliver AI-enabled solutions that improve real operational workflows.",
+    "roleDanSantos": "Co-Founder and CTO",
+    "bioDanSantos": "Dan steers the technical direction for Vylera Philippines, bringing over a decade of expertise in architecture and DevOps. With a deep background in scaling high-growth E-Commerce and Fintech platforms, he specializes in connecting high-level product strategy with implementation realities to build resilient, production-ready systems."
   },
   "ContactModal": {
     "title": "Direct Connect",

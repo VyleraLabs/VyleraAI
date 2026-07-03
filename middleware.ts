@@ -15,6 +15,6 @@ export const config = {
         // Enable redirects that add a locale prefix to
         // requests without one, explicitly bypassing
         // all files with a dot (e.g. .webp, .png, .xml, .txt)
-        '/((?!_next|_vercel|.*\\..*).*)'
+        '/((?!api|_next|_vercel|.*\\..*).*)'
     ]
 };
