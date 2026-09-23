@@ -12,10 +12,15 @@ resource "google_cloud_run_service" "this" {
 
   template {
     metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale"     = tostring(var.max_instances)
-        "run.googleapis.com/startup-cpu-boost" = "true"
-      }
+      annotations = merge(
+        {
+          "autoscaling.knative.dev/maxScale"     = tostring(var.max_instances)
+          "run.googleapis.com/startup-cpu-boost" = "true"
+        },
+        var.min_instances == null ? {} : {
+          "autoscaling.knative.dev/minScale" = tostring(var.min_instances)
+        }
+      )
     }
 
     spec {

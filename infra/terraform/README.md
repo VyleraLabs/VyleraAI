@@ -1,6 +1,19 @@
 # Vylera Website Infrastructure
 
-This Terraform configuration targets the currently live Google Cloud production website:
+This Terraform configuration manages the Vylera website Cloud Run environments.
+
+## Layout
+
+- `environments/production`: production website in `vylerawebsite`, deployed from `main`.
+- `environments/dev`: dev website in `vyleralabswebdev`, deployed from `develop`.
+- `modules/website-environment`: shared Artifact Registry, Cloud Run, IAM, and GitHub Workload Identity Federation resources.
+- `modules/cloud-run-service`: reusable Cloud Run service and domain mapping module.
+
+The original root-level Terraform files are kept for the imported production state and helper scripts. New environment work should happen from `environments/production` or `environments/dev`.
+
+## Production
+
+Production targets the currently live Google Cloud website:
 
 - Project: `vylerawebsite`
 - Region: `asia-southeast1` (Singapore)
@@ -11,7 +24,42 @@ This Terraform configuration targets the currently live Google Cloud production 
 
 `vyleralabsweb` was checked, but it has no Cloud Run service for the website. The active custom domain mapping points to the `vylerawebsite` project.
 
-## Import Existing Resources
+The workflow at `.github/workflows/deploy-cloud-run.yml` deploys every push to `main`.
+
+## Dev
+
+Dev is configured as a separate environment:
+
+- Project: `vyleralabswebdev`
+- Region: `asia-southeast1` (Singapore)
+- Cloud Run service: `vyleralwebsite-dev`
+- Domain mapping: `dev.vyleralabs.com`
+- Artifact Registry image: `asia-southeast1-docker.pkg.dev/vyleralabswebdev/cloud-run-source-deploy/vyleraai/vyleralwebsite-dev`
+- Minimum instances: `0`
+- Maximum instances: `5`
+
+The workflow at `.github/workflows/deploy-cloud-run-dev.yml` deploys every push to `develop`.
+
+Billing is linked to `vyleralabswebdev` using the same billing account as production.
+
+Apply dev infrastructure with:
+
+```powershell
+cd infra/terraform/environments/dev
+$env:GOOGLE_OAUTH_ACCESS_TOKEN = (gcloud auth print-access-token).Trim()
+terraform apply
+```
+
+Most dev resources are already applied. The remaining custom domain mapping requires Google domain ownership verification for either `vyleralabs.com` or `dev.vyleralabs.com` in the account running Terraform. Until that is verified, the dev Cloud Run service is reachable at the generated Cloud Run URL from Terraform output.
+
+Then set these GitHub repository variables:
+
+```text
+GCP_DEV_WORKLOAD_IDENTITY_PROVIDER = projects/890448317447/locations/global/workloadIdentityPools/github-actions/providers/github
+GCP_DEV_SERVICE_ACCOUNT            = github-vyleraweb-dev@vyleralabswebdev.iam.gserviceaccount.com
+```
+
+## Import Existing Production Resources
 
 From `infra/terraform`:
 
@@ -32,7 +80,7 @@ Terraform also creates new Workload Identity Federation resources and a GitHub d
 
 The inspected production service currently has no explicit Cloud Run environment variables. If you want Terraform to manage values such as `NEXTAUTH_URL` or secret-backed runtime configuration, add them to `public_env` or `secret_env` in `terraform.tfvars`.
 
-## GitHub Actions Setup
+## Production GitHub Actions Setup
 
 Run:
 
@@ -70,8 +118,6 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 NEXT_PUBLIC_FIREBASE_APP_ID
 ```
-
-The workflow at `.github/workflows/deploy-cloud-run.yml` deploys every push to `main`.
 
 ## Legacy Cloud Build Trigger
 

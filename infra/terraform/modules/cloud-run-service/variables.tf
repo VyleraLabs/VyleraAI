@@ -34,6 +34,11 @@ variable "max_instances" {
   default = 100
 }
 
+variable "min_instances" {
+  type    = number
+  default = null
+}
+
 variable "container_concurrency" {
   type    = number
   default = 80
