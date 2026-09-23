@@ -61,7 +61,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
                 {product.category}
               </span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold text-slate-300">
-                VyleraLabs PH
+                VyleraLabs
               </span>
             </div>
 

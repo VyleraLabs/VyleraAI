@@ -369,7 +369,7 @@ export const whyVylera = [
     initial: "G",
     title: "Direct Google Partner",
     description:
-      "VyleraLabs PH is a direct Google Cloud partner, giving clients preferred pricing on GCP and Workspace plus dedicated support."
+      "VyleraLabs is a direct Google Cloud partner, giving clients preferred pricing on GCP and Workspace plus dedicated support."
   },
   {
     initial: "$",

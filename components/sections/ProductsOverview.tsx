@@ -45,7 +45,7 @@ export default function ProductsOverview() {
             <span className="h-3 w-3 rounded-full bg-red-500" />
             <span className="h-3 w-3 rounded-full bg-amber-400" />
             <span className="h-3 w-3 rounded-full bg-emerald-500" />
-            <span className="ml-2 text-xs font-mono tracking-[0.25em] uppercase text-slate-500">VyleraLabs PH</span>
+            <span className="ml-2 text-xs font-mono tracking-[0.25em] uppercase text-slate-500">VyleraLabs</span>
             <span className="rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-blue-300">Google Cloud Partner</span>
           </div>
 
