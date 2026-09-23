@@ -17,9 +17,9 @@ export default function MobileMenu({ isEntryRoute = false }: MobileMenuProps) {
 
     const t = useTranslations('Navigation');
     const links = [
-        { label: t('products'), href: "/products" },
         { label: t('enterprise'), href: "/enterprise" },
         { label: t('residential'), href: "/tech" },
+        { label: t('products'), href: "/products" },
         { label: t('about'), href: "/about" },
         { label: "Investors", href: "/investors" },
         { label: t('contact'), action: "contact" }

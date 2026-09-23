@@ -4,9 +4,7 @@ import { getProduct, products } from "@/data/products";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params
