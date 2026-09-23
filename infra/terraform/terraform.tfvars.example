@@ -1,0 +1,29 @@
+project_id     = "vylerawebsite"
+project_number = "1090620380043"
+region         = "asia-southeast1"
+
+service_name           = "vyleralwebsite"
+artifact_repository_id = "cloud-run-source-deploy"
+image_name             = "vyleraai/vyleralwebsite"
+
+github_owner  = "VyleraLabs"
+github_repo   = "VyleraAI"
+github_branch = "main"
+
+initial_image = "asia-southeast1-docker.pkg.dev/vylerawebsite/cloud-run-source-deploy/vyleraai/vyleralwebsite:772cf79588cb25f7bc0c24708e3b72e8a6561bc5"
+
+runtime_service_account_email = "1090620380043-compute@developer.gserviceaccount.com"
+domain_name                   = "vyleralabs.com"
+
+# The inspected Singapore service currently has no explicit environment
+# variables. Add these later if you want Terraform to manage them.
+public_env = {}
+
+# Map runtime env var names to existing Secret Manager secret ids only after the
+# secrets exist in vylerawebsite. The currently inspected Singapore service had
+# no secret env vars attached.
+secret_env = {}
+
+# GitHub Actions is the intended deployment path. Keep the old Google-created
+# Cloud Build trigger disabled to avoid duplicate deploys on pushes to main.
+disable_legacy_cloud_build_trigger = true
