@@ -61,6 +61,7 @@ export default function Footer() {
                 <div className="flex gap-6 md:gap-12">
                     <div className="flex flex-col gap-3 text-center md:text-left">
                         <span className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-xs mb-2">{t('platform')}</span>
+                        <Link href="/products" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('products')}</Link>
                         <Link href="/enterprise" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('enterprise')}</Link>
                         <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{tNav('residential')}</Link>
                         <Link href="/tech" className="text-xs text-slate-400 hover:text-white transition-colors uppercase tracking-wider">{t('technology')}</Link>
