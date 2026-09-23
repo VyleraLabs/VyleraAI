@@ -7,6 +7,15 @@ export type ProductSlug =
 export type Product = {
   slug: ProductSlug;
   initial: string;
+  icon?:
+    | {
+        type: "image";
+        src: string;
+        alt: string;
+      }
+    | {
+        type: "ticket" | "whistle";
+      };
   title: string;
   subtitle: string;
   category: string;
@@ -31,6 +40,11 @@ export const products: Product[] = [
   {
     slug: "google-cloud-platform",
     initial: "G",
+    icon: {
+      type: "image",
+      src: "/assets/google-cloud-logo.svg",
+      alt: "Google Cloud logo"
+    },
     title: "Google Cloud Platform",
     subtitle: "Cloud Infrastructure, Data Analytics & AI",
     category: "Cloud Infrastructure & AI",
@@ -110,6 +124,11 @@ export const products: Product[] = [
   {
     slug: "google-workspace",
     initial: "W",
+    icon: {
+      type: "image",
+      src: "/assets/google-workspace-logo.svg",
+      alt: "Google Workspace logo"
+    },
     title: "Google Workspace",
     subtitle: "Productivity & Collaboration Suite",
     category: "Productivity & Collaboration",
@@ -174,6 +193,9 @@ export const products: Product[] = [
   {
     slug: "ticketing-system",
     initial: "T",
+    icon: {
+      type: "ticket"
+    },
     title: "Ticketing System",
     subtitle: "Helpdesk & Incident Management Platform",
     category: "Helpdesk & Incident Management",
@@ -247,18 +269,19 @@ export const products: Product[] = [
           "Move beyond spreadsheets without jumping into ServiceNow-level pricing."
       }
     ],
-    pricing: "Pricing starts at PHP 100,000/year",
+    pricing: "Pricing starts at around $1,700 USD /year",
     pricingDetails: [
-      "Basic: 50 users",
-      "Standard: 200 users",
-      "Premium: 1,000 users",
+      "3 tier packages available: Basic, Standard, and Premium, based on the number of users and features used",
       "Monthly operational costs are GCP usage-based",
-      "Maintenance starts at PHP 5,000/month"
+      "Maintenance starts at a small price/month"
     ]
   },
   {
     slug: "whistleblowing-system",
     initial: "W",
+    icon: {
+      type: "whistle"
+    },
     title: "Whistleblowing System",
     subtitle: "Compliance & Anonymous Reporting Platform",
     category: "Compliance & Anonymous Reporting",
@@ -332,13 +355,11 @@ export const products: Product[] = [
           "Establish formal speak-up channels for governance compliance."
       }
     ],
-    pricing: "Pricing starts at PHP 150,000/year",
+    pricing: "Pricing starts at around $2,600 USD /year",
     pricingDetails: [
-      "Basic: 50 handlers",
-      "Standard: 200 handlers",
-      "Premium: 1,000 handlers",
+      "3 tier packages available: Basic, Standard, and Premium, based on the number of users and features used",
       "Monthly operational costs are GCP usage-based",
-      "Maintenance starts at PHP 5,000/month"
+      "Maintenance starts at a small price/month"
     ]
   }
 ];

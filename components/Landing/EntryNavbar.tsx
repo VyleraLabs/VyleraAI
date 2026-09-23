@@ -54,6 +54,13 @@ export default function EntryNavbar() {
                     <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald-400 transition-all duration-300 group-hover:w-full" />
                 </Link>
                 <Link
+                    href="/products"
+                    className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-300 hover:text-blue-400 transition-colors duration-300 relative group"
+                >
+                    {t('products')}
+                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-blue-400 transition-all duration-300 group-hover:w-full" />
+                </Link>
+                <Link
                     href="/about"
                     className="text-xs lg:text-sm font-medium tracking-[0.15em] uppercase text-slate-400 hover:text-white transition-colors duration-300 relative group"
                 >

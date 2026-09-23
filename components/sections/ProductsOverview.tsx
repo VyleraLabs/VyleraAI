@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { products, whyVylera } from "@/data/products";
+import ProductMark from "@/components/ProductMark";
 
 const accentStyles = {
   blue: {
@@ -72,8 +73,8 @@ export default function ProductsOverview() {
 
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="flex items-start gap-5 mb-6">
-                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${accent.bg} text-xl font-bold text-white`}>
-                      {product.initial}
+                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${accent.bg} p-3 text-xl font-bold text-white`}>
+                      <ProductMark product={product} />
                     </div>
                     <div>
                       <h2 className="text-2xl md:text-3xl font-serif text-white mb-1">{product.title}</h2>

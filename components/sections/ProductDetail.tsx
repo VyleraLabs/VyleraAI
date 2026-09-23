@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CheckCircle2, Cpu, ShieldCheck } from "lucide-react";
 import type { Product } from "@/data/products";
+import ProductMark from "@/components/ProductMark";
 
 const accentStyles = {
   blue: {
@@ -53,8 +54,8 @@ export default function ProductDetail({ product, related }: { product: Product; 
             transition={{ duration: 0.7 }}
           >
             <div className="flex flex-wrap items-center gap-3 mb-8">
-              <div className={`flex h-14 w-14 items-center justify-center rounded-full ${accent.bg} text-xl font-bold text-white`}>
-                {product.initial}
+              <div className={`flex h-14 w-14 items-center justify-center rounded-full ${accent.bg} p-3 text-xl font-bold text-white`}>
+                <ProductMark product={product} />
               </div>
               <span className={`rounded-full border ${accent.border} ${accent.soft} px-4 py-1.5 text-xs font-bold ${accent.text}`}>
                 {product.category}
