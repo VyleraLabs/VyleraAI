@@ -5,6 +5,20 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/assets/Vylera_Labs_Company_Profile_2026.pdf",
+          destination: "/api/company-profile"
+        },
+        {
+          source: "/assets/COMPROWEB%20Vylera%20Labs%20Indonesia%20-%20AI%20Enterprise%20Solutions%20-%202026.pdf",
+          destination: "/api/company-profile"
+        }
+      ]
+    };
+  },
   images: {
     unoptimized: true,
   },
